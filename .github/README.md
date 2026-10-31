@@ -41,6 +41,7 @@
 
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)_DEFAULTREPOS](https://github.com/n138-kz/_DEFAULTREPOS/)
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)_mondai-syu-kanri-system](https://github.com/n138-kz/mondai-syu-kanri-system)
+- [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)_mondai-syu-kanri-system_2](https://github.com/n138-kz/mondai-syu-kanri-system_2)
 
 ## License
 
