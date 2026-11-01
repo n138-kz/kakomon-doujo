@@ -1,0 +1,64 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: web
+    restart: unless-stopped
+    volumes:
+      - ./docs-contents:/var/www/html:ro
+      - ./container-nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    ports:
+      - "8080-65535:80"
+    networks:
+      default:
+        aliases:
+          - web
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: ./container-app-build/Dockerfile
+    restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - app
+    volumes:
+      - ./container-app:/app:ro
+      - ./docs-contents:/var/www/html:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  db:
+    container_name: db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${INTERNAL_PGDATA_DBNAME:-postgres}
+      POSTGRES_USER: ${INTERNAL_PGDATA_USERID:-postgres}
+      POSTGRES_PASSWORD: ${INTERNAL_PGDATA_PASSWORD:-password}
+    volumes:
+      - ./container-db-build:/docker-entrypoint-initdb.d/
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      default:
+        aliases:
+          - db
+          - database
+  db_admin:
+    container_name: genshin_automate_db_admin
+    image: dpage/pgadmin4:latest
+    restart: no
+    ports:
+      - "8080-65535:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${INTERNAL_PGADMIN_EMAIL:-sqladmin@localhost.local}
+      PGADMIN_DEFAULT_PASSWORD: ${INTERNAL_PGADMIN_PASSWORD:-password}
+    volumes:
+      - pgadmin-store:/var/lib/pgadmin
+    depends_on:
+      - db
+    profiles:
+      - admin
+volumes:
+  pgdata:
+  pgadmin-store:
