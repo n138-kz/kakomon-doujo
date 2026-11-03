@@ -10,6 +10,12 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- TABLE
+DROP TABLE IF EXISTS app_user_role CASCADE;
+CREATE TABLE app_user_role (
+    id INT PRIMARY KEY,
+    description TEXT NOT NULL
+);
+
 DROP TABLE IF EXISTS app_user CASCADE;
 CREATE TABLE app_user (
     id uuid primary key default gen_random_uuid(),
@@ -18,7 +24,10 @@ CREATE TABLE app_user (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     rawjson JSONB NOT NULL DEFAULT '{}',
-    deleted BOOLEAN DEFAULT false
+    deleted BOOLEAN DEFAULT false,
+    role INT not null default 0,
+    CONSTRAINT chk_role_range
+        CHECK (role >= 0 AND role <= 63)
 );
 
 DROP TABLE IF EXISTS app_authn_session CASCADE;
@@ -38,6 +47,16 @@ CREATE TABLE app_authn_session (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- INITIAL DATA
+INSERT INTO app_user_role VALUES
+(0, 'NOBODY'),
+(1, 'READ'),
+(2, 'SEARCH'),
+(4, 'UPDATE'),
+(8, 'REGIST'),
+(16, 'DELETE'),
+(32, 'USERMANAGEMENT');
 
 -- TRIGGER
 CREATE OR REPLACE TRIGGER update_app_user_updated_at
