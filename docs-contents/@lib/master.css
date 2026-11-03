@@ -1,0 +1,40 @@
+@charset "UTF-8";
+@media not screen {
+	:root {
+		display: none;
+	}
+}
+:root {
+	--color-discord-blurple: #5865F2;
+	--color-discord-lightblurple: #E0E3FF;
+}
+html, body {
+	margin: 0;
+	padding: 0;
+	background-color: #999999;
+}
+html {
+	background-color: transparent;
+}
+th {
+	text-align: center;
+}
+td {
+	text-align: left;
+}
+hr {
+	margin: 10px;
+}
+h1, h2, h3, h4, h5, h6 {
+	margin-top: 10px;
+	margin-bottom: 0;
+	font-size: 2em;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+	text-decoration: none;
+	color: unset;
+}
+p {
+	width: 98%;
+	margin: 0 auto;
+}
