@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../@lib/master.css" />
+	<meta http-equiv="refresh" content="300">
+	<style>
+		#auth, #info {
+			background-color: white;
+			width: 80%;
+			margin: 0 auto;
+		}
+		img.icon {
+			width: 2em;
+			height: 2em;
+		}
+		img.qrcode {
+			width: 128px;
+		}
+		form table, form table input[type="text"], form table input[type="password"] {
+			width: stretch;
+		}
+		form table input[type="text"], form table input[type="password"] {
+			height: 2em;
+		}
+		tr td:first-child {
+			width: 150px;
+		}
+	</style>
+	<script>
+		function base64urlToBuffer(base64url) {
+			const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
+			const base64 = (base64url + padding).replace(/-/g, '+').replace(/_/g, '/');
+			const rawData = window.atob(base64);
+			const outputArray = new Uint8Array(rawData.length);
+			for (let i = 0; i < rawData.length; ++i) {
+				outputArray[i] = rawData.charCodeAt(i);
+			}
+			return outputArray.buffer;
+		}
+		function get_GETarray() {
+			let q=(decodeURI(location.search)+'&').replace(/^\?/,'').split('&');
+			let queries=[];
+			for (let i=0; i<q.length; i++) {
+				if(q[i].length>0){
+					if(q[i].indexOf('=')>0){
+						query=q[i].split('=');
+						queries[query[0]]=query[1];
+					} else {
+						queries[q[i]]=null;
+					}
+				}
+			}
+			return queries;
+		}
+		function stringToBinary(str) {
+			const encoder = new TextEncoder();
+			const bytes = encoder.encode(str);
+			return Array.from(bytes)
+				.map(byte => byte.toString(2).padStart(8, '0'))
+				.join('');
+		}
+
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			let data = {
+				'client_id': '',
+				'redirect_uri': location.href.split('?')[0],
+				'response_type': 'code',
+				'scope': 'identify+email',
+			};
+			{
+				let url = '../@lib/config.json/';
+				let req = await fetch(url);
+				let res = await req.text();
+				let bin = JSON.parse(res);
+				data = {...data, ...bin.external.discord.bot};
+				console.log(data);
+			}
+			Array.from(document.querySelectorAll('a[href^="https://discord.com/oauth2/authorize"]')).map((e)=>{
+				e.href = `${e.href}?`.split('?')[0];
+				e.href += `?client_id=${data.client_id}`;
+				e.href += `&redirect_uri=${data.redirect_uri}`;
+				e.href += `&response_type=${data.response_type}`;
+				e.href += `&scope=${data.scope}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('img[src^="https://api.qrserver.com/v1/create-qr-code/"]')).map((e)=>{
+				e.src = e.src.split('?')[0];
+				e.src += `?data=${location.href.split('?')[0]}`;
+				e.alt = `QR code: ${location.href.split('?')[0]}`;
+				e.title = `QR code: ${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('load', async ()=>{
+			let urlparam = get_GETarray();
+			urlparam['code'] = urlparam['code'] ?? null;
+			urlparam['iss'] = urlparam['iss'] ? decodeURIComponent(urlparam['iss']) : null;
+			if (urlparam['code'] !== null && urlparam['iss'] !== null) {
+				/* URLを綺麗にする */
+				history.replaceState(null, '', location.pathname);
+
+				const formData = new FormData();
+				formData.append('credential', btoa(stringToBinary(urlparam['code'])));
+				formData.append('iss', urlparam['iss']);
+				console.log([...formData.entries()]);
+
+				const req = await fetch('./signin/', {
+					method: 'POST',
+					body: formData,
+				});
+				const res = await req.json();
+				if (res.location) {
+					window.location.href = res.location;
+				}
+			}
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			/* * Passkey * */
+			Array.from(document.querySelectorAll('input[name="signin_pkey"]')).forEach((button)=>{
+				if (!navigator.credentials || !navigator.credentials.get) {
+					button.disabled=true;
+				} else {
+					button.addEventListener('click', async (e0)=>{
+						try {
+							const response = await fetch('./generate-assertion-options/', { method: 'POST' });
+							const options = await response.json();
+
+							const publicKeyOptions = {
+								...options,
+								challenge: base64urlToBuffer(options.challenge),
+								allowCredentials: options.allowCredentials?.map(cred => ({
+									...cred,
+									id: base64urlToBuffer(cred.id)
+								}))
+							};
+							console.log(publicKeyOptions);
+
+							const credential = await navigator.credentials.get({
+								publicKey: publicKeyOptions
+							});
+
+							const formData = new FormData();
+							formData.append('credential', JSON.stringify(formatCredentialForServer(credential)));
+
+							console.log([...formData.entries()]);
+
+							await fetch('./signin/', {
+								method: 'POST',
+								body: formData
+							});
+
+							console.log('ログイン成功');
+						} catch (err) {
+							console.error('パスキー認証エラー:', err);
+						}
+					});
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div id="auth">
+		<h2>LOGIN</h2>
+		<p><a target="_self" href="https://discord.com/oauth2/authorize"><img src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d80db9971f10a9757c99_Symbol.svg" class="icon">Discord</a></p>
+		<form method="post">
+			<input type="hidden" value="">
+			<table>
+				<tr>
+					<td>ユーザID</td>
+					<td><input type="text" name="username" autocomplete="username" value=""></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="button" name="signin_pkey" value="パスキーでログイン"></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<div id="info">
+		<p><img src="https://api.qrserver.com/v1/create-qr-code/?data=_" class="qrcode" alt=""></p>
+	</div>
+</body>
+</html>
