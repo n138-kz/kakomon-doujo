@@ -4,11 +4,11 @@ if(false) {
 	phpinfo();
 	exit();
 } elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='ini_get_all'){
-	header('Content-Type: Application/json');
+	header('Content-Type: application/json');
 	echo json_encode(ini_get_all()).PHP_EOL;
 	exit();
 } elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='_server'){
-	header('Content-Type: Application/json');
+	header('Content-Type: application/json');
 	echo json_encode($_SERVER).PHP_EOL;
 	exit();
 }
