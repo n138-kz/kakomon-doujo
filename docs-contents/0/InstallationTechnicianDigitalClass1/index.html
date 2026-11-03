@@ -213,6 +213,7 @@
 						}
 						for (let i=0;i<k;i++) {
 							document.querySelectorAll('#mondai>div>p+p')[1].querySelectorAll('ol>label')[i].querySelector('li').textContent = mondais[index]['sentakushi'][i]['text'];
+							document.querySelectorAll('input[type="radio"][name="_"] + span')[0].textContent = mondais[index]['sentakushi'][i]['text'];
 							document.querySelectorAll('input[type="radio"][name="_"] + span + span')[0].textContent = mondais[index]['sentakushi'][i]['text'];
 							document.querySelectorAll('input[type="radio"][name="_"]')[i].checked = mondais[index]['sentakushi'][i]['selected'];
 						}
