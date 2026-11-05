@@ -107,6 +107,9 @@
 				mondais[i]['mondai']['text'] += '\n';
 			}
 			for (let i=0;i<mondais.length;i++) {
+				mondais[i]['kaisetsu']['text'] += '\n';
+			}
+			for (let i=0;i<mondais.length;i++) {
 				mondais[i]['mondai']['image'] = mondais[i]['mondai']['image'] ?? [{'url':null}];
 			}
 			console.log(mondais);
@@ -146,6 +149,18 @@
 								}
 							}
 						});
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+
+					d.push(document.createElement('p')); {
+						d[d.length-1].dataset.name = 'kakolog';
+						d[d.length-1].style.textAlign = 'right';
+						d.push(document.createElement('small')); {
+							d.push(document.createTextNode(`${mondais[index]['kakosyutsudai'].join(' ')}`)); {
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
 					}
 
@@ -323,7 +338,7 @@
 											d = [];
 											d.push(document.createElement('p')); {
 												d[d.length-1].dataset.name = 'mondai_kaisetsu';
-												d.push(document.createTextNode(mondais[index]['kaisetsu'])); {
+												d.push(document.createTextNode(mondais[index]['kaisetsu']['text'])); {
 													d[d.length-2].appendChild(d[d.length-1]); d.pop();
 												}
 												document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
