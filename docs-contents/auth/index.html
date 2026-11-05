@@ -116,7 +116,14 @@
 					method: 'POST',
 					body: formData,
 				});
-				const res = await req.json();
+				const restext = await req.text();
+				let res = null;
+				try {
+					res = JSON.parse(restext);
+				} catch (err) {
+					console.error(restext);
+				}
+
 				if (res.location) {
 					window.location.href = res.location;
 				}
