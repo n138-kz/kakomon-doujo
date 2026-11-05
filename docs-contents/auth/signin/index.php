@@ -236,7 +236,9 @@ class auth extends local {
 
 
 
-		http_response_code(418);echo '418'.PHP_EOL;
+		header('Content-Type: application/json');
+		http_response_code(401);
+		exit(10401);
 	}
 }
 
