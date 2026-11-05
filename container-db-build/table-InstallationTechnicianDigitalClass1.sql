@@ -21,17 +21,27 @@ CREATE TABLE InstallationTechnicianDigitalClass1_category (
 
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_mondaiset CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
-    id serial primary key,
+    id uuid primary key default gen_random_uuid(),
+    openid text unique not null default gen_random_uuid(),
     mondai jsonb not null,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN default false
 );
 
+--
+-- 払い出した問題のリスト: SID を外部キーにする
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
+    id uuid primary key default gen_random_uuid(),
+    mondai_id uuid not null,
+);
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
+-- 過去に解いた問題のリスト:
+
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
    (1, '基礎'),
    (2, '技術'),
-   (3, '法規');
+   (3, '端末設備の接続に関する法規');
 
 -- TRIGGER
 CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_mondaiset_updated_at
