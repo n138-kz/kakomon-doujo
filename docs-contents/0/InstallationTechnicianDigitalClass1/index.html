@@ -90,6 +90,8 @@
 				});
 				let res = await req.text();
 				let bin = JSON.parse(res);
+				bin = Array.isArray(bin) ? bin:[];
+				if (bin.length <= 0) {return;}
 				mondais = [...mondais, ...bin];
 				
 				storage = {
