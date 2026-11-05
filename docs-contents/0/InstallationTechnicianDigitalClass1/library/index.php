@@ -1,11 +1,9 @@
-<?php
-$requestForm = $_GET ?? [];
-$requestForm['limit'] = $requestForm['limit'] ?? 1;
-$requestForm['limit'] = is_numeric($requestForm['limit']) ? $requestForm['limit'] : 1;
-$testdata = [];
-function generate_uuidv4() {
-    // 16バイトのランダムデータを生成
-    $data = random_bytes(16);
+<?php namespace n138;
+ini_set('display_errors', 1);
+ini_set('error_log', 'php://stderr');
+ini_set('log_errors', 1);
+session_name('sessid');
+session_start();
 
     // バージョン4（ランダムUUID）に設定するためのビット操作
     $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
@@ -25,6 +23,7 @@ for ($i=0;$i<$requestForm['limit'];$i++) {
 					"url" => "",
 					"width" => null,
 					"height" => null,
+use \n138\resource;
 				],
 			],
 		],

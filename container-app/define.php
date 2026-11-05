@@ -1,4 +1,4 @@
-<?php
+<?php namespace n138;
 ini_set('display_errors', 1);
 ini_set('error_log', 'php://stderr');
 ini_set('log_errors', 1);
@@ -75,11 +75,11 @@ class local {
 	protected function connectDB ($conn) {
 		$conn['conndsn'] = "pgsql:host={$conn['host']};port={$conn['port']};dbname={$conn['database']}";
 		try {
-			$conn_database = new PDO($conn['conndsn'], $conn['username'], $conn['password'], [
-				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+			$conn_database = new \PDO($conn['conndsn'], $conn['username'], $conn['password'], [
+				\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
 			]);
 			$this->conn_database = $conn_database;
-		} catch (PDOException $e) {
+		} catch (\PDOException $e) {
 			http_response_code(500);
 			$conn_database = NULL;
 			error_log(__FILE__.'#'.__LINE__.': '. $e->getMessage());
@@ -156,7 +156,7 @@ class exapi {
 				$res_fetched = $stm->fetch();
 				$res_fetched = json_decode($res_fetched[0], true);
 			}
-		} catch (PDOException $e) {
+		} catch (\PDOException $e) {
 			$this->conn_database->rollback();
 			error_log('Error has occured on '.__FILE__.'#'.__LINE__);
 			error_log('PDO Error has occured: '.$e->getMessage());
@@ -198,7 +198,7 @@ class exapi {
 				$stm = $this->conn_database->prepare($sql);
 				$res = $stm->execute([$ipaddress, json_encode($res)]);
 				$this->conn_database->commit();
-			} catch (PDOException $e) {
+			} catch (\PDOException $e) {
 				$this->conn_database->rollback();
 				error_log('Error has occured on '.__FILE__.'#'.__LINE__);
 				error_log('PDO Error has occured: '.$e->getMessage());

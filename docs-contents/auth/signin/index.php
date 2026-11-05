@@ -1,4 +1,4 @@
-<?php
+<?php namespace n138;
 ini_set('display_errors', 1);
 ini_set('error_log', 'php://stderr');
 ini_set('log_errors', 1);
@@ -38,10 +38,10 @@ class auth extends local {
 	}
 	public function main () {
 		self::init();
-		$proc_local = new \local();
+		$proc_local = new local();
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);
-		$proc_exapi = new \exapi($config, $conn_database);
+		$proc_exapi = new exapi($config, $conn_database);
 
 		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry($_SERVER['REMOTE_ADDR']);
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
@@ -85,7 +85,7 @@ class auth extends local {
 				if (isset($curl_res['id_token'])) { $curl_res['id_token'] = null; }
 				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 				if (isset($curl_res['error']) || isset($curl_res['error_description'])) {
-					throw new Exception(trim("{$curl_res['error']}: {$curl_res['error_description']}"));
+					throw new \Exception(trim("{$curl_res['error']}: {$curl_res['error_description']}"));
 				}
 				$curl_res['issued_at'] = time();
 				$curl_res['expires_in'] = $curl_res['expires_in'] ?? 0;
@@ -107,7 +107,7 @@ class auth extends local {
 				$curl_req=null;
 				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 				if (isset($curl_res['error']) || isset($curl_res['error_description'])) {
-					throw new Exception(trim("{$curl_res['error']}: {$curl_res['error_description']}"));
+					throw new \Exception(trim("{$curl_res['error']}: {$curl_res['error_description']}"));
 				}
 
 				$discord_isStatus = [
@@ -117,7 +117,7 @@ class auth extends local {
 				if (isset($curl_res['id']) && $discord_isStatus['verified'] && $discord_isStatus['mfa_enabled']) {
 					$discord_user = $curl_res;
 				} else {
-					throw new Exception('[AUTHORIZATION REJECT] The security of your account could not be verified. Please try again after completing Discord email address verification and setting up two-factor authentication (2FA).');
+					throw new \Exception('[AUTHORIZATION REJECT] The security of your account could not be verified. Please try again after completing Discord email address verification and setting up two-factor authentication (2FA).');
 				}
 			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
@@ -141,7 +141,7 @@ class auth extends local {
 					$res = $stm->execute([$discord_user['id']]);
 					$this->conn_database->commit();
 					if ($stm->rowCount()>0) {
-						$res = $stm->fetch(PDO::FETCH_ASSOC);
+						$res = $stm->fetch(\PDO::FETCH_ASSOC);
 						$res['id'] = $res['id'] ?? '_';
 						$res['rawjson'] = json_decode($res['rawjson'], true) ?? [];
 						$session_user = $res;
@@ -189,7 +189,7 @@ class auth extends local {
 					self::ipaddress_get(),
 				]);
 				if ($stm->rowCount()>0) {
-					$res = $stm->fetch(PDO::FETCH_ASSOC);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
 
 					session_regenerate_id(true);
 					$_SESSION['uid'] = $res['uid'];
@@ -220,7 +220,7 @@ class auth extends local {
 						$this->conn_database->rollback();
 					}
 				}
-			} catch (PDOException $e) {
+			} catch (\PDOException $e) {
 				if ($this->conn_database->inTransaction()) {
 					$this->conn_database->rollback();
 				}
@@ -243,5 +243,6 @@ class auth extends local {
 }
 
 header('Content-Type: application/json');
-$proc = new \auth();
+use \n138\auth;
+$proc = new auth();
 $proc->main();
