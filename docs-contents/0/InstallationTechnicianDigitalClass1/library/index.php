@@ -5,24 +5,7 @@ ini_set('log_errors', 1);
 session_name('sessid');
 session_start();
 
-    // バージョン4（ランダムUUID）に設定するためのビット操作
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
-    // バリアント（RFC 4122）に設定するためのビット操作
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
 
-    // 32文字の16進数文字列に変換し、ハイフンで区切る
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-}
-for ($i=0;$i<$requestForm['limit'];$i++) {
-	array_push($testdata, [
-		"id" => generate_uuidv4(),
-		"mondai" => [
-			"text" => "次の各文章の内に、それぞれの解答群の中から、最も適したものを選び、その番号を記せ。\n次の文章のうち、正しいものは、(　)である。\n".base64_encode(random_bytes(64))."\n".base64_encode(random_bytes(64))."\n".base64_encode(random_bytes(64))."\n".base64_encode(random_bytes(64))."\n".base64_encode(random_bytes(64)),
-			"image" => [
-				[
-					"url" => "",
-					"width" => null,
-					"height" => null,
 use \n138\resource;
 				],
 			],
