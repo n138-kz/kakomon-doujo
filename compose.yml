@@ -45,7 +45,7 @@ services:
           - db
           - database
   db_admin:
-    container_name: genshin_automate_db_admin
+    container_name: db_admin
     image: dpage/pgadmin4:latest
     restart: no
     ports:
