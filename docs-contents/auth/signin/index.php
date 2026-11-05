@@ -10,13 +10,8 @@ class auth extends local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
 	private $conn_database = null;
-	private function init () {
-		for($i=0;$i<10;$i++){
-			error_log('');
-		}
-		error_log('------------------------------');
-		error_log('php version: '.phpversion());
-		return;
+	public function __construct () {
+		local::init();
 	}
 	private function binaryToString ($str) {
 		$binaryStr = base64_decode($str);
@@ -37,7 +32,6 @@ class auth extends local {
 		return $_SERVER['REMOTE_ADDR'];
 	}
 	public function main () {
-		self::init();
 		$proc_local = new local();
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);

@@ -7,6 +7,15 @@ class local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
 	private $conn_database = null;
+	protected function init () {
+		for($i=0;$i<10;$i++){
+			error_log('');
+		}
+		error_log('------------------------------');
+		error_log('php version: '.phpversion());
+		error_log('script file: '.debug_backtrace()[0]['file']);
+		return;
+	}
 	public function config ($method='get',$data=[]) {
 		$keypare = self::keypare_create();
 		$default = [];
