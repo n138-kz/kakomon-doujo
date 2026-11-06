@@ -151,6 +151,47 @@ class resource extends local {
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
 
+		} elseif ($method == 'update') {
+			$options['id'] = $options['id'] ?? null;
+			$options['id'] = $options['id']!='' ? $options['id'] : null;
+			if (is_null($options['id'])) { return; }
+
+			if (self::mondais('getbyid',['id'=>$options['id']])['summary']!==1) {
+				return;
+			}
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = "UPDATE InstallationTechnicianDigitalClass1_mondaiset SET openid=:item WHERE id=:id;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([
+						'item'=>$options['openid'],
+						'id'=>$options['id'],
+					]);
+					$sql = "UPDATE InstallationTechnicianDigitalClass1_mondaiset SET deleted=:item WHERE id=:id;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([
+						'item'=>(!empty($options['deleted']) ? 1 : 0),
+						'id'=>$options['id'],
+					]);
+					$sql = "UPDATE InstallationTechnicianDigitalClass1_mondaiset SET mondai=:item WHERE id=:id;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([
+						'item'=>json_encode($options['mondai'],JSON_UNESCAPED_UNICODE),
+						'id'=>$options['id'],
+					]);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'options' => $options,
+					'content' => self::mondais('getbyid',['id'=>$options['id']])['content'],
+					'summary' => self::mondais('getbyid',['id'=>$options['id']])['summary'],
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
 		} elseif ($method == 'count') {
 			$mondais_category = self::mondais_category('get');
 			try {
