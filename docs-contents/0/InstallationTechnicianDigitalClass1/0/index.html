@@ -561,8 +561,6 @@
 				return htmlDom.length === 1;
 			}
 			const updateResource = async (index=0) => {
-				console.log(mondais[index]);
-
 				if (itemIsUnique(document.querySelectorAll('input[data-colname="openid"]'))) {
 					mondais[index]['openid'] = document.querySelector('input[data-colname="openid"]').value;
 				}
