@@ -454,6 +454,8 @@
 				}
 				document.querySelector('body>div.container').appendChild(d[d.length-1]);
 
+				/* URLを綺麗にする */
+				history.replaceState(null, '', location.pathname);
 			}
 			buildPage_20261106a();
 		});
