@@ -161,6 +161,11 @@ class local {
 			}
 		}
 	}
+	public function update_expires_at() {
+		$_SESSION = array_merge($_SESSION, self::session_table('refresh-expire'));
+		$_SESSION['expires_at'] = $_SESSION['expires_at'] ?? 0;
+		return;
+	}
 }
 
 class exapi {

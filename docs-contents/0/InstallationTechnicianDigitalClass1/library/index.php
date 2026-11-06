@@ -15,11 +15,6 @@ class resource extends local {
 		$this->config = parent::config('get');
 		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
-	function update_expires_at() {
-		$_SESSION = array_merge($_SESSION, self::session_table('refresh-expire'));
-		$_SESSION['expires_at'] = $_SESSION['expires_at'] ?? 0;
-		return;
-	}
 	function mondais($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
