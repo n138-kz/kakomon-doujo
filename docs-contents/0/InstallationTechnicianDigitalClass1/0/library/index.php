@@ -309,7 +309,7 @@ if (false) {
 
 	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
 		error_log('uuid: '.$_POST['id']);
-		error_log(__LINE__.PHP_EOL.var_export($proc->mondais('update', $_POST),1));
+		error_log(__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
 	}
 
 	http_response_code(204);
