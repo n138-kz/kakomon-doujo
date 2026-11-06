@@ -78,6 +78,8 @@
 			return queries;
 		}
 		window.addEventListener('DOMContentLoaded', async ()=>{
+			let category = [];
+			let summary = [];
 			let mondais = [];
 			{
 				let token = '';
@@ -99,25 +101,303 @@
 				let bin;
 				try {
 					bin = JSON.parse(res);
+					console.debug(bin);
 					bin = bin['data'] ?? [];
+					category = bin['mondais_category'] ?? [];
+					summary = bin['mondais_summary'] ?? [];
 					bin = bin['mondais'] ?? [];
+					bin = Array.isArray(bin) ? bin : [];
+					mondais = [...mondais, ...bin];
 				} catch (error) {
 					console.error(res);
 					return;
 				}
-				bin = Array.isArray(bin) ? bin:[];
 				if (bin.length <= 0) {
 					console.warn(bin);
 					console.warn(`\${array}.length: ${bin.length}`);
 					return;
 				}
-				mondais = [...mondais, ...bin];
+				console.log(bin);
 			}
 
 			const buildPage_20261106a = (index=0) => {
 				if (document.querySelectorAll('body>div.container').length > 1) { return; }
 				document.querySelector('body>div.container').textContent='';
 				console.log('buildPage_20261106a', index);
+				const d = [];
+
+				const d_category = [];
+				d_category.push(document.createElement('select')); {
+					for (let i=0;i<category.length;i++) {
+						d_category[d_category.length-1].appendChild(new Option(category[i]['name'], category[i]['id']));
+					}
+				}
+
+				d.push(document.createElement('div')); {
+					d[d.length-1].dataset.index = index;
+					d.push(document.createElement('table')); {
+						d.push(document.createElement('tbody')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '内部ID';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].textContent = mondais[index]['id'];
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '公開ID';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].value = mondais[index]['openid'];
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '登録日時';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].textContent = mondais[index]['created_at'];
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '最終更新日時';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].textContent = mondais[index]['updated_at'];
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '非公開';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('label')); {
+										d.push(document.createElement('input')); {
+											d[d.length-1].type = 'checkbox';
+											d[d.length-1].checked = mondais[index]['deleted'];
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = 'カテゴリー';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d_category[0].value=mondais[index]['mondai']['category'] ?? 0;
+									d[d.length-1].appendChild(d_category[0]);
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '過去出題年月';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].textContent = JSON.stringify(mondais[index]['mondai']['kakosyutsudai']);
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '問題';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('textarea')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].style.height = '5em';
+										d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '解答選択肢';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									for (let i=0;i<mondais[index]['mondai']['sentakushi'].length;i++) {
+										d.push(document.createElement('label')); {
+											d.push(document.createElement('input')); {
+												d[d.length-1].type = 'radio';
+												d[d.length-1].name = '_';
+												d[d.length-1].checked = mondais[index]['mondai']['sentakushi'][i]['answer'];
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											d.push(document.createTextNode(i+1)); {}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('input')); {
+											{
+												if (CSS.supports('width', 'stretch')) {
+													d[d.length-1].style.width = 'calc(100% - 40px)';
+												} else if (CSS.supports('width', '-webkit-fill-available')) {
+													d[d.length-1].style.width = '-webkit-fill-available';
+												} else {
+													d[d.length-1].style.width = '100%';
+												}
+											}
+											d[d.length-1].value = mondais[index]['mondai']['sentakushi'][i]['text'];
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '解説';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('textarea')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].style.height = '15em';
+										d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('hr')); {}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('div')); {
+					d[d.length-1].dataset.name = 'search_result';
+					//d[d.length-1].style.display='none';
+					d.push(document.createElement('table')); {
+						// d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						d.push(document.createElement('thead')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '#';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '問題文';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '非公開';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						d.push(document.createElement('tbody')); {
+							for (let i=0;i<mondais.length;i++) {
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('td')); {
+										d.push(document.createTextNode(mondais[i]['openid'])); {
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('td')); {
+										d[d.length-1].textContent = mondais[i]['mondai']['mondai']['text'];
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('td')); {
+										d.push(document.createElement('input')); {
+											d[d.length-1].type = 'checkbox';
+											d[d.length-1].dataset.checked = mondais[i]['deleted'];
+											d[d.length-1].checked = mondais[i]['deleted'];
+											d[d.length-1].addEventListener('click', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('keydown', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('keypress', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('touchstart', (e)=>{e.preventDefault(); return false;});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
 			}
 			buildPage_20261106a();
 		});
