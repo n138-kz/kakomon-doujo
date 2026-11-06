@@ -15,6 +15,31 @@ class resource extends local {
 		$this->config = parent::config('get');
 		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
+	public function mondais_category($method='get', $options=[]) {
+		if (false){
+		} elseif ($method == 'get') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_category ORDER BY id ASC;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute();
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'options' => $options,
+					'content' => $res,
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		} else {
+			error_log('Unknown params $1: ');
+		}
+	}
 	public function mondais($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
@@ -43,6 +68,7 @@ class resource extends local {
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
 		} elseif ($method == 'count') {
+			$mondais_category = self::mondais_category('get');
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
