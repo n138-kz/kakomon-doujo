@@ -342,9 +342,18 @@
 											d = [];
 											d.push(document.createElement('p')); {
 												d[d.length-1].dataset.name = 'mondai_kaisetsu';
-												d.push(document.createTextNode(mondais[index]['kaisetsu']['text'])); {
-													d[d.length-2].appendChild(d[d.length-1]); d.pop();
-												}
+												d[d.length-1].style.overflowWrap = 'anywhere';
+												d[d.length-1].style.overflowX = 'hidden';
+												mondais[index]['kaisetsu']['text'].split('\n').forEach((v)=>{
+													if (v.length>0) {
+														d.push(document.createTextNode(v)); {
+															d[d.length-2].appendChild(d[d.length-1]); d.pop();
+														}
+														d.push(document.createElement('br')); {
+															d[d.length-2].appendChild(d[d.length-1]); d.pop();
+														}
+													}
+												});
 												document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
 											}
 										}
