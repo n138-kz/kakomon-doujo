@@ -88,6 +88,10 @@
 						'Content-Type': 'application/json',
 					},
 				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../../auth/');
+				}
 				let res = await req.text();
 				let bin = JSON.parse(res);
 				bin = Array.isArray(bin) ? bin:[];

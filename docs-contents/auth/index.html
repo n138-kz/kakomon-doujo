@@ -73,11 +73,14 @@
 			{
 				let url = '../@lib/config.json/';
 				let req = await fetch(url);
+				console.log(req.status, req.statusText);
+
 				let res = await req.text();
 				let bin = JSON.parse(res);
 				data = {...data, ...bin.external.discord.bot};
 				console.log(data);
 			}
+
 			Array.from(document.querySelectorAll('a[href^="https://discord.com/oauth2/authorize"]')).map((e)=>{
 				e.href = `${e.href}?`.split('?')[0];
 				e.href += `?client_id=${data.client_id}`;
@@ -116,6 +119,8 @@
 					method: 'POST',
 					body: formData,
 				});
+				console.log(req.status, req.statusText);
+
 				const restext = await req.text();
 				let res = null;
 				try {
@@ -138,6 +143,8 @@
 					button.addEventListener('click', async (e0)=>{
 						try {
 							const response = await fetch('./generate-assertion-options/', { method: 'POST' });
+							console.log(response.status, response.statusText);
+
 							const options = await response.json();
 
 							const publicKeyOptions = {
@@ -159,10 +166,11 @@
 
 							console.log([...formData.entries()]);
 
-							await fetch('./signin/', {
+							const req = await fetch('./signin/', {
 								method: 'POST',
 								body: formData
 							});
+							console.log(req.status, req.statusText);
 
 							console.log('ログイン成功');
 						} catch (err) {
