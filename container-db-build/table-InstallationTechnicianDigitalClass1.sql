@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
 );
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
-   (1, '基礎'),
-   (2, '技術'),
+   (1, '電気通信技術の基礎'),
+   (2, '端末設備の接続のための技術及び理論'),
    (3, '端末設備の接続に関する法規');
 
 -- TRIGGER
