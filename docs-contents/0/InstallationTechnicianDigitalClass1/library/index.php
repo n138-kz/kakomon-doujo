@@ -93,7 +93,7 @@ class resource extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = "SELECT m.id internal_id,m.openid id,m.mondai,c.name FROM InstallationTechnicianDigitalClass1_mondaiset m JOIN installationtechniciandigitalclass1_category c ON m.mondai->>'category' = c.id::text WHERE deleted = false ORDER BY random() LIMIT ?;";
+					$sql = "SELECT * FROM vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais LIMIT ?;";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$options['limit']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
