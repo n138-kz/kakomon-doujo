@@ -38,3 +38,6 @@ p {
 	width: 98%;
 	margin: 0 auto;
 }
+.hideElement {
+	display: none;
+}
