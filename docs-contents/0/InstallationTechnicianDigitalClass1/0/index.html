@@ -586,13 +586,14 @@
 					mondais[index]['mondai']['kaisetsu']['text'] = document.querySelector('textarea[data-colname="kaisetsu_text"]').value;
 				}
 				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_text"]').length;i++) {
+					mondais[index]['mondai']['sentakushi'][i] = mondais[index]['mondai']['sentakushi'][i] ?? [];
 					mondais[index]['mondai']['sentakushi'][i]['text'] = document.querySelectorAll('input[data-colname="sentakushi_text"]')[i].value;
 				}
 				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_answer"]').length;i++) {
-					mondais[index]['mondai']['sentakushi'][i]['answer'], document.querySelectorAll('input[data-colname="sentakushi_answer"]')[i].value;
+					mondais[index]['mondai']['sentakushi'][i]['answer'] = document.querySelectorAll('input[data-colname="sentakushi_answer"]')[i].checked;
 				}
 
-				document.getElementById('jsoncheck2').value = JSON.stringify(mondais[index], null, "\t");
+				console.log(mondais[index]);
 			}
 
 			{
