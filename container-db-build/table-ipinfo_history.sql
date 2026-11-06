@@ -31,12 +31,15 @@ CREATE TABLE ipinfo_history (
 );
 
 -- INSERT (127.0.0.0/8 の一括挿入)
-INSERT INTO ipinfo_history (ip, rawjson)
-    SELECT ip::inet, jsonb_build_object('ip', ip) AS rawjson
-        FROM (
-            SELECT '127.' || (i >> 16 & 255) || '.' || (i >> 8 & 255) || '.' || (i & 255) AS ip
-                FROM generate_series(0, 16777215) AS i
-        ) sub;
+-- INSERT INTO ipinfo_history (ip, rawjson)
+--     SELECT ip::inet, jsonb_build_object('ip', ip) AS rawjson
+--         FROM (
+--             SELECT '127.' || (i >> 16 & 255) || '.' || (i >> 8 & 255) || '.' || (i & 255) AS ip
+--                 FROM generate_series(0, 16777215) AS i
+--         ) sub;
+--
+-- begin; delete from public.ipinfo_history where  ip << '127.0.0.0/8'::cidr; commit;
+-- SELECT * FROM public.ipinfo_history WHERE ip << '127.0.0.0/8'::cidr ORDER BY ip ASC LIMIT 10;
 
 ALTER TABLE ipinfo_history ADD CONSTRAINT ipinfo_history_pkey PRIMARY KEY (ip);
 
