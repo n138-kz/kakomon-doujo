@@ -202,6 +202,7 @@
 											}
 										}
 										d[d.length-1].value = mondais[index]['openid'];
+										d[d.length-1].dataset.colname = 'openid';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -243,6 +244,7 @@
 										d.push(document.createElement('input')); {
 											d[d.length-1].type = 'checkbox';
 											d[d.length-1].checked = mondais[index]['deleted'];
+											d[d.length-1].dataset.colname = 'deleted';
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
@@ -259,6 +261,7 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									d_category[0].value=mondais[index]['mondai']['category'] ?? 0;
+									d_category[0].dataset.colname = 'category';
 									d[d.length-1].appendChild(d_category[0]);
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -282,6 +285,7 @@
 											}
 										}
 										d[d.length-1].value = mondais[index]['mondai']['kakosyutsudai'].join();
+										d[d.length-1].dataset.colname = 'kakosyutsudai';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -307,6 +311,7 @@
 										}
 										d[d.length-1].style.height = '5em';
 										d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
+										d[d.length-1].dataset.colname = 'mondai_text';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -326,6 +331,7 @@
 												d[d.length-1].type = 'radio';
 												d[d.length-1].name = '_';
 												d[d.length-1].checked = mondais[index]['mondai']['sentakushi'][i]['answer'];
+												d[d.length-1].dataset.colname = 'sentakushi_answer';
 											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 											d.push(document.createTextNode(i+1)); {}
@@ -343,6 +349,7 @@
 												}
 											}
 											d[d.length-1].value = mondais[index]['mondai']['sentakushi'][i]['text'];
+											d[d.length-1].dataset.colname = 'sentakushi_text';
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
@@ -369,6 +376,7 @@
 										}
 										d[d.length-1].style.height = '15em';
 										d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
+										d[d.length-1].dataset.colname = 'kaisetsu_text';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
