@@ -205,7 +205,7 @@ class auth extends local {
 					http_response_code(200);
 					echo json_encode([
 						'status' => 200,
-						'location' => '../../0/InstallationTechnicianDigitalClass1/?sid=' . urlencode($_SESSION['sid']),
+						'location' => '../../0/',
 						'message' => 'Authentication Success',
 					], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 					exit;
