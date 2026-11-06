@@ -166,6 +166,18 @@ class local {
 		$_SESSION['expires_at'] = $_SESSION['expires_at'] ?? 0;
 		return;
 	}
+	public function generate_uuidv4() {
+		// 16バイトのランダムデータを生成
+		$data = random_bytes(16);
+
+		// バージョン4（ランダムUUID）に設定するためのビット操作
+		$data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+		// バリアント（RFC 4122）に設定するためのビット操作
+		$data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+
+		// 32文字の16進数文字列に変換し、ハイフンで区切る
+		return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+	}
 }
 
 class exapi {
