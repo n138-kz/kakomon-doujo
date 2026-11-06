@@ -162,15 +162,4 @@ $proc = new resource();
 header('Content-Type: text/plain');
 $proc->checkAuthn();
 $proc->update_expires_at();
-
-header('Content-Type: application/json');
-http_response_code(200);
-echo json_encode([
-    'status'=>http_response_code(),
-    'data' => [
-        'mondais' => [
-            ['id'=>$proc->generate_uuidv4(),]
         ],
-    ]
-]);
-exit;
