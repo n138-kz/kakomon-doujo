@@ -482,7 +482,13 @@
 				/* URLを綺麗にする */
 				history.replaceState(null, '', location.pathname);
 			}
-			buildPage_20261106a();
+
+			{
+				const urlparams = get_GETarray();
+				urlparams['index'] = urlparams['index'] ?? 0;
+				urlparams['index'] = Number.isInteger(Number(urlparams['index'])) ? 1*urlparams['index'] : 0;
+				buildPage_20261106a(urlparams['index']);
+			}
 		});
     </script>
 </head>
