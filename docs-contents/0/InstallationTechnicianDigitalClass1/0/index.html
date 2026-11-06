@@ -8,14 +8,44 @@
 	<style>
 		.container {
 			display: flex;
-			width: 100vw;
+			width: stretch;
 			align-items: stretch;
+			flex-direction: column;
 		}
 		#InstallationTechnicianDigitalClass1 {
 			background-color: white;
 			box-sizing: border-box;
 			width: 98vw;
             margin: 0 auto;
+		}
+		textarea {
+			min-width: 100px;
+			min-height: 100px;
+		}
+		div[data-index] table {
+			background-color: aliceblue;
+		}
+		div[data-index] table th {
+			min-width: 100px;
+			text-align: left;
+		}
+		div[data-name="search_result"] {
+			width: stretch;
+			margin: 0 auto;
+		}
+		div[data-name="search_result"] table {
+			margin: 0 auto;
+			background-color: aliceblue;
+		}
+		div[data-name="search_result"] table td:first-child {
+			width: 100px;
+		}
+		div[data-name="search_result"] table td:last-child {
+			width: 60px;
+			text-align: center;
+		}
+		div[data-name="search_result"] table, div[data-name="search_result"] table th, div[data-name="search_result"] table td {
+			border: solid 1px #333;
 		}
 	</style>
 	<script>
