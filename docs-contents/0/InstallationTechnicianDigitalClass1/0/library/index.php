@@ -126,6 +126,31 @@ class resource extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
+		} elseif ($method == 'getbyid') {
+            $options['id'] = $options['id'] ?? null;
+            $options['id'] = $options['id']!='' ? $options['id'] : null;
+            if (is_null($options['id'])) { return; }
+
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset WHERE id=?;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$options['id']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'options' => $options,
+					'content' => $res,
+                    'summary' => $stm->rowCount(),
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+
 		} elseif ($method == 'count') {
             $mondais_category = self::mondais_category('get');
 			try {
@@ -153,7 +178,7 @@ class resource extends local {
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
 		} else {
-			error_log('Unknown params $1: ');
+			error_log('Unknown params $1: '.$method);
 		}
     }
 }
@@ -203,4 +228,45 @@ if (false) {
         ]
     ]);
     exit;
+} elseif ($_SERVER['REQUEST_METHOD']=='POST') {
+    if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0)) {
+        http_response_code(403);
+        header('Content-Type: application/json');
+        die(json_encode([
+            'status' => http_response_code(),
+            'user' => [
+                'permission' => [
+                    'role' => $role['user'],
+                    'role_catalog' => $role['role_descr'],
+                    'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE,
+                    'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0),
+                ]
+            ],
+            'error' => [
+                'title' => 'Forbidden.',
+                'message' => 'You are NOT having permission on this resource.',
+            ],
+        ]));
+    }
+    header('Content-Type: application/json; charset=UTF-8');
+    $_POST = file_get_contents('php://input');
+    $_POST = json_decode($_POST, true);
+    $_REQUEST = array_merge($_REQUEST, $_POST);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        http_response_code(400);
+        die(json_encode([
+            'status' => http_response_code(),
+            'error' => [
+                'title' => 'Invalid JSON.',
+                'message' => 'Contains invalid JSON format.',
+            ],
+        ]));
+    }
+
+    if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
+        error_log('uuid: '.$_POST['id']);
+        error_log(__LINE__.PHP_EOL.var_export($proc->mondais('update', $_POST),1));
+    }
+
+    http_response_code(204);
 }
