@@ -45,6 +45,16 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
 );
 
 -- 過去に解いた問題のリスト:
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_log CASCADE;
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
+    id uuid primary key default gen_random_uuid(),
+    mondai_id uuid not null,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_answed varchar(4),
+    correct_mondai BOOLEAN DEFAULT false,
+    user_id uuid not null
+);
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
    (1, '基礎'),
