@@ -270,7 +270,19 @@
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
-									d[d.length-1].textContent = JSON.stringify(mondais[index]['mondai']['kakosyutsudai']);
+									d.push(document.createElement('input')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].value = mondais[index]['mondai']['kakosyutsudai'].join();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
