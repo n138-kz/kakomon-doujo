@@ -50,13 +50,18 @@ CREATE TABLE app_authn_session (
 
 -- INITIAL DATA
 INSERT INTO app_user_role VALUES
-(0, 'NOBODY'),
-(1, 'READ'),
-(2, 'SEARCH'),
-(4, 'UPDATE'),
-(8, 'REGIST'),
+(0,  'NONE'),
+(1,  'SEARCH'),
+(2,  'READ'),
+(4,  'UPDATE'),
+(8,  'REGIST'),
 (16, 'DELETE'),
-(32, 'USERMANAGEMENT');
+(32, 'MANAGE'),
+(3,  'COMBI_READ'),
+(7,  'COMBI_UPDATE'),
+(15, 'COMBI_REGIST'),
+(31, 'COMBI_DELETE'),
+(63, 'COMBI_MANAGE');
 
 -- TRIGGER
 CREATE OR REPLACE TRIGGER update_app_user_updated_at
