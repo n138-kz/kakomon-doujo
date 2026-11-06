@@ -42,7 +42,7 @@ CREATE TABLE app_authn_session (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_userid
-        FOREIGN KEY (userid) 
+        FOREIGN KEY (userid)
         REFERENCES app_user(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
