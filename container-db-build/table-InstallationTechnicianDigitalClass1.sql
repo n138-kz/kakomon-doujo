@@ -31,11 +31,19 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
 
 --
 -- 払い出した問題のリスト: SID を外部キーにする
+-- 答案提出後にリセットする
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
     id uuid primary key default gen_random_uuid(),
     mondai_id uuid not null,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_answed varchar(4),
+    correct_mondai BOOLEAN DEFAULT false,
+    user_id uuid not null,
+    session_id uuid not null
 );
-DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
+
 -- 過去に解いた問題のリスト:
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
