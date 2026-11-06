@@ -19,7 +19,7 @@ class resource extends local {
         try {
             if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
             {
-                $sql = 'SELECT * FROM app_user_role';
+                $sql = 'SELECT * FROM app_user_role ORDER BY id';
                 $stm = $this->conn_database->prepare($sql);
                 $stm->execute();
                 $role_descr = $res = $stm->fetchAll(\PDO::FETCH_ASSOC);
