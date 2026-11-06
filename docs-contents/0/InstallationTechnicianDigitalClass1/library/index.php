@@ -89,6 +89,7 @@ class resource extends local {
 		} elseif ($method == 'get') {
 			$options['limit'] = $options['limit'] ?? 1;
 			$options['limit'] = is_numeric($options['limit']) ? 1*$options['limit'] : 1;
+			$options['limit'] = (1*$options['limit'])>0 ? 1*$options['limit'] : 1;
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
@@ -125,6 +126,7 @@ $proc->update_expires_at();
 $requestForm = $_GET ?? [];
 $requestForm['limit'] = $requestForm['limit'] ?? 1;
 $requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
+$requestForm['limit'] = (1*$requestForm['limit'])>0 ? 1*$requestForm['limit'] : 1;
 
 $content = $proc->mondais('get', $requestForm)['content'];
 foreach ($content as $k => $v) {
