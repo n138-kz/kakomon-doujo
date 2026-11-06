@@ -5,6 +5,9 @@
 Backup/
 backup/
 *.bak*
+*.xz
+*.gz
+*.zip
 
 # Temporary files
 *.tmp
