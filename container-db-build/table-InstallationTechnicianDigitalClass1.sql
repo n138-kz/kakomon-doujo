@@ -67,3 +67,10 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_mondaiset_updated_
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 COMMIT;
+
+-- VIEW
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
+SELECT m.id internal_id, m.openid id, m.mondai,c.name FROM InstallationTechnicianDigitalClass1_mondaiset m
+JOIN installationtechniciandigitalclass1_category c
+ON m.mondai->>'category' = c.id::text
+WHERE deleted = false ORDER BY random();
