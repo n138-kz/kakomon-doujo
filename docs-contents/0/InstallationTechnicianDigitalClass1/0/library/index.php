@@ -57,7 +57,7 @@ class resource extends local {
             error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
         }
     }
-	function mondais_category($method='get', $options=[]) {
+	public function mondais_category($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
 			try {
