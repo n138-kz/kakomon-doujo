@@ -182,4 +182,25 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0)) {
         ],
     ]));
 }
+if (false) {
+} elseif ($_SERVER['REQUEST_METHOD']=='GET') {
+    header('Content-Type: application/json');
+    http_response_code(200);
+    echo json_encode([
+        'status'=>http_response_code(),
+        'user' => [
+            'permission' => [
+                'role' => $role['user'],
+                'role_catalog' => $role['role_descr'],
+                'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE,
+                'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0),
+            ]
         ],
+        'data' => [
+            'mondais' => $proc->mondais('get')['content'],
+            'mondais_category' => $proc->mondais_category()['content'],
+            'mondais_summary' => $proc->mondais('count'),
+        ]
+    ]);
+    exit;
+}
