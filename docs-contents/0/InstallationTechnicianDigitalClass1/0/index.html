@@ -383,6 +383,27 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.width = '100px';
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Apply (a)';
+										d[d.length-1].addEventListener('click', ()=>{
+											updateResource(index);
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
 						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
 					}
