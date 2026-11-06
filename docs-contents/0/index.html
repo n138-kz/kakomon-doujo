@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../@lib/master.css" />
+	<style>
+		.container {
+			display: flex;
+			width: 100vw;
+			align-items: stretch;
+		}
+		#InstallationTechnicianDigitalClass1 {
+			background-color: white;
+			box-sizing: border-box;
+			width: 98vw;
+            margin: 0 auto;
+		}
+	</style>
+	<script>
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('img[src^="https://api.qrserver.com/v1/create-qr-code/"]')).map((e)=>{
+				e.src = e.src.split('?')[0];
+				e.src += `?data=${location.href.split('?')[0]}`;
+				e.alt = `QR code: ${location.href.split('?')[0]}`;
+				e.title = `QR code: ${location.href.split('?')[0]}`;
+			});
+		});
+		function get_GETarray() {
+			let q=(decodeURI(location.search)+'&').replace(/^\?/,'').split('&');
+			let queries=[];
+			for (let i=0; i<q.length; i++) {
+				if(q[i].length>0){
+					if(q[i].indexOf('=')>0){
+						query=q[i].split('=');
+						queries[query[0]]=query[1];
+					} else {
+						queries[q[i]]=null;
+					}
+				}
+			}
+			return queries;
+		}
+    </script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div class="container">
+		<div id="InstallationTechnicianDigitalClass1">
+		<h2>工事担任者 デジタル1級</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>問題数</th>
+                        <td><input type="number" value="5" min="1"></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="button" value="演習開始" data-href="./InstallationTechnicianDigitalClass1/?limit" onclick="location.href=(this.dataset.href.split('?')[0]+'?limit='+this.parentElement.parentElement.parentElement.querySelector('input[type=\'number\']').value);"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+	</div>
+</body>
+</html>
