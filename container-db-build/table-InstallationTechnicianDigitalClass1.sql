@@ -74,3 +74,9 @@ SELECT m.id internal_id, m.openid id, m.mondai,c.name FROM InstallationTechnicia
 JOIN installationtechniciandigitalclass1_category c
 ON m.mondai->>'category' = c.id::text
 WHERE deleted = false ORDER BY random();
+
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
+SELECT (SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET) count_all,
+(SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET WHERE MONDAI ->> 'category' = '1' ) count_category_1,
+(SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET WHERE MONDAI ->> 'category' = '2' ) count_category_2,
+(SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET WHERE MONDAI ->> 'category' = '3' ) count_category_3;
