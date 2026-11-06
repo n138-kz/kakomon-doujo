@@ -323,15 +323,15 @@
 										});
 										for (let i=0; i<mondais[index]['sentakushi'].length; i++) {
 											document.querySelectorAll('input[type="radio"][name="_"]')[i].style.readonly = true;
-											document.querySelectorAll('label[for^="_"]')[i].querySelector('li').innerHTML = '<input style="pointer-events: none;" type="checkbox" onclick="this.preventDefault();">' + document.querySelectorAll('label[for^="_"]')[i].querySelector('li').textContent;
+											document.querySelectorAll('label[for]')[i].querySelector('li').innerHTML = '<input style="pointer-events: none;" type="checkbox" onclick="this.preventDefault();">' + document.querySelectorAll('label[for^="_"]')[i].querySelector('li').textContent;
 											if (i==checked.value - 1) {
-												document.querySelectorAll('label[for^="_"]')[i].querySelector('li').innerHTML = '<input style="pointer-events: none;" type="checkbox" onclick="this.preventDefault();" checked>' + document.querySelectorAll('label[for^="_"]')[i].querySelector('li').textContent;
+												document.querySelectorAll('label[for]')[i].querySelector('li').innerHTML = '<input style="pointer-events: none;" type="checkbox" onclick="this.preventDefault();" checked>' + document.querySelectorAll('label[for^="_"]')[i].querySelector('li').textContent;
 											}
-											document.querySelectorAll('label[for^="_"]')[i].querySelector('li').classList.add('mondai_kaitou_answered');
+											document.querySelectorAll('label[for]')[i].querySelector('li').classList.add('mondai_kaitou_answered');
 											if (mondais[index]['sentakushi'][i]['answer']) {
-												document.querySelectorAll('label[for^="_"]')[i].querySelector('li').style.backgroundColor='limegreen';
+												document.querySelectorAll('label[for]')[i].querySelector('li').style.backgroundColor='limegreen';
 											} else {
-												document.querySelectorAll('label[for^="_"]')[i].querySelector('li').style.backgroundColor='coral';
+												document.querySelectorAll('label[for]')[i].querySelector('li').style.backgroundColor='coral';
 											}
 										}
 										Array.from(document.querySelectorAll('label[for^="_"]')).map((el1)=>{
