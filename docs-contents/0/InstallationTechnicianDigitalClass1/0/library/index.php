@@ -297,13 +297,14 @@ if (false) {
 	$_REQUEST = array_merge($_REQUEST, $_POST);
 	if (json_last_error() !== JSON_ERROR_NONE) {
 		http_response_code(400);
-		die(json_encode([
+		$m = json_encode([
 			'status' => http_response_code(),
 			'error' => [
 				'title' => 'Invalid JSON.',
 				'message' => 'Contains invalid JSON format.',
 			],
-		]));
+		]);
+		error_log($m); die($m);
 	}
 
 	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
