@@ -115,6 +115,52 @@ class local {
 		error_log('sid: '.$_SESSION['sid']);
 		return $_SESSION['expires_at']-time();
 	}
+	public function session_table ($method='get') {
+		if (false){
+		} elseif ($method == 'get') {
+			try {
+				$column = ['s.userid','s.ip_address','s.user_agent','s.session_id','s.updated_at','u.app_username' ];
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'SELECT '.implode(',', $column).' FROM app_authn_session s JOIN app_user u ON s.userid=u.id WHERE session_id = ?;';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['sid']]);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+					foreach ($res as $k => $v) {
+						$res[$k] = $res[$k] ?? 'null';
+						$res[$k] = strlen($res[$k])>0 ? $res[$k]:'null';
+					}
+					return $res;
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			} catch (\Exception $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+
+			return;
+		} elseif ($method == 'refresh-expire') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'UPDATE app_authn_session SET updated_at=CURRENT_TIMESTAMP WHERE session_id = ? RETURNING FLOOR(EXTRACT(EPOCH FROM (updated_at + make_interval(secs => expires_in))))::BIGINT expires_at';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['sid']]);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		}
+	}
 }
 
 class exapi {
