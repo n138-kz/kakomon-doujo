@@ -111,11 +111,35 @@ class resource extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
+		} elseif ($method == 'count') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'SELECT * FROM vw_InstallationTechnicianDigitalClass1_mondaiset_count;';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute();
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'count' => [
+						'all' => $res['count_all'],
+						'category' => [
+							$res['count_category_1'],
+							$res['count_category_2'],
+							$res['count_category_3'],
+						],
+					],
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
 		} else {
 			error_log('Unknown params $1: ');
 		}
 	}
-
 }
 
 $proc = new resource();
@@ -127,6 +151,13 @@ $requestForm = $_GET ?? [];
 $requestForm['limit'] = $requestForm['limit'] ?? 1;
 $requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
 $requestForm['limit'] = (1*$requestForm['limit'])>0 ? 1*$requestForm['limit'] : 1;
+
+if (false) {
+} elseif (isset($_GET['what_length_mondai'])) {
+	header('Content-Type: application/json');
+	echo json_encode($proc->mondais('count', $requestForm));
+	exit;
+}
 
 $content = $proc->mondais('get', $requestForm)['content'];
 foreach ($content as $k => $v) {
