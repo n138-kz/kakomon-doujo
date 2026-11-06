@@ -15,7 +15,7 @@ class resource extends local {
 		$this->config = parent::config('get');
 		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
-	function mondais($method='get', $options=[]) {
+	public function mondais($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
 			$options['limit'] = $options['limit'] ?? 1;
@@ -68,7 +68,7 @@ class resource extends local {
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
 		} else {
-			error_log('Unknown params $1: ');
+			error_log('Unknown params $1: '.$method);
 		}
 	}
 }
