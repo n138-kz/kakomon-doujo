@@ -13,6 +13,21 @@ $$ LANGUAGE plpgsql;
 -- Installation Technician Digital Class 1
 
 -- TABLE
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_user CASCADE;
+CREATE TABLE InstallationTechnicianDigitalClass1_user (
+    id uuid primary key default gen_random_uuid(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    role INT not null default 0,
+    CONSTRAINT chk_role_range
+        CHECK (role >= 0 AND role <= 63),
+    CONSTRAINT fk_userid
+        FOREIGN KEY (id)
+        REFERENCES app_user(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_category CASCADE;
 CREATE TABLE InstallationTechnicianDigitalClass1_category (
     id integer primary key,
