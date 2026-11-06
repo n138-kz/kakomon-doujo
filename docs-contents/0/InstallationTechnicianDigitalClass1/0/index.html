@@ -594,6 +594,55 @@
 				}
 
 				console.log(mondais[index]);
+
+
+				{
+					let token = '';
+					let url = './library/';
+					let options = {};
+					let req = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Accept': 'application/json',
+							'Authorization': `Bearer ${token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(mondais[index]),
+					});
+					console.log(req.status, req.statusText);
+					if (req.status === 401) {
+						location.replace('../../../auth/');
+					} else if (req.status === 204) {
+						console.log(req.status, req.statusText);
+						return;
+					}
+					let res = await req.text();
+					if (res.length==0) {
+						console.log(204, 'No Content');
+						return;
+					}
+					let bin;
+					try {
+						bin = JSON.parse(res);
+						console.debug(bin);
+						bin = bin['data'] ?? [];
+						category = bin['mondais_category'] ?? [];
+						summary = bin['mondais_summary'] ?? [];
+						bin = bin['mondais'] ?? [];
+						bin = Array.isArray(bin) ? bin : [];
+						mondais = [...mondais, ...bin];
+					} catch (error) {
+						console.error(res);
+						console.error(res.length);
+						return;
+					}
+					if (bin.length <= 0) {
+						console.warn(bin);
+						console.warn(`\${array}.length: ${bin.length}`);
+						return;
+					}
+					console.log(bin);
+				}
 			}
 
 			{
