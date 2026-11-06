@@ -199,13 +199,14 @@ foreach ($role['role_descr'] as $k => $v) {
 if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 	http_response_code(403);
 	header('Content-Type: application/json');
-	die(json_encode([
+	$m = json_encode([
 		'status' => http_response_code(),
 		'error' => [
 			'title' => 'Forbidden.',
 			'message' => 'You are NOT having permission on this resource.',
 		],
-	]));
+	]);
+	error_log($m); die($m);
 }
 if (false) {
 } elseif ($_SERVER['REQUEST_METHOD']=='GET') {
@@ -232,7 +233,7 @@ if (false) {
 	if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0)) {
 		http_response_code(403);
 		header('Content-Type: application/json');
-		die(json_encode([
+		$m = json_encode([
 			'status' => http_response_code(),
 			'user' => [
 				'permission' => [
@@ -246,7 +247,8 @@ if (false) {
 				'title' => 'Forbidden.',
 				'message' => 'You are NOT having permission on this resource.',
 			],
-		]));
+		]);
+		error_log($m); die($m);
 	}
 	header('Content-Type: application/json; charset=UTF-8');
 	$_POST = file_get_contents('php://input');
