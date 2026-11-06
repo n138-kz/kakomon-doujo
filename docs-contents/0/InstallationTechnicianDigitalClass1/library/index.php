@@ -15,6 +15,48 @@ class resource extends local {
 		$this->config = parent::config('get');
 		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
+	public function role () {
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			{
+				$sql = 'SELECT * FROM app_user_role ORDER BY id';
+				$stm = $this->conn_database->prepare($sql);
+				$stm->execute();
+				$role_descr = $res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+
+				$sql = 'SELECT * FROM InstallationTechnicianDigitalClass1_user WHERE id = ?';
+				$stm = $this->conn_database->prepare($sql);
+				$stm->execute([$_SESSION['uid']]);
+				$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				if ($stm->rowCount()===0) {
+					$sql = 'SELECT u.id, u.role FROM app_user u WHERE u.id = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+					if ($stm->rowCount()===0) {
+						return [
+							'user'=>0,
+							'role_descr' => $role_descr,
+						];
+					}
+
+					$sql = 'INSERT INTO InstallationTechnicianDigitalClass1_user (id, role) SELECT u.id, u.role FROM app_user u WHERE u.id = ? RETURNING id, role;';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid']]);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+				}
+			}
+			if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+			return [
+				'user' => $res[0]['role'],
+				'role_descr' => $role_descr,
+			];
+		} catch (\PDOException $e) {
+			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+			error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+		}
+	}
 	public function mondais_category($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
@@ -103,6 +145,27 @@ $proc = new resource();
 header('Content-Type: text/plain');
 $proc->checkAuthn();
 $proc->update_expires_at();
+$role = $proc->role();
+foreach ($role['role_descr'] as $k => $v) {
+	define('DB_ACCESS_LEVEL_FLAG_'.$v['description'], $v['id']);
+	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_SEARCH) !== 0 * */
+	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_READ) !== 0 * */
+	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0 * */
+	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_REGIST) !== 0 * */
+	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_DELETE) !== 0 * */
+}
+if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
+	http_response_code(403);
+	header('Content-Type: application/json');
+	$m = json_encode([
+		'status' => http_response_code(),
+		'error' => [
+			'title' => 'Forbidden.',
+			'message' => 'You are NOT having permission on this resource.',
+		],
+	]);
+	error_log($m); die($m);
+}
 
 $requestForm = $_GET ?? [];
 $requestForm['limit'] = $requestForm['limit'] ?? 1;
