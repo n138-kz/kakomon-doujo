@@ -76,7 +76,10 @@
 			let mondais = [];
 			{
 				let token = '';
-				let url = './library/?limit=3';
+				let url = './library/';
+				let options = {};
+				options['limit'] = get_GETarray()['limit'] ?? 5;
+				url = url.split('?')[0] + '?limit=' + options['limit'];
 				let req = await fetch(url, {
 					method: 'GET',
 					headers: {
