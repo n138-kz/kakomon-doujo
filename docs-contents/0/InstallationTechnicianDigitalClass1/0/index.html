@@ -441,7 +441,11 @@
 							for (let i=0;i<mondais.length;i++) {
 								d.push(document.createElement('tr')); {
 									d.push(document.createElement('td')); {
-										d.push(document.createTextNode(mondais[i]['openid'])); {
+										d.push(document.createElement('a')); {
+											d[d.length-1].href = `./?index=${i}`;
+											d[d.length-1].target = '_self';
+											d.push(document.createTextNode(mondais[i]['openid'])); {}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
