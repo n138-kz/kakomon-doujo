@@ -47,6 +47,50 @@
 			}
 			return queries;
 		}
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			let mondais = [];
+			{
+				let token = '';
+				let url = './library/';
+				let options = {};
+				let req = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../../../auth/');
+				}
+				let res = await req.text();
+				let bin;
+				try {
+					bin = JSON.parse(res);
+					bin = bin['data'] ?? [];
+					bin = bin['mondais'] ?? [];
+				} catch (error) {
+					console.error(res);
+					return;
+				}
+				bin = Array.isArray(bin) ? bin:[];
+				if (bin.length <= 0) {
+					console.warn(bin);
+					console.warn(`\${array}.length: ${bin.length}`);
+					return;
+				}
+				mondais = [...mondais, ...bin];
+			}
+
+			const buildPage_20261106a = (index=0) => {
+				if (document.querySelectorAll('body>div.container').length > 1) { return; }
+				document.querySelector('body>div.container').textContent='';
+				console.log('buildPage_20261106a', index);
+			}
+			buildPage_20261106a();
+		});
     </script>
 </head>
 <body>
