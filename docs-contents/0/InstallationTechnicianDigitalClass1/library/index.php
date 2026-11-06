@@ -15,24 +15,6 @@ class resource extends local {
 		$this->config = parent::config('get');
 		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
-	function checkAuthn() {
-		$_SESSION['expires_at'] = $_SESSION['expires_at'] ?? 0;
-		if ( $_SESSION['expires_at']-time()<=0 ) {
-			http_response_code(401);
-			$_SESSION = [];
-			header('Content-Type: application/json');
-			die(json_encode([
-				'status' => 401,
-				'error' => [
-					'title' => 'Session Expired.',
-					'message' => 'Session has timeouted. Please relogin.',
-				],
-			]));
-		}
-		$u = self::session_table('get');
-		error_log('sid: '.$_SESSION['sid']);
-		return $_SESSION['expires_at']-time();
-	}
 	function session_table ($method='get') {
 		if (false){
 		} elseif ($method == 'get') {
