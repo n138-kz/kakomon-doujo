@@ -72,6 +72,11 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_assigns_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
+    BEFORE UPDATE ON InstallationTechnicianDigitalClass1_log
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- VIEW
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
 SELECT m.id internal_id, m.openid id, m.mondai,c.name FROM InstallationTechnicianDigitalClass1_mondaiset m
