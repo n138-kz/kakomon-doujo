@@ -271,7 +271,7 @@ class exapi {
 				// PHPのフラグでは漏れる可能性のある ULA や リンクローカルをバイナリで厳密にチェック
 				$binary_ip = inet_pton($ipaddress);
 				if ($binary_ip !== false) {
-					$first_byte = ord($binary_ip);
+					$first_byte = ord($binary_ip[0]);
 
 					// ULA (fc00::/7) のチェック
 					$is_ula = ($first_byte & 0xfe) === 0xfc;
