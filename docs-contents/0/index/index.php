@@ -18,12 +18,7 @@ $content = [];
 $content[] = [
 	'name'=>'工事担任者 デジタル1級',
 	'id'=>'InstallationTechnicianDigitalClass1',
-	'content'=>[
-		[
-			'name'=>'問題数',
-			'value'=>5,
-		],
-	]
+	'content'=>[],
 ];
 
 echo json_encode($content);
