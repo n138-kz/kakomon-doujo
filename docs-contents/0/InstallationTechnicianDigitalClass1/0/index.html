@@ -83,6 +83,8 @@
 				console.log(req.status, req.statusText);
 				if (req.status === 401) {
 					location.replace('../../../auth/');
+				} else if (req.status === 403) {
+					location.replace('../../');
 				}
 				let res = await req.text();
 				let bin;

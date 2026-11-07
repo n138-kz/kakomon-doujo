@@ -237,7 +237,7 @@ foreach ($role['role_descr'] as $k => $v) {
 	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_REGIST) !== 0 * */
 	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_DELETE) !== 0 * */
 }
-if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
+if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0)) {
 	http_response_code(403);
 	header('Content-Type: application/json');
 	$m = json_encode([
@@ -259,8 +259,8 @@ if (false) {
 			'permission' => [
 				'role' => $role['user'],
 				'role_catalog' => $role['role_descr'],
-				'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_COMBI_READ,
-				'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0),
+				'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_UPDATE,
+				'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0),
 			]
 		],
 		'data' => [
