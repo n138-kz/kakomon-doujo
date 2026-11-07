@@ -332,7 +332,7 @@
 											if (el.value.length == 0) {
 												try {
 													el.value = await navigator.clipboard.readText();
-													console.error('クリップボードの内容', el.value);
+													console.debug('クリップボードの内容', el.value);
 												} catch (err) {
 													console.error('クリップボードの内容', '読み取り失敗');
 												}
@@ -543,7 +543,7 @@
 											if (el.value.length == 0) {
 												try {
 													el.value = await navigator.clipboard.readText();
-													console.error('クリップボードの内容', el.value);
+													console.debug('クリップボードの内容', el.value);
 												} catch (err) {
 													console.error('クリップボードの内容', '読み取り失敗');
 												}
