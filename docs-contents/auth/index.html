@@ -89,12 +89,73 @@
 				});
 				console.log(req.status, req.statusText);
 
+				if ( req.status == 401 ) {
+					if (document.getElementById('authError')!=null) {
+						document.getElementById('authError').remove();
+					}
+					if (document.getElementById('authError')==null&&document.getElementById('info')!=null) {
+						document.getElementById('info').textContent = '';
+
+						const d = [];
+						d.push(document.createElement('p')); {
+							d[d.length-1].style.color = '#FF0000';
+							d.push(document.createTextNode(`${req.status} ${req.statusText}`)); {}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('br')); {}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						if (d.length-2>=0) {
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						} else {
+							document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+						}
+					}
+					return;
+				}
+
 				const restext = await req.text();
 				let res = null;
 				try {
 					res = JSON.parse(restext);
 				} catch (err) {
 					console.error(restext);
+					{
+						if (document.getElementById('authError')!=null) {
+							document.getElementById('authError').remove();
+						}
+						if (document.getElementById('authError')==null&&document.getElementById('info')!=null) {
+							document.getElementById('info').textContent = '';
+
+							const d = [];
+							d.push(document.createElement('p')); {
+								d[d.length-1].style.color = '#FF0000';
+								d.push(document.createTextNode(`${err}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createTextNode(`${restext}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							if (d.length-2>=0) {
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							} else {
+								document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						return;
+					}
 				}
 
 				if (res.location) {
