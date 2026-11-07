@@ -120,6 +120,7 @@ class resource extends local {
 				return [
 					'options' => $options,
 					'content' => $res,
+					'template' => $template_mondai,
 				];
 			} catch (\PDOException $e) {
 				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
@@ -267,6 +268,7 @@ if (false) {
 			'mondais' => $proc->mondais('get')['content'],
 			'mondais_category' => $proc->mondais_category()['content'],
 			'mondais_summary' => $proc->mondais('count'),
+			'mondais_template' => $proc->mondais('get')['template'],
 		]
 	]);
 	exit;
