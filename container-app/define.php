@@ -178,6 +178,44 @@ class local {
 		// 32文字の16進数文字列に変換し、ハイフンで区切る
 		return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 	}
+	public function clientIsInternal ($ipaddress='::1') {
+		$is_ipv4 = filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+		$is_ipv6 = filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+		if (!$is_ipv4 && !$is_ipv6) {
+			return;
+		}
+
+		$is_internal = false;
+		if ($is_ipv4) {
+			// プライベート範囲、または予約済み範囲（127.0.0.1 や 169.254.x.x を含む）に「該当する場合」は true
+			if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+				$is_internal = true;
+			}
+		}
+		if ($is_ipv6) {
+			// まずPHP標準のフラグでチェック（ループバックや一部の予約済みを判定）
+			if (filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+				$is_internal = true;
+			} else {
+				// PHPのフラグでは漏れる可能性のある ULA や リンクローカルをバイナリで厳密にチェック
+				$binary_ip = inet_pton($ipaddress);
+				if ($binary_ip !== false) {
+					$first_byte = ord($binary_ip[0]);
+
+					// ULA (fc00::/7) のチェック
+					$is_ula = ($first_byte & 0xfe) === 0xfc;
+
+					// リンクローカル (fe80::/10) のチェック
+					$is_link_local = ($first_byte & 0xc0) === 0x80;
+
+					if ($is_ula || $is_link_local) {
+						$is_internal = true;
+					}
+				}
+			}
+		}
+		return $is_internal;
+	}
 	public function clientinf_get () {
 		$client = [];
 		$client['REMOTE_ADDR'] = isset($_SERVER['HTTP_X_FORWARDED_FOR'])&&''!=$_SERVER['HTTP_X_FORWARDED_FOR'] ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
