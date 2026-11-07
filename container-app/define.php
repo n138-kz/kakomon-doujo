@@ -180,6 +180,15 @@ class local {
 	}
 }
 
+class simple_resource extends local {
+	private $conn_database = null;
+	public function __construct () {
+		parent::init();
+		$this->config = parent::config('get');
+		$this->conn_database = local::connectDB($this->config['internal']['database']);
+	}
+}
+
 class exapi {
 	private $config = [];
 	private $conn_database = null;
