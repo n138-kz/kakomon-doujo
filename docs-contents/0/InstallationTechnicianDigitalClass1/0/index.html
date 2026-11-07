@@ -169,7 +169,9 @@
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
-									d[d.length-1].textContent = mondais[index]['id'];
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['id'];
+									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
@@ -191,7 +193,9 @@
 												d[d.length-1].style.width = '100%';
 											}
 										}
-										d[d.length-1].value = mondais[index]['openid'];
+										if (index>=0) {
+											d[d.length-1].value = mondais[index]['openid'];
+										}
 										d[d.length-1].dataset.colname = 'openid';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -206,7 +210,9 @@
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
-									d[d.length-1].textContent = mondais[index]['created_at'];
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['created_at'];
+									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
@@ -218,7 +224,9 @@
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
-									d[d.length-1].textContent = mondais[index]['updated_at'];
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['updated_at'];
+									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
@@ -233,7 +241,9 @@
 									d.push(document.createElement('label')); {
 										d.push(document.createElement('input')); {
 											d[d.length-1].type = 'checkbox';
-											d[d.length-1].checked = mondais[index]['deleted'];
+											if (index>=0) {
+												d[d.length-1].checked = mondais[index]['deleted'];
+											}
 											d[d.length-1].dataset.colname = 'deleted';
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -250,7 +260,11 @@
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
-									d_category[0].value=mondais[index]['mondai']['category'] ?? 0;
+									if (index>=0) {
+										d_category[0].value=mondais[index]['mondai']['category'] ?? 0;
+									} else {
+										d_category[0].value=0;
+									}
 									d_category[0].dataset.colname = 'category';
 									d[d.length-1].appendChild(d_category[0]);
 								}
@@ -274,7 +288,9 @@
 												d[d.length-1].style.width = '100%';
 											}
 										}
-										d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
+										if (index>=0) {
+											d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
+										}
 										d[d.length-1].dataset.colname = 'kakosyutsudai';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -307,7 +323,9 @@
 											}
 										}
 										d[d.length-1].style.height = '5em';
-										d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
+										if (index>=0) {
+											d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
+										}
 										d[d.length-1].dataset.colname = 'mondai_text';
 										d[d.length-1].addEventListener('click', async (e)=>{
 											const el = e.target;
@@ -398,7 +416,9 @@
 										d[d.length-1].addEventListener('click', (e)=>{
 											console.log(e.target.previousElementSibling);
 											if (null==e.target.previousElementSibling) {
-												buildPage_20261106a(index);
+												if (index>=0) {
+													buildPage_20261106a(index);
+												}
 												return;
 											}
 
@@ -450,7 +470,9 @@
 											}
 										}
 										d[d.length-1].style.height = '15em';
-										d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
+										if (index>=0) {
+											d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
+										}
 										d[d.length-1].dataset.colname = 'kaisetsu_text';
 										d[d.length-1].addEventListener('click', async (e)=>{
 											const el = e.target;
@@ -490,10 +512,56 @@
 										d[d.length-1].type = 'button';
 										d[d.length-1].value = 'Apply (a)';
 										d[d.length-1].addEventListener('click', ()=>{
-											updateResource(index);
+											if (index>=0) {
+												updateResource(index);
+											}
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									if (index>=0) {
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '100px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = 'New (e)';
+											d[d.length-1].addEventListener('click', (e)=>{
+												buildPage_20261106a(-1);
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									} else {
+										{
+											console.log(`IFS=$'\n'; for item in $(cat 1794069941.817556341.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; ^C _.txt $(date +%s.%N).txt`);
+											const blob = new Blob([JSON.stringify(template, null, '\t')], {type: 'application/json;charset=utf-8;'})
+											const url = URL.createObjectURL(blob);
+
+											const link = document.createElement('a');
+											link.href = url;
+											link.download = `template(${parseInt(Date.now()/10**3, 10)}).json`;
+											document.body.appendChild(link);
+											link.click();
+											document.body.removeChild(link);
+
+											URL.revokeObjectURL(url);
+										}
+									}
+
+									if (index>=0) {
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '100px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = 'Delete (d)';
+											d[d.length-1].addEventListener('click', ()=>{
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
