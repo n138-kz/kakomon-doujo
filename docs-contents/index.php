@@ -1,4 +1,3 @@
-<?php
 function clientIsInternal ($ipaddress='::1') {
 	$is_ipv4 = filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
 	$is_ipv6 = filter_var($ipaddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
@@ -28,12 +27,29 @@ function clientIsInternal ($ipaddress='::1') {
 
 				// リンクローカル (fe80::/10) のチェック
 				$is_link_local = ($first_byte & 0xc0) === 0x80;
+<?php namespace n138;
+ini_set('display_errors', 0);
+ini_set('error_log', 'php://stderr');
+ini_set('log_errors', 1);
+session_name('sessid');
+session_start();
 
-				if ($is_ula || $is_link_local) {
-					$is_internal = true;
-				}
-			}
-		}
+require_once('/app/define.php');
+use \n138\local;
+$proc = new local();
+if ($proc->clientIsInternal($proc->clientinf_get()['REMOTE_ADDR'])) {
+	if(false) {
+	} elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='phpinfo'){
+		phpinfo();
+		exit();
+	} elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='ini_get_all'){
+		header('Content-Type: application/json');
+		echo json_encode(ini_get_all()).PHP_EOL;
+		exit();
+	} elseif(isset($_REQUEST['q']) && $_REQUEST['q']=='_server'){
+		header('Content-Type: application/json');
+		echo json_encode($_SERVER).PHP_EOL;
+		exit();
 	}
 	return $is_internal;
 }

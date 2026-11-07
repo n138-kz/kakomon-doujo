@@ -178,6 +178,13 @@ class local {
 		// 32文字の16進数文字列に変換し、ハイフンで区切る
 		return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 	}
+	public function clientinf_get () {
+		$client = [];
+		$client['REMOTE_ADDR'] = isset($_SERVER['HTTP_X_FORWARDED_FOR'])&&''!=$_SERVER['HTTP_X_FORWARDED_FOR'] ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
+		$client['REQUEST_SCHEME'] = isset($_SERVER['HTTP_X_FORWARDED_PROTO'])&&''!=$_SERVER['HTTP_X_FORWARDED_PROTO'] ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : $_SERVER['REQUEST_SCHEME'];
+		$client['HTTP_HOST'] = isset($_SERVER['HTTP_X_FORWARDED_HOST'])&&''!=$_SERVER['HTTP_X_FORWARDED_HOST'] ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+		return $client;
+	}
 }
 
 class simple_resource extends local {

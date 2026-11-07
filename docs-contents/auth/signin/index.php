@@ -28,16 +28,13 @@ class auth extends local {
 		}
 		return pack('H*', $hexString);
 	}
-	private function ipaddress_get () {
-		return $_SERVER['REMOTE_ADDR'];
-	}
 	public function main () {
 		$proc_local = new local();
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);
 		$proc_exapi = new exapi($config, $conn_database);
 
-		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry($_SERVER['REMOTE_ADDR']);
+		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry(parent::clientinf_get()['REMOTE_ADDR']);
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 
 		if (!isset($_SERVER['REQUEST_METHOD']) || ( $_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'POST' )){
@@ -56,6 +53,8 @@ class auth extends local {
 		if (false) {
 		} elseif (isset($_REQUEST['credential']) && isset($_REQUEST['iss']) && $_REQUEST['iss']=='https://discord.com') {
 			$discord_user = [];
+			$client = self::clientinf_get();
+			
 			try {
 				$url = 'https://discordapp.com/api/oauth2/token';
 				$data = [
@@ -63,7 +62,7 @@ class auth extends local {
 					'client_secret'=>$config['external']['discord']['bot']['client_secret'],
 					'grant_type'=>'authorization_code',
 					'code'=>self::binaryToString($_REQUEST['credential']),
-					'redirect_uri'=>$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].'/'.basename(dirname(__DIR__)).'/',
+					'redirect_uri'=>$client['REQUEST_SCHEME'].'://'.$client['HTTP_HOST'].'/'.basename(dirname(__DIR__)).'/',
 				];
 				$options = [ 'content-type: application/x-www-form-urlencoded' ];
 				$curl_req = curl_init();
@@ -163,7 +162,7 @@ class auth extends local {
 				$stm = $this->conn_database->prepare($sql);
 				$res = $stm->execute([
 					$session_user['id'],
-					self::ipaddress_get(),
+					parent::clientinf_get()['REMOTE_ADDR'],
 					$_SERVER['HTTP_USER_AGENT'],
 					3600,
 					json_encode([
@@ -171,6 +170,7 @@ class auth extends local {
 						'_SESSION' => $_SESSION,
 						'_POST' => $_POST,
 						'_GET' => $_GET,
+						'client' => parent::clientinf_get(),
 						'public-key-cryptography' => $config['internal']['public-key-cryptography']['publish-key'],
 					], JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR),
 				]);
@@ -180,7 +180,7 @@ class auth extends local {
 				$res = $stm->execute([
 					$session_user['id'],
 					$_SERVER['HTTP_USER_AGENT'],
-					self::ipaddress_get(),
+					parent::clientinf_get()['REMOTE_ADDR'],
 				]);
 				if ($stm->rowCount()>0) {
 					$res = $stm->fetch(\PDO::FETCH_ASSOC);
