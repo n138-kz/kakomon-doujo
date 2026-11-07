@@ -68,6 +68,7 @@
 			let category = [];
 			let summary = [];
 			let mondais = [];
+			let template = [];
 			{
 				let token = '';
 				let url = './library/';
@@ -94,6 +95,7 @@
 					bin = bin['data'] ?? [];
 					category = bin['mondais_category'] ?? [];
 					summary = bin['mondais_summary'] ?? [];
+					template = bin['mondais_template'] ?? [];
 					bin = bin['mondais'] ?? [];
 					bin = Array.isArray(bin) ? bin : [];
 					mondais = [...mondais, ...bin];
@@ -469,7 +471,15 @@
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
 							d.push(document.createElement('tr')); {
-								d.push(document.createElement('th')); {}
+								d.push(document.createElement('th')); {
+									d[d.length-1].style.textAlign = 'center';
+									d.push(document.createElement('a')); {
+										d[d.length-1].href = '../../';
+										d[d.length-1].textContent = '../../';
+										d[d.length-1].target = '_self';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									d.push(document.createElement('input')); {
@@ -602,9 +612,7 @@
 				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_answer"]').length;i++) {
 					mondais[index]['mondai']['sentakushi'][i]['answer'] = document.querySelectorAll('input[data-colname="sentakushi_answer"]')[i].checked;
 				}
-
 				console.log(mondais[index]);
-
 
 				{
 					let token = '';
