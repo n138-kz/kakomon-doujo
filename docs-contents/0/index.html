@@ -1,0 +1,125 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../@lib/master.css" />
+	<style>
+		.container {
+			display: flex;
+			width: 100vw;
+			align-items: stretch;
+		}
+		#InstallationTechnicianDigitalClass1 {
+			background-color: white;
+			box-sizing: border-box;
+			width: 98vw;
+			margin: 0 auto;
+		}
+	</style>
+	<script src="../@lib/define.js"></script>
+	<script>
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('img[src^="https://api.qrserver.com/v1/create-qr-code/"]')).map((e)=>{
+				e.src = e.src.split('?')[0];
+				e.src += `?data=${location.href.split('?')[0]}`;
+				e.alt = `QR code: ${location.href.split('?')[0]}`;
+				e.title = `QR code: ${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			let catalog = [];
+			{
+				let url = './index/';
+				let options = {};
+				let req = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+					},
+				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../auth/');
+				}
+				let res = await req.text();
+				console.log(res);
+				if (res.length===0) {
+					console.warn(req.status, req.statusText);
+					return;
+				}
+				let bin = JSON.parse(res);
+				catalog = bin;
+			}
+			
+			document.querySelector('div.container').textContent = '';
+			const d=[];
+			for (let i=0;i<catalog.length;i++) {
+				d.push(document.createElement('div')); {
+					d[d.length-1].id = catalog[i]['id'];
+					d.push(document.createElement('h2')); {
+						d[d.length-1].textContent = catalog[i]['name'];
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					
+					d.push(document.createElement('table')); {
+						d.push(document.createElement('tbody')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '問題数';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										d[d.length-1].type = 'number';
+										d[d.length-1].value = '5';
+										d[d.length-1].min = '1';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = '演習開始';
+										d[d.length-1].dataset.href = `./${catalog[i]['id']}/?limit`;
+										d[d.length-1].addEventListener('click', (e)=>{
+											location.replace(`${e.target.dataset.href.split('?')[0]}?limit=${e.target.parentElement.parentElement.parentElement.querySelector('input[type="number"]').value}`);
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('div.container').appendChild(d[d.length-1]); d.pop();
+			}
+		});
+	</script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div class="container"></div>
+	<p><a href="../auth/" target="_self">サインイン / サインアップ</a></p>
+</body>
+</html>

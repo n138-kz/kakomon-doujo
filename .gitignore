@@ -5,6 +5,9 @@
 Backup/
 backup/
 *.bak*
+*.xz
+*.gz
+*.zip
 
 # Temporary files
 *.tmp
@@ -23,6 +26,7 @@ dump.*
 *.pem
 id_rsa
 id_ed25519
+config.*
 
 # AWS, GCP, Azure, Clound Credential file
 credentials.csv
