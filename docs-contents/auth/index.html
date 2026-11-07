@@ -102,52 +102,6 @@
 				}
 			}
 		});
-		window.addEventListener('DOMContentLoaded', async ()=>{
-			/* * Passkey * */
-			Array.from(document.querySelectorAll('input[name="signin_pkey"]')).forEach((button)=>{
-				if (!navigator.credentials || !navigator.credentials.get) {
-					button.disabled=true;
-				} else {
-					button.addEventListener('click', async (e0)=>{
-						try {
-							const response = await fetch('./generate-assertion-options/', { method: 'POST' });
-							console.log(response.status, response.statusText);
-
-							const options = await response.json();
-
-							const publicKeyOptions = {
-								...options,
-								challenge: base64urlToBuffer(options.challenge),
-								allowCredentials: options.allowCredentials?.map(cred => ({
-									...cred,
-									id: base64urlToBuffer(cred.id)
-								}))
-							};
-							console.log(publicKeyOptions);
-
-							const credential = await navigator.credentials.get({
-								publicKey: publicKeyOptions
-							});
-
-							const formData = new FormData();
-							formData.append('credential', JSON.stringify(formatCredentialForServer(credential)));
-
-							console.log([...formData.entries()]);
-
-							const req = await fetch('./signin/', {
-								method: 'POST',
-								body: formData
-							});
-							console.log(req.status, req.statusText);
-
-							console.log('ログイン成功');
-						} catch (err) {
-							console.error('パスキー認証エラー:', err);
-						}
-					});
-				}
-			});
-		});
 	</script>
 </head>
 <body>
@@ -155,19 +109,6 @@
 	<div id="auth">
 		<h2>LOGIN</h2>
 		<p><a target="_self" href="https://discord.com/oauth2/authorize"><img src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d80db9971f10a9757c99_Symbol.svg" class="icon">Discord</a></p>
-		<form method="post" style="display: none;">
-			<input type="hidden" value="">
-			<table>
-				<tr>
-					<td>ユーザID</td>
-					<td><input type="text" name="username" autocomplete="username" value=""></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td><input type="button" name="signin_pkey" value="パスキーでログイン"></td>
-				</tr>
-			</table>
-		</form>
 	</div>
 	<div id="info">
 		<p><img src="https://api.qrserver.com/v1/create-qr-code/?data=_" class="qrcode" alt=""></p>
