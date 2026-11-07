@@ -342,6 +342,7 @@
 											const el = e.target;
 											if (el.value.length > 0) {
 												el.value = el.value.replace(/\t/g, '').trim();
+												el.value = el.value.replaceAll("\u30FB", "\u2022").trim();
 											}
 										});
 									}
@@ -552,6 +553,7 @@
 											const el = e.target;
 											if (el.value.length > 0) {
 												el.value = el.value.replace(/\t/g, '').trim();
+												el.value = el.value.replaceAll("\u30FB", "\u2022").trim();
 											}
 										});
 									}
