@@ -59,11 +59,12 @@ class auth extends local {
 				$url = 'https://discordapp.com/api/oauth2/token';
 				$data = [
 					'client_id'=>$config['external']['discord']['bot']['client_id'],
-					'client_secret'=>$config['external']['discord']['bot']['client_secret'],
 					'grant_type'=>'authorization_code',
 					'code'=>self::binaryToString($_REQUEST['credential']),
 					'redirect_uri'=>$client['REQUEST_SCHEME'].'://'.$client['HTTP_HOST'].'/'.basename(dirname(__DIR__)).'/',
 				];
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($data, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				$data['client_secret'] = $config['external']['discord']['bot']['client_secret'];
 				$options = [ 'content-type: application/x-www-form-urlencoded' ];
 				$curl_req = curl_init();
 				curl_setopt($curl_req, CURLOPT_URL, $url);
