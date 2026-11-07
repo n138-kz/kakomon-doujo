@@ -18,6 +18,7 @@
 			margin: 0 auto;
 		}
 	</style>
+	<script src="../@lib/define.js"></script>
 	<script>
 		window.addEventListener('DOMContentLoaded', async ()=>{
 			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
@@ -32,21 +33,6 @@
 				e.title = `QR code: ${location.href.split('?')[0]}`;
 			});
 		});
-		function get_GETarray() {
-			let q=(decodeURI(location.search)+'&').replace(/^\?/,'').split('&');
-			let queries=[];
-			for (let i=0; i<q.length; i++) {
-				if(q[i].length>0){
-					if(q[i].indexOf('=')>0){
-						query=q[i].split('=');
-						queries[query[0]]=query[1];
-					} else {
-						queries[q[i]]=null;
-					}
-				}
-			}
-			return queries;
-		}
 		window.addEventListener('DOMContentLoaded', async ()=>{
 			let catalog = [];
 			{
