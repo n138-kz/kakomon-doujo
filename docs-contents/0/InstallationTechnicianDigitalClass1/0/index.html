@@ -307,6 +307,17 @@
 										d[d.length-1].style.height = '5em';
 										d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
 										d[d.length-1].dataset.colname = 'mondai_text';
+										d[d.length-1].addEventListener(async (e)=>{
+											const el = e.target;
+											if (el.value.length == 0) {
+												try {
+													el.value = await navigator.clipboard.readText();
+													console.error('クリップボードの内容', el.value);
+												} catch (err) {
+													console.error('クリップボードの内容', '読み取り失敗');
+												}
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -439,6 +450,17 @@
 										d[d.length-1].style.height = '15em';
 										d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
 										d[d.length-1].dataset.colname = 'kaisetsu_text';
+										d[d.length-1].addEventListener(async (e)=>{
+											const el = e.target;
+											if (el.value.length == 0) {
+												try {
+													el.value = await navigator.clipboard.readText();
+													console.error('クリップボードの内容', el.value);
+												} catch (err) {
+													console.error('クリップボードの内容', '読み取り失敗');
+												}
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
