@@ -230,6 +230,10 @@ class local {
 		 * @args-description: if set true, return value is hex string, return value is decimal format in else(if false).
 		 * */
 		$content = [];
+		array_push($content, ['name'=>'black', 'value'=>'000000']);
+		array_push($content, ['name'=>'white', 'value'=>'FFFFFF']);
+		array_push($content, ['name'=>'dark_charcoal', 'value'=>'333333']);
+		array_push($content, ['name'=>'matte_black', 'value'=>'333333']);
 		array_push($content, ['name'=>'success_green', 'value'=>'28A745']);
 		array_push($content, ['name'=>'emerald_green', 'value'=>'2ECC71']);
 		array_push($content, ['name'=>'success_blue', 'value'=>'1E3A8A']);
