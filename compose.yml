@@ -9,7 +9,7 @@ services:
     depends_on:
       - app
     ports:
-      - "8080-65535:80"
+      - "${EXPOSE_PORT_WEB}:80"
     networks:
       default:
         aliases:
@@ -49,7 +49,7 @@ services:
     image: dpage/pgadmin4:latest
     restart: no
     ports:
-      - "8080-65535:80"
+      - "${EXPOSE_PORT_DB_ADMIN}:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: ${INTERNAL_PGADMIN_EMAIL:-sqladmin@localhost.local}
       PGADMIN_DEFAULT_PASSWORD: ${INTERNAL_PGADMIN_PASSWORD:-password}
