@@ -336,11 +336,12 @@
 											}
 										}
 										Array.from(document.querySelectorAll('label[for^="_"]')).map((el1)=>{
-											el1.htmlFor = '';
+											el1.htmlFor = `_${el1.htmlFor}`;
 										});
 
 										{
 											d = [];
+											Array.from(document.querySelectorAll('p[data-name="mondai_kaisetsu"]')).map(e=>e.remove());
 											d.push(document.createElement('p')); {
 												d[d.length-1].dataset.name = 'mondai_kaisetsu';
 												d[d.length-1].style.overflowWrap = 'anywhere';
