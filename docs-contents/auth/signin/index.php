@@ -260,14 +260,6 @@ class auth extends local {
 					if ($this->conn_database->inTransaction()) {
 						$this->conn_database->commit();
 					}
-
-					http_response_code(200);
-					echo json_encode([
-						'status' => 200,
-						'location' => '../../0/',
-						'message' => 'Authentication Success',
-					], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-					exit;
 				} else {
 					if ($this->conn_database->inTransaction()) {
 						$this->conn_database->rollback();
@@ -281,6 +273,13 @@ class auth extends local {
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 				error_log('PDO Error has occured: '.$e->getMessage());
 			}
+			http_response_code(200);
+			echo json_encode([
+				'status' => 200,
+				'location' => '../../0/',
+				'message' => 'Authentication Success',
+			], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			exit;
 		}
 
 
