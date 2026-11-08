@@ -53,6 +53,7 @@ class auth extends local {
 		if (false) {
 		} elseif (isset($_REQUEST['credential']) && isset($_REQUEST['iss']) && $_REQUEST['iss']=='https://discord.com') {
 			$discord_user = [];
+			$discord_push_item = [];
 			$client = self::clientinf_get();
 			
 			try {
@@ -125,6 +126,29 @@ class auth extends local {
 					],
 				]);
 				exit;
+			}
+			try {
+				$discord_push_item['embeds'] = [];
+				$discord_push_item['embed'] = [];
+				$discord_push_item['embed']['color'] = parent::color('get', false, 'success_green');
+				$discord_push_item['embed']['timestamp'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
+				$discord_push_item['embed']['title'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
+				$discord_push_item['embed']['timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
+				$discord_push_item['embed']['thumbnail'] = [];
+				$discord_push_item['embed']['thumbnail']['url'] = 'https://cdn.discordapp.com/avatars/'.$discord_user['id'].'/'.$discord_user['avatar'].'.png';
+				$discord_push_item['embed']['description'] = '';
+				$discord_push_item['embed']['description'] .= 'Discord OAuth Test has Passed.'.PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'OAuth ISS(Issuer): '.$_REQUEST['iss'].PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord UID: '.$discord_user['id'].PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord Username: '.$discord_user['username'].PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord Global Name: '.$discord_user['global_name'].PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord User Locale: '.$discord_user['locale'].PHP_EOL;
+				array_push($discord_push_item['embeds'], $discord_push_item['embed']);
+				unset($discord_push_item['embed']);
+
+			} catch (\Exception $th) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
 			try {
 				$session_user = [];
