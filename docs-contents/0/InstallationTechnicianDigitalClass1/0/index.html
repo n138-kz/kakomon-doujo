@@ -558,6 +558,32 @@
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = '問題文と選択肢を転記';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											el.value += '\n';
+											el.value += '-----\n';
+											el.value += mondais[index]['mondai']['mondai']['text']+'\n';
+											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
+												el.value += `${i+1}: ${mondais[index]['mondai']['sentakushi'][i]['text']}\n`;
+											}
+											el.value += '\n';
+											el.value += '公式正答は';
+											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
+												if (mondais[index]['mondai']['sentakushi'][i]['answer']) {
+													el.value += i+1;
+												}
+											}
+
+											el.value = el.value.trim();
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
