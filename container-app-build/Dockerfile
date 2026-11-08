@@ -9,4 +9,6 @@ RUN (delgroup $(getent group 983 | cut -d: -f1) || true) \
     && addgroup -g 983 -S docker \
     && addgroup www-data docker
 
+RUN echo "expose_php = Off" > /usr/local/etc/php/conf.d/hide-php-version.ini
+
 WORKDIR /var/www/html
