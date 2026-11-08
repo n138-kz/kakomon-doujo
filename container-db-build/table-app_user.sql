@@ -73,4 +73,11 @@ CREATE OR REPLACE TRIGGER update_app_authn_session_updated_at
     BEFORE UPDATE ON app_authn_session
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
+
+-- VIEW
+CREATE VIEW app_authn_session_expired AS
+SELECT *
+FROM app_authn_session
+WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
+
 COMMIT;
