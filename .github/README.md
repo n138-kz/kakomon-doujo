@@ -42,7 +42,7 @@
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)kakomon-doujo](https://github.com/n138-kz/kakomon-doujo/)
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)mondai-syu-kanri-system](https://github.com/n138-kz/mondai-syu-kanri-system)
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)mondai-syu-kanri-system_2](https://github.com/n138-kz/mondai-syu-kanri-system_2)
-- [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)http_post]](https://github.com/n138-kz/http_post)
+- [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)http_post](https://github.com/n138-kz/http_post)
 
 ## License
 
