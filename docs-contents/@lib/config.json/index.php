@@ -1,0 +1,20 @@
+<?php namespace n138;
+ini_set('display_errors', 1);
+ini_set('error_log', 'php://stderr');
+ini_set('log_errors', 1);
+session_name('sessid');
+session_start();
+
+require_once('/app/define.php');
+use \n138\local;
+$proc = new local();
+header('Content-Type: application/json');
+$publish_config = $config = $proc->config();
+unset($publish_config['internal']['database']);
+unset($publish_config['internal']['public-key-cryptography']['private-key']);
+unset($publish_config['internal']['symmetric-key-cryptography']);
+unset($publish_config['external']['google']);
+unset($publish_config['external']['ipinfo']);
+unset($publish_config['external']['discord']['bot']['client_secret']);
+unset($publish_config['external']['discord']['bot']['redirect_uri']);
+echo json_encode($publish_config);
