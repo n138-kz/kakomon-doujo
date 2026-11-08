@@ -223,7 +223,7 @@ class local {
 		$client['HTTP_HOST'] = isset($_SERVER['HTTP_X_FORWARDED_HOST'])&&''!=$_SERVER['HTTP_X_FORWARDED_HOST'] ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
 		return $client;
 	}
-	public function color ($method='get', $hex=true) {
+	public function color ($method='get', $hex=true, $keyname='black') {
 		/*
 		 * @args $method: *get, list
 		 * @args $hex: *true, false
