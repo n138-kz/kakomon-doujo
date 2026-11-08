@@ -120,8 +120,11 @@
 							d.push(document.createElement('br')); {}
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
-							d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
-							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							if (false) {
+							} else if ( req.status == 401 ) {
+								d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
 						}
 						if (d.length-2>=0) {
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
