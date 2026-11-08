@@ -80,4 +80,9 @@ SELECT *
 FROM app_authn_session
 WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
 
+CREATE VIEW app_authn_session_active AS
+SELECT *
+FROM app_authn_session
+WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+
 COMMIT;
