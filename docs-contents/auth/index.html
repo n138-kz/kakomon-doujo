@@ -74,7 +74,8 @@
 			let urlparam = get_GETarray();
 			urlparam['code'] = urlparam['code'] ?? null;
 			urlparam['iss'] = urlparam['iss'] ? decodeURIComponent(urlparam['iss']) : null;
-			if (urlparam['code'] !== null && urlparam['iss'] !== null) {
+			if (false) {
+			} else if (urlparam['code'] !== null && urlparam['iss'] !== null) {
 				/* URLを綺麗にする */
 				history.replaceState(null, '', location.pathname);
 
