@@ -84,6 +84,20 @@
 				formData.append('iss', urlparam['iss']);
 				console.log([...formData.entries()]);
 
+				document.getElementById('info').textContent = '';
+				{
+					const d = [];
+					d.push(document.createElement('p')); {
+						d.push(document.createElement('img')); {
+							d[d.length-1].src = 'https://cdn.pixabay.com/animation/2025/11/11/02/19/02-19-36-889_512.gif';
+							d[d.length-1].alt = '';
+							d[d.length-1].style = '100px';
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+				}
+
 				const req = await fetch('./signin/', {
 					method: 'POST',
 					body: formData,
