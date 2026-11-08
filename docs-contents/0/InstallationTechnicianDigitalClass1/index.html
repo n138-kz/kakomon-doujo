@@ -386,8 +386,10 @@
 										index++;
 										if (index >= mondais.length) {
 											index = mondais.length-1;
+										} else if (index == (mondais.length-1)) {
+										} else {
+											buildPage_20261106(index);
 										}
-										buildPage_20261106(index);
 									} else if (ev=='p') {
 										if (checkedAll.length>0) {
 											const checked = document.querySelector('input[type="radio"][name="_"]:checked');
