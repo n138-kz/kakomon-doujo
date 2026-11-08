@@ -243,6 +243,15 @@ class local {
 		if (false) {
 		} elseif ($method == 'get') {
 			if (is_null($keyname)) { return; }
+			foreach ($content as $k => $v) {
+				if ($keyname==$v['name']) {
+					$content = $v['value'];
+					if (!$hex) {
+						$content=hexdec($content);
+					}
+					break;
+				}
+			}
 		} elseif ($method == 'list') {
 		} else { return; }
 
