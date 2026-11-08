@@ -198,7 +198,6 @@ class auth extends local {
 						json_encode($_SESSION),
 						$_SESSION['sid'],
 					]);
-					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_SESSION, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_INVALID_UTF8_SUBSTITUTE));
 					if ($this->conn_database->inTransaction()) {
 						$this->conn_database->commit();
 					}
