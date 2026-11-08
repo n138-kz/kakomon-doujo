@@ -51,6 +51,53 @@ class auth extends local {
 		}
 
 		if (false) {
+		} elseif (isset($_REQUEST['logout'])) {
+			$client = self::clientinf_get();
+			error_log(var_export($_SESSION,1));
+			error_log(var_export($_REQUEST,1));
+			if (!isset($_SESSION['sid'])) {
+				// error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				error_log(__FILE__.'#'.__LINE__.': Already logouted.');
+				if ($_REQUEST['logout']=='true') {
+					die(json_encode([
+						'status'=>http_response_code(),
+						'message'=>'Logout.',
+					]));
+				}
+				http_response_code(204);
+				return;
+			}
+			try {
+				if (!$this->conn_database->inTransaction()) {
+					$this->conn_database->beginTransaction();
+				}
+				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ? ORDER BY id DESC';
+				if ($this->conn_database->inTransaction()) {
+					$stm = $this->conn_database->prepare($sql);
+					$res = $stm->execute([$_SESSION['sid']]);
+				}
+				if ($this->conn_database->inTransaction()) {
+					$this->conn_database->commit();
+				}
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) {
+					$this->conn_database->rollback();
+				}
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+				error_log('PDO Error has occured: '.$e->getMessage());
+			}
+
+			$_SESSION=[];
+
+			if ($_REQUEST['logout']=='true') {
+				die(json_encode([
+					'status'=>http_response_code(),
+					'message'=>'Logout.',
+				]));
+			}
+			http_response_code(204);
+			return;
 		} elseif (isset($_REQUEST['credential']) && isset($_REQUEST['iss']) && $_REQUEST['iss']=='https://discord.com') {
 			$discord_user = [];
 			$discord_push_item = [];
