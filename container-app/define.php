@@ -253,13 +253,13 @@ class local {
 				}
 			}
 		} elseif ($method == 'list') {
+			if (!$hex) {
+				for ($i=0;$i < count($content);$i++) {
+					$content[$i]['value'] = hexdec($content[$i]['value']);
+				}
+			}
 		} else { return; }
 
-		if (!$hex) {
-			for ($i=0;count($i<$content);$i++) {
-				$content[$i]['value'] = hexdec($content[$i]['value']);
-			}
-		}
 		return $content;
 	}
 }
