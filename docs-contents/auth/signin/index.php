@@ -273,6 +273,26 @@ class auth extends local {
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 				error_log('PDO Error has occured: '.$e->getMessage());
 			}
+
+			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
+			$discord_push_item['embeds'][0]['description'] .= "Internal sessionid: `{$_SESSION['sid']}`".PHP_EOL;
+			{
+				$curl_opt = [ 'Content-Type: application/json', 'Content-Length: '.strlen(json_encode($discord_push_item)), ];
+				$curl_req = curl_init();
+				curl_setopt($curl_req, CURLOPT_CUSTOMREQUEST, 'PATCH');
+				curl_setopt($curl_req, CURLOPT_POSTFIELDS, json_encode($discord_push_item));
+				curl_setopt($curl_req, CURLOPT_HTTPHEADER, $curl_opt);
+				curl_setopt($curl_req, CURLOPT_RETURNTRANSFER, TRUE);
+				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
+				foreach ($curl_res as $k => $v) {
+					curl_setopt($curl_req, CURLOPT_URL, $v['PATCH']['url']);
+					$c = curl_exec($curl_req);
+					$curl_res[$k]['PATCH']['response'][] = json_decode($c, TRUE);
+				}
+				unset($curl_req);
+			}
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($curl_res, 1));
+
 			http_response_code(200);
 			echo json_encode([
 				'status' => 200,
