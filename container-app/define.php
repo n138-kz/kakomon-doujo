@@ -242,6 +242,7 @@ class local {
 		array_push($content, ['name'=>'success_yellow', 'value'=>'F4C430']);
 		if (false) {
 		} elseif ($method == 'get') {
+			if (is_null($keyname)) { return; }
 		} elseif ($method == 'list') {
 		} else { return; }
 
