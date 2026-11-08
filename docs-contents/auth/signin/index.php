@@ -140,9 +140,9 @@ class auth extends local {
 				$discord_push_item['embed']['description'] .= 'Discord OAuth Test has Passed.'.PHP_EOL;
 				$discord_push_item['embed']['description'] .= 'OAuth ISS(Issuer): '.$_REQUEST['iss'].PHP_EOL;
 				$discord_push_item['embed']['description'] .= 'Discord UID: '.$discord_user['id'].PHP_EOL;
-				$discord_push_item['embed']['description'] .= 'Discord Username: '.$discord_user['username'].PHP_EOL;
-				$discord_push_item['embed']['description'] .= 'Discord Global Name: '.$discord_user['global_name'].PHP_EOL;
-				$discord_push_item['embed']['description'] .= 'Discord User Locale: '.$discord_user['locale'].PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord Username: '.($discord_user['username']??'').PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord Global Name: '.($discord_user['global_name']??'').PHP_EOL;
+				$discord_push_item['embed']['description'] .= 'Discord User Locale: '.($discord_user['locale']??'').PHP_EOL;
 				array_push($discord_push_item['embeds'], $discord_push_item['embed']);
 				unset($discord_push_item['embed']);
 
