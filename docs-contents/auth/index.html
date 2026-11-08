@@ -104,7 +104,7 @@
 				});
 				console.log(req.status, req.statusText);
 
-				if ( req.status == 401 ) {
+				if ( req.status >= 400 ) {
 					if (document.getElementById('authError')!=null) {
 						document.getElementById('authError').remove();
 					}
