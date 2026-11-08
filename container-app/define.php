@@ -223,6 +223,31 @@ class local {
 		$client['HTTP_HOST'] = isset($_SERVER['HTTP_X_FORWARDED_HOST'])&&''!=$_SERVER['HTTP_X_FORWARDED_HOST'] ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
 		return $client;
 	}
+	public function color ($method='get', $hex=true) {
+		/*
+		 * @args $method: *get, list
+		 * @args $hex: *true, false
+		 * @args-description: if set true, return value is hex string, return value is decimal format in else(if false).
+		 * */
+		$content = [];
+		array_push($content, ['name'=>'success_green', 'value'=>'28A745']);
+		array_push($content, ['name'=>'emerald_green', 'value'=>'2ECC71']);
+		array_push($content, ['name'=>'success_blue', 'value'=>'1E3A8A']);
+		array_push($content, ['name'=>'sky_success', 'value'=>'007BFF']);
+		array_push($content, ['name'=>'gold', 'value'=>'FFD700']);
+		array_push($content, ['name'=>'success_yellow', 'value'=>'F4C430']);
+		if (false) {
+		} elseif ($method == 'get') {
+		} elseif ($method == 'list') {
+		} else { return; }
+
+		if (!$hex) {
+			for ($i=0;count($i<$content);$i++) {
+				$content[$i]['value'] = hexdec($content[$i]['value']);
+			}
+		}
+		return $content;
+	}
 }
 
 class simple_resource extends local {
