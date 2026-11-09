@@ -197,6 +197,9 @@
 											d[d.length-1].value = mondais[index]['openid'];
 										}
 										d[d.length-1].dataset.colname = 'openid';
+										d[d.length-1].addEventListener('blur', (e)=>{
+											e.target.value = e.target.value.trim();
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
