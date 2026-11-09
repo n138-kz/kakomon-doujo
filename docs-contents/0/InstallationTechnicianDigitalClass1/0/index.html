@@ -555,12 +555,12 @@
 										});
 										d[d.length-1].addEventListener('blur', async (e)=>{
 											const el = e.target;
-											if (el.value.length > 0) {
-												el.value = el.value.replace(/\t/g, '').trim();
-												el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
-												el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
-												console.log(el.value);
+											if (el.value.length == 0) { return; }
+											el.value = el.value.replace(/\t/g, '').trim();
+											el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
+											el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
 											}
+											console.log(el.value);
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
