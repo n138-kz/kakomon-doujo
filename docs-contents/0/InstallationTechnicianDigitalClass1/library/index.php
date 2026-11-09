@@ -263,9 +263,10 @@ if (count($proc->mondais_assign('get'))>0) {
 }
 $content = $proc->mondais('get', $requestForm)['content'];
 foreach ($content as $k => $v) {
-	$mondai = $v['mondai'];
-	$content[$k] = array_merge($v, $mondai);
+	$proc->mondais_assign('set', ['mondai_id'=>$v['internal_id']]);
+	$content[$k] = array_merge($v, $v['mondai']);
 }
+
 header('Content-Type: application/json');
 echo json_encode($content);
 exit;
