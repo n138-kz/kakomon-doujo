@@ -56,7 +56,22 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
     session_id uuid not null,
     mondai_id uuid not null,
     user_selected varchar(4),
-    correct_mondai BOOLEAN DEFAULT false
+    correct_mondai BOOLEAN DEFAULT false,
+    CONSTRAINT fk_userid
+        FOREIGN KEY (user_id)
+        REFERENCES app_user(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_session_id
+        FOREIGN KEY (session_id)
+        REFERENCES app_authn_session(session_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_session_id
+        FOREIGN KEY (mondai_id)
+        REFERENCES InstallationTechnicianDigitalClass1_mondaiset(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 -- 過去に解いた問題のリスト:
