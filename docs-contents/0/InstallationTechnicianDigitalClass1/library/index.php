@@ -146,6 +146,10 @@ if (count($assigned_mondais)>0) {
 		for ($i=0;$i<count($assigned_mondais);$i++) { 
 			$assigned_mondais[$i] = $proc->mondais('getbyid', ['id'=>$assigned_mondais[$i]['mondai_id']])['content'];
 			$assigned_mondais[$i] = array_merge($assigned_mondais[$i], json_decode($assigned_mondais[$i]['mondai'], true));
+			$assigned_mondais[$i]['internal_id'] = $assigned_mondais[$i]['id'];
+			$assigned_mondais[$i]['id'] = $assigned_mondais[$i]['openid'];
+			unset($assigned_mondais[$i]['openid']);
+			ksort($assigned_mondais[$i]);
 		}
 		header('Content-Type: application/json');
 		error_log(count($assigned_mondais).PHP_EOL.'[0]: '.PHP_EOL.json_encode($assigned_mondais[0], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
