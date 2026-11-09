@@ -613,7 +613,7 @@
 											if (el.value.length==0) { return; }
 
 											let elv = el.value.split('-----')[1];
-											window.open(`https://www.google.com/search?q=${encodeURIComponent(elv.replace(/\n/, '%20').trim())}`, Date.now(), 'width=600,height=400');
+											window.open(`https://www.google.com/search?q=${encodeURIComponent('解説 '+elv.replace(/\n/, '%20').trim())}`, Date.now(), 'width=600,height=400');
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
