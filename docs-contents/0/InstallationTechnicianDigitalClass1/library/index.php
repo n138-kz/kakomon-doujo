@@ -169,4 +169,15 @@ if (false) {
 	header('Content-Type: application/json');
 	echo json_encode($content);
 	exit;
+} else {
+	http_response_code(405);
+	header('Content-Type: application/json');
+	$m = json_encode([
+		'status' => http_response_code(),
+		'error' => [
+			'title' => 'Method NOT Allowed.',
+			'message' => 'Request Method is NOT Allowed',
+		],
+	]);
+	error_log($m); die($m);
 }
