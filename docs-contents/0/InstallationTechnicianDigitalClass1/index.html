@@ -521,7 +521,6 @@
 
 				console.log(mondais);
 				let item = {};
-				item['details'] = mondais ?? [];
 				item['summary'] = {};
 				item['summary']['correct'] = 0;
 				item['summary']['incorrect'] = 0;
@@ -539,8 +538,19 @@
 						}
 					}
 				}
+				item['details'] = JSON.parse(JSON.stringify(mondais)) ?? [];
+				item['senditem'] = [];
 				item['summary']['incorrect'] = mondais.length - item['summary']['correct'];
-				
+				for (let i=0;i<item['details'].length;i++) {
+					item['senditem'].push({
+						'internal_id': item['details'][i]['internal_id'],
+						'id': item['details'][i]['id'],
+						'selected': item['details'][i]['sentakushi_selected'],
+					});
+					if (i>10**3) { console.warn(i); break; }
+				}
+				console.log(item['details'].length===item['senditem'].length);
+
 				let table = {};
 				table['summary'] = [
 					{name: '問題数', value: mondais.length, unit: '', textAlign: 'right'},
