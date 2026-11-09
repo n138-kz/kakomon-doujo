@@ -130,43 +130,43 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 
 if (false) {
 } elseif ($_SERVER['REQUEST_METHOD']=='GET') {
-$requestForm = $_GET ?? [];
-$requestForm['limit'] = $requestForm['limit'] ?? 1;
-$requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
-$requestForm['limit'] = (1*$requestForm['limit'])>0 ? intval(1*$requestForm['limit']) : 1;
+	$requestForm = $_GET ?? [];
+	$requestForm['limit'] = $requestForm['limit'] ?? 1;
+	$requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
+	$requestForm['limit'] = (1*$requestForm['limit'])>0 ? intval(1*$requestForm['limit']) : 1;
 
-if (false) {
-} elseif (isset($_GET['what_length_mondai'])) {
-	header('Content-Type: application/json');
-	echo json_encode($proc->mondais('count', $requestForm));
-	exit;
-}
-
-$assigned_mondais = $proc1->mondais_assign(null,'get') ?? [];
-if (count($assigned_mondais)>0) {
-	if (count($assigned_mondais)===$requestForm['limit']) {
-		for ($i=0;$i<count($assigned_mondais);$i++) { 
-			$assigned_mondais[$i] = $proc->mondais('getbyid', ['id'=>$assigned_mondais[$i]['mondai_id']])['content'];
-			$assigned_mondais[$i] = array_merge($assigned_mondais[$i], json_decode($assigned_mondais[$i]['mondai'], true));
-			$assigned_mondais[$i]['internal_id'] = $assigned_mondais[$i]['id'];
-			$assigned_mondais[$i]['id'] = $assigned_mondais[$i]['openid'];
-			unset($assigned_mondais[$i]['openid']);
-			ksort($assigned_mondais[$i]);
-		}
+	if (false) {
+	} elseif (isset($_GET['what_length_mondai'])) {
 		header('Content-Type: application/json');
-		error_log(count($assigned_mondais).PHP_EOL.'[0]: '.PHP_EOL.json_encode($assigned_mondais[0], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
-		echo json_encode($assigned_mondais);
+		echo json_encode($proc->mondais('count', $requestForm));
 		exit;
 	}
-	$proc1->mondais_assign(null,'reset');
-}
-$content = $proc->mondais('get', $requestForm)['content'];
-foreach ($content as $k => $v) {
-	$proc1->mondais_assign(null,'set', ['mondai_id'=>$v['internal_id']]);
-	$content[$k] = array_merge($v, $v['mondai']);
-}
 
-header('Content-Type: application/json');
-echo json_encode($content);
-exit;
+	$assigned_mondais = $proc1->mondais_assign(null,'get') ?? [];
+	if (count($assigned_mondais)>0) {
+		if (count($assigned_mondais)===$requestForm['limit']) {
+			for ($i=0;$i<count($assigned_mondais);$i++) { 
+				$assigned_mondais[$i] = $proc->mondais('getbyid', ['id'=>$assigned_mondais[$i]['mondai_id']])['content'];
+				$assigned_mondais[$i] = array_merge($assigned_mondais[$i], json_decode($assigned_mondais[$i]['mondai'], true));
+				$assigned_mondais[$i]['internal_id'] = $assigned_mondais[$i]['id'];
+				$assigned_mondais[$i]['id'] = $assigned_mondais[$i]['openid'];
+				unset($assigned_mondais[$i]['openid']);
+				ksort($assigned_mondais[$i]);
+			}
+			header('Content-Type: application/json');
+			error_log(count($assigned_mondais).PHP_EOL.'[0]: '.PHP_EOL.json_encode($assigned_mondais[0], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+			echo json_encode($assigned_mondais);
+			exit;
+		}
+		$proc1->mondais_assign(null,'reset');
+	}
+	$content = $proc->mondais('get', $requestForm)['content'];
+	foreach ($content as $k => $v) {
+		$proc1->mondais_assign(null,'set', ['mondai_id'=>$v['internal_id']]);
+		$content[$k] = array_merge($v, $v['mondai']);
+	}
+
+	header('Content-Type: application/json');
+	echo json_encode($content);
+	exit;
 }
