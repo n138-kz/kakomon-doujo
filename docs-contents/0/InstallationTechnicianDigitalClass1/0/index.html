@@ -133,7 +133,7 @@
 									d.push(document.createElement('a')); {
 										d[d.length-1].textContent = `Idx: ${index}`;
 										d[d.length-1].target = '_self';
-										d[d.length-1].target = `./?index=${index}`;
+										d[d.length-1].href = `./?index=${index}`;
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
