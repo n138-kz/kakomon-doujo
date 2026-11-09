@@ -13,7 +13,6 @@ class resource extends local {
 	public function __construct () {
 		parent::init();
 		$this->config = parent::config('get');
-		$this->conn_database = local::connectDB($this->config['internal']['database']);
 	}
 	public function mondais_category($method='get', $options=[]) {
 		if (false){
@@ -39,6 +38,7 @@ class resource extends local {
 		} else {
 			error_log('Unknown params $1: ');
 		}
+		$this->conn_database = parent::connectDB($this->config['internal']['database']);
 	}
 	public function mondais($method='get', $options=[]) {
 		if (false){
