@@ -93,11 +93,40 @@
 				if (req.status === 401) {
 					location.replace('../../auth/');
 				}
-				let res = await req.text();
-				let bin = JSON.parse(res);
-				bin = Array.isArray(bin) ? bin:[];
-				if (bin.length <= 0) {return;}
-				mondais = [...mondais, ...bin];
+				let restext = await req.text();
+				let res = null;
+				try {
+					res = JSON.parse(restext);
+				} catch (err) {
+					console.error(restext);
+					let d = [];
+					document.getElementById('mondai').textContent='';
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('p')); {
+							restext = restext.replace(/<br( \/)>/g, '<br>');
+							console.log(restext.split('<br>').length)
+							for (let i=0;i<restext.split('<br>').length;i++) {
+								console.log((restext.split('<br>')[i]));
+								
+								if (restext.split('<br>')[i].trim()=='') {
+									continue;
+								}
+								d.push(document.createTextNode(restext.split('<br>')[i])); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								if (i>100) {break}
+							}
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
+				}
+				res = Array.isArray(res) ? res:[];
+				if (res.length <= 0) {return;}
+				mondais = [...mondais, ...res];
 				
 				storage = {
 					recv_at: Date.now()/10**3,
