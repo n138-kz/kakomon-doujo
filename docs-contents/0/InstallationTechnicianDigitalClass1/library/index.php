@@ -205,7 +205,7 @@ if (false) {
 	$proc1->mondais_assign(null,'reset');
 	$m = json_encode([
 		'status' => http_response_code(),
-		'message' => '',
+		'message' => 'reset',
 	]);
 	
 	error_log($m); die($m);
