@@ -36,6 +36,11 @@ services:
       POSTGRES_DB: ${INTERNAL_PGDATA_DBNAME:-postgres}
       POSTGRES_USER: ${INTERNAL_PGDATA_USERID:-postgres}
       POSTGRES_PASSWORD: ${INTERNAL_PGDATA_PASSWORD:-password}
+    command: >
+      postgres
+      -c log_statement=all
+      -c log_duration=on
+      -c log_line_prefix='%m [%p] '
     volumes:
       - ./container-db-build:/docker-entrypoint-initdb.d/
       - pgdata:/var/lib/postgresql/data
