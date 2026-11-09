@@ -169,6 +169,46 @@ if (false) {
 	header('Content-Type: application/json');
 	echo json_encode($content);
 	exit;
+} elseif ($_SERVER['REQUEST_METHOD']=='POST') {
+	if (explode(';', $_SERVER['HTTP_CONTENT_TYPE'])[0]!='application/json') {
+		http_response_code(400);
+		$m = json_encode([
+			'status' => http_response_code(),
+			'error' => [
+				'title' => 'Invalid Request.',
+				'message' => 'Contains invalid format.',
+			],
+		]);
+		error_log($m); die($m);
+	}
+	header('Content-Type: application/json; charset=UTF-8');
+	$_POST = file_get_contents('php://input');
+	$_POST = json_decode($_POST, true);
+	$_REQUEST = array_merge($_REQUEST, $_POST);
+	if (json_last_error() !== JSON_ERROR_NONE) {
+		http_response_code(400);
+		$m = json_encode([
+			'status' => http_response_code(),
+			'error' => [
+				'title' => 'Invalid JSON.',
+				'message' => 'Contains invalid JSON format.',
+			],
+		]);
+		error_log($m); die($m);
+	}
+	for ($i=0;$i<count($_POST);$i++) {
+		unset($_POST[$i]['mondai']);
+		unset($_POST[$i]['kaisetsu']);
+	}
+	error_log(var_export($_POST,1));
+
+	$proc1->mondais_assign(null,'reset');
+	$m = json_encode([
+		'status' => http_response_code(),
+		'message' => '',
+	]);
+	
+	error_log($m); die($m);
 } else {
 	http_response_code(405);
 	header('Content-Type: application/json');
