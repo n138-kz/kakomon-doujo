@@ -542,10 +542,10 @@
 				
 				let table = {};
 				table['summary'] = [
-					{name: '問題数', value: mondais.length, unit: ''},
-					{name: '正答数', value: item['summary']['correct'], unit: ''},
-					{name: '誤答数', value: item['summary']['incorrect'], unit: ''},
-					{name: '正答率', value: item['summary']['correct']/mondais.length, unit: '%'},
+					{name: '問題数', value: mondais.length, unit: '', textAlign: 'right'},
+					{name: '正答数', value: item['summary']['correct'], unit: '', textAlign: 'right'},
+					{name: '誤答数', value: item['summary']['incorrect'], unit: '', textAlign: 'right'},
+					{name: '正答率', value: `${Math.floor((item['summary']['correct']/mondais.length)*100)}`, unit: '%', textAlign: 'right'},
 				];
 				table['detail'] = [];
 				for (let i=0;i<mondais.length;i++) {
@@ -568,6 +568,7 @@
 
 									d.push(document.createElement('td')); {
 										d[d.length-1].textContent = table['summary'][i]['value'];
+										d[d.length-1].style.textAlign = table['summary'][i]['textAlign']??'left';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
