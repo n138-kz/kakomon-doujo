@@ -119,10 +119,12 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
 
 -- VIEW
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
-SELECT m.id internal_id, m.openid id, m.mondai,c.name FROM InstallationTechnicianDigitalClass1_mondaiset m
-JOIN installationtechniciandigitalclass1_category c
-ON m.mondai->>'category' = c.id::text
-WHERE deleted = false ORDER BY random();
+    SELECT m.id internal_id, m.openid id, m.mondai,c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false
+    ORDER BY random();
 
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
 SELECT (SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET) count_all,
