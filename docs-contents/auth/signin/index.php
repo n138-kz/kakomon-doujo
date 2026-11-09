@@ -23,7 +23,7 @@ class auth extends local {
 		$hexString = '';
 
 		foreach ($binaryArray as $bin) {
-			if (strlen($bin) < 8) continue; 
+			if (strlen($bin) < 8) continue;
 			$hexString .= str_pad(base_convert($bin, 2, 16), 2, '0', STR_PAD_LEFT);
 		}
 		return pack('H*', $hexString);
@@ -102,7 +102,7 @@ class auth extends local {
 			$discord_user = [];
 			$discord_push_item = [];
 			$client = self::clientinf_get();
-			
+
 			try {
 				$url = 'https://discordapp.com/api/oauth2/token';
 				$data = [

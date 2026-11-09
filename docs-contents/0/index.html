@@ -58,7 +58,7 @@
 				let bin = JSON.parse(res);
 				catalog = bin;
 			}
-			
+
 			document.querySelector('div.container').textContent = '';
 			const d=[];
 			for (let i=0;i<catalog.length;i++) {
@@ -68,7 +68,7 @@
 						d[d.length-1].textContent = catalog[i]['name'];
 					}
 					d[d.length-2].appendChild(d[d.length-1]); d.pop();
-					
+
 					d.push(document.createElement('table')); {
 						d.push(document.createElement('tbody')); {
 							d.push(document.createElement('tr')); {

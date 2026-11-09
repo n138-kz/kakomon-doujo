@@ -145,7 +145,7 @@ if (false) {
 	$assigned_mondais = $proc1->mondais_assign(null,'get') ?? [];
 	if (count($assigned_mondais)>0) {
 		if (count($assigned_mondais)===$requestForm['limit']) {
-			for ($i=0;$i<count($assigned_mondais);$i++) { 
+			for ($i=0;$i<count($assigned_mondais);$i++) {
 				$assigned_mondais[$i] = $proc->mondais('getbyid', ['id'=>$assigned_mondais[$i]['mondai_id']])['content'];
 				$assigned_mondais[$i] = array_merge($assigned_mondais[$i], json_decode($assigned_mondais[$i]['mondai'], true));
 				$assigned_mondais[$i]['internal_id'] = $assigned_mondais[$i]['id'];
@@ -207,7 +207,7 @@ if (false) {
 		'status' => http_response_code(),
 		'message' => 'reset',
 	]);
-	
+
 	error_log($m); die($m);
 } else {
 	http_response_code(405);

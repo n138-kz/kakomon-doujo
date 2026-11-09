@@ -100,7 +100,7 @@
 						d[d.length-1].textContent = `Error ${req.status}, ${req.statusText}`;
 					}
 					document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
-					
+
 					return;
 				}
 				let restext = await req.text();
@@ -135,7 +135,7 @@
 				res = Array.isArray(res) ? res:[];
 				if (res.length <= 0) {return;}
 				mondais = [...mondais, ...res];
-				
+
 				storage = {
 					recv_at: Date.now()/10**3,
 					mondais: mondais,
@@ -264,7 +264,7 @@
 					return;
 				}
 				d = [];
-				
+
 				document.getElementById('kaitou').textContent='';
 				d.push(document.createElement('div')); {
 					d[d.length-1].dataset.index = '0';
@@ -288,7 +288,7 @@
 									d[d.length-1].addEventListener('touchend', (e)=>{
 										const currentTime = new Date().getTime();
 										const tapLength = currentTime - lastTapTime;
-			
+
 										if (tapLength < 300 && tapLength > 0) {
 											e.preventDefault();
 											setTimeout(() => {
@@ -313,7 +313,7 @@
 									d[d.length-1].addEventListener('touchend', (e)=>{
 										const currentTime = new Date().getTime();
 										const tapLength = currentTime - lastTapTime;
-			
+
 										if (tapLength < 300 && tapLength > 0) {
 											e.preventDefault();
 											setTimeout(() => {
@@ -396,7 +396,7 @@
 												document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
 											}
 										}
-										
+
 										for (let i=0;i<mondais[index]['sentakushi'].length;i++) {
 											mondais[index]['sentakushi'][i]['selected'] = false;
 										}
@@ -505,7 +505,7 @@
 							});
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
 						}
-					}	
+					}
 
 					console.log(d);
 					if (d.length>0) {
@@ -585,7 +585,7 @@
 							d[d.length-1].textContent = `Error ${req.status}, ${req.statusText}`;
 						}
 						document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
-						
+
 						return;
 					} else if (req.status === 204) {
 						return;
@@ -684,7 +684,7 @@
 
 											d.push(document.createElement('br')); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
-		
+
 											for (let j=0;j<item['details'][i]['mondai']['text'].split('\n').length;j++) {
 												d.push(document.createTextNode(item['details'][i]['mondai']['text'].split('\n')[j])); {}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -711,16 +711,16 @@
 										d.push(document.createElement('p')); {
 											d.push(document.createTextNode(`正答: ${item['details'][i]['sentakushi'][item['details'][i]['sentakushi_answer']]['text']}`)); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
-	
+
 											d.push(document.createElement('br')); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
-	
+
 											d.push(document.createTextNode('解説:')); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
-			
+
 											d.push(document.createElement('br')); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
-	
+
 											for (let j=0;j<item['details'][i]['kaisetsu']['text'].split('\n').length;j++) {
 												d.push(document.createTextNode(item['details'][i]['kaisetsu']['text'].split('\n')[j])); {}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -758,7 +758,7 @@
 				}
 				document.getElementById('mondai').appendChild(d[d.length-1]);
 			}
-			
+
 			if (d.length>0) {
 				document.getElementById('mondai').appendChild(d[d.length-1]);
 				d.pop();
