@@ -125,7 +125,7 @@
 								d.push(document.createElement('br')); {}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
-								if (i>100) {break}
+								if (i>10**3) { console.warn(i); break; }
 							}
 						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -626,7 +626,7 @@
 													d[d.length-2].appendChild(d[d.length-1]); d.pop();
 												}
 
-												if (j>100) {console.warn(j); break;}
+												if (j>10**3) {console.warn(j); break;}
 											}
 
 											d.push(document.createElement('br')); {}
@@ -662,7 +662,7 @@
 													d[d.length-2].appendChild(d[d.length-1]); d.pop();
 												}
 
-												if (j>100) {console.warn(j); break;}
+												if (j>10**3) {console.warn(j); break;}
 											}
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
