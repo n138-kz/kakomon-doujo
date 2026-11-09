@@ -198,6 +198,22 @@ class resource extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
+		} elseif ($method == 'reset') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['sid']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
 		} else {
 			error_log('Unknown params $1: '.$method);
 		}
