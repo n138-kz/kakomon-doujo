@@ -128,6 +128,8 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 	error_log($m); die($m);
 }
 
+if (false) {
+} elseif ($_SERVER['REQUEST_METHOD']=='GET') {
 $requestForm = $_GET ?? [];
 $requestForm['limit'] = $requestForm['limit'] ?? 1;
 $requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
@@ -167,3 +169,4 @@ foreach ($content as $k => $v) {
 header('Content-Type: application/json');
 echo json_encode($content);
 exit;
+}
