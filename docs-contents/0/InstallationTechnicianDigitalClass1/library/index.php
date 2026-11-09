@@ -249,7 +249,7 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 $requestForm = $_GET ?? [];
 $requestForm['limit'] = $requestForm['limit'] ?? 1;
 $requestForm['limit'] = is_numeric($requestForm['limit']) ? 1*$requestForm['limit'] : 1;
-$requestForm['limit'] = (1*$requestForm['limit'])>0 ? 1*$requestForm['limit'] : 1;
+$requestForm['limit'] = (1*$requestForm['limit'])>0 ? intval(1*$requestForm['limit']) : 1;
 
 if (false) {
 } elseif (isset($_GET['what_length_mondai'])) {
