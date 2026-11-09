@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
 -- 答案提出後にリセットする
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
-    id uuid primary key default gen_random_uuid(),
+    id serial primary key,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id uuid not null,
