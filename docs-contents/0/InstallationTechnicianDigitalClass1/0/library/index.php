@@ -138,7 +138,7 @@ class resource extends local {
 					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset WHERE id=?;";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$options['id']]);
-					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
 				}
 				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				return [
