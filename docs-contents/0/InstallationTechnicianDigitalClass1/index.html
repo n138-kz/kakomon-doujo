@@ -634,6 +634,16 @@
 				d.pop();
 			}
 		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			// 履歴に現在の状態を追加する
+			history.pushState(null, null, window.location.href);
+
+			// 「戻る」ボタンが押されたときのイベントを検知する
+			window.addEventListener('popstate', () => {
+				// 強制的に指定のURLへリダイレクト（履歴を上書き）
+				location.replace('../');
+			});
+		});
 	</script>
 </head>
 <body>
