@@ -369,6 +369,67 @@ class resource_1 extends local {
 			error_log('Unknown params $1: ');
 		}
 	}
+	public function mondais_assign($table_basename=null, $method='get', $options=[]) {
+		if (is_null($table_basename)) {
+			if (is_null($this->table_basename)) {
+				error_log("var \$table_basename is NULL");
+				return;
+			}
+			$table_basename = $this->table_basename;
+		}
+		if (false){
+		} elseif ($method == 'get') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'SELECT * FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?;';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['sid']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		} elseif ($method == 'set') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'INSERT INTO InstallationTechnicianDigitalClass1_assigns (user_id, session_id, mondai_id) VALUES (?,?,?);';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid'], $_SESSION['sid'], $options['mondai_id']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		} elseif ($method == 'reset') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = 'DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['sid']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		} else {
+			error_log('Unknown params $1: '.$method);
+		}
+	}
 }
 
 class exapi {

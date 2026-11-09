@@ -98,60 +98,6 @@ class resource extends local {
 			error_log('Unknown params $1: '.$method);
 		}
 	}
-	public function mondais_assign($method='get', $options=[]) {
-		if (false){
-		} elseif ($method == 'get') {
-			try {
-				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
-					$sql = 'SELECT * FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?;';
-					$stm = $this->conn_database->prepare($sql);
-					$stm->execute([$_SESSION['sid']]);
-					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
-				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
-				return $res;
-			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
-				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
-			}
-		} elseif ($method == 'set') {
-			try {
-				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
-					$sql = 'INSERT INTO InstallationTechnicianDigitalClass1_assigns (user_id, session_id, mondai_id) VALUES (?,?,?);';
-					$stm = $this->conn_database->prepare($sql);
-					$stm->execute([$_SESSION['uid'], $_SESSION['sid'], $options['mondai_id']]);
-					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
-				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
-				return $res;
-			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
-				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
-			}
-		} elseif ($method == 'reset') {
-			try {
-				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
-					$sql = 'DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?';
-					$stm = $this->conn_database->prepare($sql);
-					$stm->execute([$_SESSION['sid']]);
-					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
-				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
-				return $res;
-			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
-				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
-			}
-		} else {
-			error_log('Unknown params $1: '.$method);
-		}
-	}
 }
 
 $proc = new resource();
@@ -194,7 +140,7 @@ if (false) {
 	exit;
 }
 
-$assigned_mondais = $proc->mondais_assign('get') ?? [];
+$assigned_mondais = $proc1->mondais_assign(null,'get') ?? [];
 if (count($assigned_mondais)>0) {
 	if (count($assigned_mondais)===$requestForm['limit']) {
 		for ($i=0;$i<count($assigned_mondais);$i++) { 
@@ -206,11 +152,11 @@ if (count($assigned_mondais)>0) {
 		echo json_encode($assigned_mondais);
 		exit;
 	}
-	$proc->mondais_assign('reset');
+	$proc1->mondais_assign(null,'reset');
 }
 $content = $proc->mondais('get', $requestForm)['content'];
 foreach ($content as $k => $v) {
-	$proc->mondais_assign('set', ['mondai_id'=>$v['internal_id']]);
+	$proc1->mondais_assign(null,'set', ['mondai_id'=>$v['internal_id']]);
 	$content[$k] = array_merge($v, $v['mondai']);
 }
 
