@@ -414,7 +414,7 @@ class resource_1 extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = 'DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?';
+					$sql = "DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ? OR updated_at <= CURRENT_TIMESTAMP - INTERVAL '12 hours';";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$_SESSION['sid']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
