@@ -590,6 +590,22 @@
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Googleに投げ';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											if (el.value.length==0) { return; }
+
+											let elv = el.value.split('-----')[1];
+											window.open(`https://www.google.com/search?q=${encodeURIComponent(elv.replace(/\n/, '%20').trim())}`);
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
