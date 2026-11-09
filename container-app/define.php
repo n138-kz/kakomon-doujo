@@ -337,6 +337,38 @@ class resource_1 extends local {
 			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 		}
 	}
+	public function mondais_category($table_basename=null, $method='get', $options=[]) {
+		if (is_null($table_basename)) {
+			if (is_null($this->table_basename)) {
+				error_log("var \$table_basename is NULL");
+				return;
+			}
+			$table_basename = $this->table_basename;
+		}
+		if (false){
+		} elseif ($method == 'get') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = "SELECT * FROM {$table_basename}_category ORDER BY id ASC;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute();
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'options' => $options,
+					'content' => $res,
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+		} else {
+			error_log('Unknown params $1: ');
+		}
+	}
 }
 
 class exapi {
