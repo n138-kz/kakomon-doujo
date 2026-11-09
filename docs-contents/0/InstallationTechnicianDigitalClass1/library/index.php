@@ -109,6 +109,31 @@ class resource extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
+		} elseif ($method == 'getbyid') {
+			$options['id'] = $options['id'] ?? null;
+			$options['id'] = $options['id']!='' ? $options['id'] : null;
+			if (is_null($options['id'])) { return; }
+
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset WHERE id=?;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$options['id']]);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return [
+					'options' => $options,
+					'content' => $res,
+					'summary' => $stm->rowCount(),
+				];
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
+
 		} elseif ($method == 'count') {
 			$mondais_category = self::mondais_category('get');
 			try {
