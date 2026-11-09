@@ -37,7 +37,7 @@ CREATE TABLE app_authn_session (
     ip_address inet not null default '::1'::inet,
     user_agent text not null,
     payload JSONB NOT NULL DEFAULT '{}',
-    session_id uuid not null default gen_random_uuid(),
+    session_id uuid not null unique default gen_random_uuid(),
     expires_in INT not null DEFAULT (1::int4 << 31),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
