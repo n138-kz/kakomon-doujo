@@ -144,4 +144,10 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
         WHERE MONDAI ->> 'category' = '3'
     ) count_category_3;
 
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd AS
+    SELECT id,openid,created_at,updated_at
+    FROM installationtechniciandigitalclass1_mondaiset
+    WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '12 hours'
+    ORDER BY created_at ASC;
+
 COMMIT;
