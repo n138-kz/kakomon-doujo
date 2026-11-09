@@ -226,10 +226,12 @@ class resource extends local {
 }
 
 $proc = new resource();
+$proc1 = new resource_1();
 header('Content-Type: text/plain');
 $proc->checkAuthn();
 $proc->update_expires_at();
-$role = $proc->role();
+$proc1->setDedault_basename('InstallationTechnicianDigitalClass1');
+$role = $proc1->role();
 foreach ($role['role_descr'] as $k => $v) {
 	define('DB_ACCESS_LEVEL_FLAG_'.$v['description'], $v['id']);
 	/* * ($role['user'] & DB_ACCESS_LEVEL_FLAG_SEARCH) !== 0 * */
