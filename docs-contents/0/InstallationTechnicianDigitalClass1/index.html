@@ -561,6 +561,64 @@
 				console.log({item: item, table: table,});
 
 				{
+					let token = '';
+					let url = './library/';
+					let options = {};
+					let req = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Accept': 'application/json',
+							'Authorization': `Bearer ${token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(item['senditem']),
+					});
+					console.log(req.status, req.statusText);
+					if (false) {
+					} else if (req.status === 401) {
+						location.replace('../../auth/');
+					} else if (req.status >= 500) {
+						document.getElementById('mondai').textContent='';
+						let d = [];
+						d.push(document.createElement('div')); {
+							d.push(document.createElement('p')); {}
+							d[d.length-1].textContent = `Error ${req.status}, ${req.statusText}`;
+						}
+						document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
+						
+						return;
+					} else if (req.status === 204) {
+						return;
+					}
+					let restext = await req.text();
+					let res = null;
+					try {
+						res = JSON.parse(restext);
+					} catch (err) {
+						console.error(restext);
+						let d = [];
+						document.getElementById('mondai').textContent='';
+						d.push(document.createElement('div')); {
+							d.push(document.createElement('p')); {
+								restext = restext.replace(/<br( \/)>/g, '<br>');
+								console.log(restext.split('<br>').length)
+								for (let i=0;i<restext.split('<br>').length;i++) {
+									if (restext.split('<br>')[i].trim()=='') {
+										continue;
+									}
+									d.push(document.createTextNode(restext.split('<br>')[i])); {}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('br')); {}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									if (i>10**3) { console.warn(i); break; }
+								}
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
+					}
 				}
 				mondais = [];
 
