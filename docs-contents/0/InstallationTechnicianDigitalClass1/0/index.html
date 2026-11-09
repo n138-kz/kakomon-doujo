@@ -292,6 +292,10 @@
 											d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
 										}
 										d[d.length-1].dataset.colname = 'kakosyutsudai';
+										d[d.length-1].addEventListener('blur', (e)=>{
+											e.target.value = e.target.value.replace(/,+$/g, ',');
+											e.target.value = e.target.value.trim();
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									d.push(document.createElement('p')); {
