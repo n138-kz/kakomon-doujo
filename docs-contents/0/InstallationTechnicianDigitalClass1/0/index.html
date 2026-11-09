@@ -559,7 +559,13 @@
 											el.value = el.value.replace(/\t/g, '').trim();
 											el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
 											el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
+
+											let el1 = '';
+											for (let i=0;i<el.value.split('\n').length;i++) {
+												el1 += el.value.trim()+'\n';
 											}
+											el.value = el1;
+
 											console.log(el.value);
 										});
 									}
