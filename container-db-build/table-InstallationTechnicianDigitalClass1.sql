@@ -68,7 +68,17 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
     user_id uuid not null,
     mondai_id uuid not null,
     user_selected varchar(4),
-    correct_mondai BOOLEAN DEFAULT false
+    correct_mondai BOOLEAN DEFAULT false,
+    CONSTRAINT fk_userid
+        FOREIGN KEY (user_id)
+        REFERENCES app_user(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_mondai_id
+        FOREIGN KEY (mondai_id)
+        REFERENCES InstallationTechnicianDigitalClass1_mondaiset(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
