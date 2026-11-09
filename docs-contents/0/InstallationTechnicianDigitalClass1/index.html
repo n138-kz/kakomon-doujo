@@ -92,6 +92,16 @@
 				console.log(req.status, req.statusText);
 				if (req.status === 401) {
 					location.replace('../../auth/');
+				} else if (req.status >= 500) {
+					document.getElementById('mondai').textContent='';
+					let d = [];
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('p')); {}
+						d[d.length-1].textContent = `Error ${req.status}, ${req.statusText}`;
+					}
+					document.getElementById('mondai').appendChild(d[d.length-1]); d.pop();
+					
+					return;
 				}
 				let restext = await req.text();
 				let res = null;
