@@ -521,6 +521,7 @@
 
 				console.log(mondais);
 				let item = {};
+				item['details'] = mondais ?? [];
 				item['summary'] = {};
 				item['summary']['correct'] = 0;
 				item['summary']['incorrect'] = 0;
@@ -548,7 +549,10 @@
 					{name: '正答率', value: `${Math.floor((item['summary']['correct']/mondais.length)*100)}`, unit: '%', textAlign: 'right'},
 				];
 				console.log({item: item, table: table,});
+
+				{
 				}
+				mondais = [];
 
 				d.push(document.createElement('div')); {
 					d.push(document.createElement('table')); {
@@ -597,14 +601,21 @@
 						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
 						d.push(document.createElement('tbody')); {
-							for (let i=0;i<mondais.length;i++) {
+							for (let i=0;i<item['details'].length;i++) {
 								d.push(document.createElement('tr')); {
 									d.push(document.createElement('td')); {
 										d[d.length-1].textContent = mondais[i]['mondai']['text'];
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									d.push(document.createElement('td')); {
-										d[d.length-1].textContent = mondais[i]['sentakushi']['answer']===mondais[i]['sentakushi']['selected']?'◯':'✕';
+										const v = item['details'][i]['sentakushi']['answer']===item['details'][i]['sentakushi']['selected'];
+										d[d.length-1].style.width = '2.5em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.verticalAlign = 'baseline';
+										d[d.length-1].dataset.correct = v;
+
+										d.push(document.createTextNode(v?'◯':'✕')); {}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
