@@ -555,6 +555,8 @@
 				mondais = [];
 
 				d.push(document.createElement('div')); {
+					d[d.length-1].style.margin = '0 auto';
+
 					d.push(document.createElement('table')); {
 						d[d.length-1].dataset.name = 'summary';
 						d.push(document.createElement('tbody')); {
@@ -584,8 +586,9 @@
 					d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
 					d.push(document.createElement('table')); {
-						d[d.length-1].dataset.name = 'summary';
+						d[d.length-1].dataset.name = 'result_detail';
 						d[d.length-1].border = '1';
+						d[d.length-1].style.margin = '0 auto';
 						d.push(document.createElement('thead')); {
 							d.push(document.createElement('tr')); {
 								d.push(document.createElement('th')); {
@@ -607,6 +610,7 @@
 										d[d.length-1].textContent = mondais[i]['mondai']['text'];
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
 									d.push(document.createElement('td')); {
 										const v = item['details'][i]['sentakushi']['answer']===item['details'][i]['sentakushi']['selected'];
 										d[d.length-1].style.width = '2.5em';
