@@ -547,13 +547,8 @@
 					{name: '誤答数', value: item['summary']['incorrect'], unit: '', textAlign: 'right'},
 					{name: '正答率', value: `${Math.floor((item['summary']['correct']/mondais.length)*100)}`, unit: '%', textAlign: 'right'},
 				];
-				table['detail'] = [];
-				for (let i=0;i<mondais.length;i++) {
-					table['detail'].push({name: '問題文', value: mondais[i]['mondai']['text']});
-					table['detail'].push({name: '正誤', value: (mondais[i]['sentakushi']['answer']===mondais[i]['sentakushi']['selected'])?'◯':'✕'});
+				console.log({item: item, table: table,});
 				}
-				
-				console.log(item, table);
 
 				d.push(document.createElement('div')); {
 					d.push(document.createElement('table')); {
