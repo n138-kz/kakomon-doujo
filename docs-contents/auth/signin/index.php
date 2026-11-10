@@ -266,7 +266,6 @@ class auth extends local {
 						$res['id'] = $res['id'] ?? '_';
 						$res['rawjson'] = json_decode($res['rawjson'], true) ?? [];
 						$session_user = $res;
-						error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 
 						$sql = 'UPDATE app_user SET rawjson=? WHERE id=?';
 						$this->conn_database->beginTransaction();
