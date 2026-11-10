@@ -358,7 +358,6 @@ class auth extends local {
 				}
 				unset($curl_req);
 			}
-			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($curl_res, 1));
 
 			http_response_code(200);
 			echo json_encode([
