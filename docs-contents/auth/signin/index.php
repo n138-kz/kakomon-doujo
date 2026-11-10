@@ -104,6 +104,7 @@ class auth extends local {
 			$client = self::clientinf_get();
 
 			try {
+				/* * OAuth --> authn * */
 				$url = 'https://discordapp.com/api/oauth2/token';
 				$data = [
 					'client_id'=>$config['external']['discord']['bot']['client_id'],
@@ -137,6 +138,7 @@ class auth extends local {
 				$curl_res['access_token'] = $curl_res['access_token'] ?? null;
 				$credential = "{$curl_res['token_type']} {$curl_res['access_token']}";
 
+				/* * OAuth --> authz * */
 				$url = 'https://discordapp.com/api/users/@me';
 				$options = [ "Authorization: {$credential}" ];
 				$curl_req = curl_init();
@@ -161,6 +163,26 @@ class auth extends local {
 				} else {
 					throw new \Exception('[AUTHORIZATION REJECT] The security of your account could not be verified. Please try again after completing Discord email address verification and setting up two-factor authentication (2FA).');
 				}
+
+				/* * OAuth --> authn * */
+				$url = 'https://discordapp.com/api/oauth2/token/revoke';
+				// https://discord.com/api/oauth2/token/revoke ?
+				$data = [
+					'token' => explode(' ', $credential)[1],
+					'token_type_hint' => 'access_token',
+				];
+				$options = [ 'content-type: application/x-www-form-urlencoded' ];
+				$curl_req = curl_init();
+				curl_setopt($curl_req, CURLOPT_URL, $url);
+				curl_setopt($curl_req, CURLOPT_POST, TRUE);
+				curl_setopt($curl_req, CURLOPT_POSTFIELDS, http_build_query($data));
+				curl_setopt($curl_req, CURLOPT_HTTPHEADER, $options);
+				curl_setopt($curl_req, CURLOPT_RETURNTRANSFER, TRUE);
+				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
+				$curl_res=curl_exec($curl_req);
+				$curl_res=json_decode($curl_res, TRUE);
+				$curl_req=null;
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
