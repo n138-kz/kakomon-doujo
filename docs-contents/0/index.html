@@ -98,7 +98,7 @@
 										d[d.length-1].type = 'button';
 										d[d.length-1].value = '演習開始';
 										d[d.length-1].dataset.href = `./${catalog[i]['id']}/?limit`;
-										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].style.marginRight = '5px';
 										d[d.length-1].addEventListener('click', (e)=>{
 											location.replace(`${e.target.dataset.href.split('?')[0]}?limit=${e.target.parentElement.parentElement.parentElement.querySelector('input[type="number"]').value}`);
 										});
@@ -109,7 +109,7 @@
 										d[d.length-1].type = 'button';
 										d[d.length-1].value = '問題管理';
 										d[d.length-1].dataset.href = `./${catalog[i]['id']}/0/`;
-										d[d.length-1].style.marginLeft = '10px';
+										d[d.length-1].style.marginLeft = '5px';
 										d[d.length-1].addEventListener('click', (e)=>{
 											location.replace(`${e.target.dataset.href.split('?')[0]}?limit=${e.target.parentElement.parentElement.parentElement.querySelector('input[type="number"]').value}`);
 										});
