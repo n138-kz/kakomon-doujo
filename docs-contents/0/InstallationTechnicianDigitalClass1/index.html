@@ -17,10 +17,10 @@
 		#mondai {
 			background-color: white;
 			box-sizing: border-box;
-			width: calc(100vw - 75px - 15px);
+			width: calc(100vw - 110px - 15px);
 		}
 		#kaitou {
-			width: 75px;
+			width: 110px;
 			background-color: white;
 			user-select: none;
 			padding-top: 1em;
@@ -28,6 +28,7 @@
 		#kaitou input[type="button"] {
 			max-width: 100px;
 			width: 100%;
+			margin-top: 5px;
 		}
 		@media screen and (max-width: 400px) {
 			.container {
@@ -481,28 +482,32 @@
 
 					console.log((document.querySelector('#kaitou').dataset.buttonBottomShow ?? 1));
 					if (!window.matchMedia('(max-width: 400px)').matches && (document.querySelector('#kaitou').dataset.buttonBottomShow ?? 1)>0){
-						d.push(document.createElement('input')); {
-							d[d.length-1].type = 'button';
-							d[d.length-1].value = 'ページ下部に移動';
-							d[d.length-1].addEventListener('click', (ev)=>{
-								const style = document.createElement('style');
-								style.textContent = `
-									.container {
-										flex-direction: column;
+						d.push(document.createElement('p')); {
+							d[d.length-1].style.textAlign = 'center';
+							d.push(document.createElement('input')); {
+								d[d.length-1].type = 'button';
+								d[d.length-1].value = 'ページ下部に移動';
+								d[d.length-1].addEventListener('click', (ev)=>{
+									const style = document.createElement('style');
+									style.textContent = `
+										.container {
+											flex-direction: column;
+										}
+										#mondai, #kaitou {
+											width: 100%;
+										}
+									`;
+									document.head.appendChild(style);
+									const sentakushiList_slim = document.querySelectorAll('input[type="radio"][name="_"] + span');
+									const sentakushiList_wide = document.querySelectorAll('input[type="radio"][name="_"] + span + span');
+									for (let i=0;i<sentakushiList_slim.length;i++) {
+										sentakushiList_slim[i].textContent=sentakushiList_wide[i].textContent;
 									}
-									#mondai, #kaitou {
-										width: 100%;
-									}
-								`;
-								document.head.appendChild(style);
-								const sentakushiList_slim = document.querySelectorAll('input[type="radio"][name="_"] + span');
-								const sentakushiList_wide = document.querySelectorAll('input[type="radio"][name="_"] + span + span');
-								for (let i=0;i<sentakushiList_slim.length;i++) {
-									sentakushiList_slim[i].textContent=sentakushiList_wide[i].textContent;
-								}
-								document.querySelector('#kaitou').dataset.buttonBottomShow = '0';
-								ev.target.remove();
-							});
+									document.querySelector('#kaitou').dataset.buttonBottomShow = '0';
+									ev.target.remove();
+								});
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
 							d[d.length-2].appendChild(d[d.length-1]); d.pop();
 						}
 					}
