@@ -249,7 +249,6 @@ class auth extends local {
 					}
 					unset($curl_req);
 				}
-				error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($curl_res, 1));
 			} catch (\Exception $th) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
