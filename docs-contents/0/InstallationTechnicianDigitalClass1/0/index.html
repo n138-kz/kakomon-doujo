@@ -72,6 +72,14 @@
 			{
 				let token = '';
 				let url = './library/';
+				{
+					const urlparams = get_GETarray();
+					urlparams['byid'] = urlparams['byid'] ?? null;
+					if (urlparams['byid']!==null) {
+						url += `?byid=${urlparams['byid']}`;
+					}
+				}
+				console.log(url);
 				let options = {};
 				let req = await fetch(url, {
 					method: 'GET',
@@ -93,12 +101,17 @@
 					bin = JSON.parse(res);
 					console.debug(bin);
 					bin = bin['data'] ?? [];
+					if (Number.isFinite(bin['index'])) {
+						location.replace(`./?index=${bin['index']}`);
+						return;
+					}
 					category = bin['mondais_category'] ?? [];
 					summary = bin['mondais_summary'] ?? [];
 					template = bin['mondais_template'] ?? [];
 					bin = bin['mondais'] ?? [];
 					bin = Array.isArray(bin) ? bin : [];
 					mondais = [...mondais, ...bin];
+
 				} catch (error) {
 					console.error(res);
 					return;

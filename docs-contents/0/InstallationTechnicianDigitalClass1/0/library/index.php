@@ -190,23 +190,51 @@ if (false) {
 } elseif ($_SERVER['REQUEST_METHOD']=='GET') {
 	header('Content-Type: application/json');
 	http_response_code(200);
-	echo json_encode([
-		'status'=>http_response_code(),
-		'user' => [
-			'permission' => [
-				'role' => $role['user'],
-				'role_catalog' => $role['role_descr'],
-				'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_UPDATE,
-				'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0),
-			]
-		],
-		'data' => [
+	if (false) {
+	} elseif (isset($_GET['byid'])) {
+		$data = [
 			'mondais' => $proc->mondais('get')['content'],
 			'mondais_category' => $proc1->mondais_category()['content'],
 			'mondais_summary' => $proc->mondais('count'),
 			'mondais_template' => $proc->mondais('get')['template'],
-		]
-	]);
+			'index' => null,
+		];
+		for ($i=0;$i<count($data['mondais']);$i++) {
+			if ($_GET['byid']===$data['mondais'][$i]['id']||$_GET['byid']===$data['mondais'][$i]['openid']) {
+				$data['index'] = $i;
+			}
+		}
+		echo json_encode([
+			'status'=>http_response_code(),
+			'user' => [
+				'permission' => [
+					'role' => $role['user'],
+					'role_catalog' => $role['role_descr'],
+					'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_UPDATE,
+					'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0),
+				]
+			],
+			'data' => $data,
+		]);
+	} else {
+		echo json_encode([
+			'status'=>http_response_code(),
+			'user' => [
+				'permission' => [
+					'role' => $role['user'],
+					'role_catalog' => $role['role_descr'],
+					'minimum_accesslevel' => DB_ACCESS_LEVEL_FLAG_UPDATE,
+					'access_approved' => (($role['user'] & DB_ACCESS_LEVEL_FLAG_UPDATE) !== 0),
+				]
+			],
+			'data' => [
+				'mondais' => $proc->mondais('get')['content'],
+				'mondais_category' => $proc1->mondais_category()['content'],
+				'mondais_summary' => $proc->mondais('count'),
+				'mondais_template' => $proc->mondais('get')['template'],
+			]
+		]);
+	}
 	exit;
 } elseif ($_SERVER['REQUEST_METHOD']=='POST') {
 	if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_UPDATE) !== 0)) {
