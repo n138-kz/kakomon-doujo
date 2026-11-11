@@ -479,8 +479,9 @@ class resource_1 extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($options['data'],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
-					$sql = "INSERT INTO {$table_basename}_log (user_id, session_id, mondai_id) VALUES (?,?,?);";
+					$sql = "INSERT INTO {$table_basename}_log (user_id, mondai_id, user_selected, correct_mondai) VALUES (?,?,?,?);";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid'], $options['data']['internal_id'], $options['data']['selected'], ($options['data']['correct']?1:0)]);
 					$res = null;
 				}
 				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }

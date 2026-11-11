@@ -202,6 +202,11 @@ if (false) {
 
 	// _log に追加
 	foreach ($_POST as $k => $v) {
+		$mondai_innerDB = $proc->mondais('getbyid', ['id'=>$v['internal_id']])['content'];
+		$mondai_innerDB = json_decode($mondai_innerDB['mondai'], true);
+		if (is_numeric($v['selected']) && 0<=$v['selected'] && $v['selected'] < count($mondai_innerDB['sentakushi'])) {
+			$v['correct'] = $mondai_innerDB['sentakushi'][$v['selected']]['answer'];
+		}
 		$proc1->mondais_assign(null,'addlogging', ['data'=>$v]);
 	}
 
