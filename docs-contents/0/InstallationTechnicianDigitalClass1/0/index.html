@@ -1,0 +1,903 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../../../@lib/master.css" />
+	<style>
+		.container {
+			display: flex;
+			width: stretch;
+			align-items: stretch;
+			flex-direction: column;
+		}
+		#InstallationTechnicianDigitalClass1 {
+			background-color: white;
+			box-sizing: border-box;
+			width: 98vw;
+            margin: 0 auto;
+		}
+		textarea {
+			min-width: 100px;
+			min-height: 100px;
+		}
+		div[data-index] table {
+			background-color: aliceblue;
+			width: stretch;
+		}
+		div[data-index] table th {
+			width: 120px;
+			text-align: left;
+		}
+		div[data-name="search_result"] {
+			width: stretch;
+			margin: 0 auto;
+		}
+		div[data-name="search_result"] table {
+			margin: 0 auto;
+			background-color: aliceblue;
+		}
+		div[data-name="search_result"] table td:first-child {
+			width: 100px;
+		}
+		div[data-name="search_result"] table td:last-child {
+			width: 60px;
+			text-align: center;
+		}
+		div[data-name="search_result"] table, div[data-name="search_result"] table th, div[data-name="search_result"] table td {
+			border: solid 1px #333;
+		}
+	</style>
+	<script src="../../../@lib/define.js"></script>
+	<script>
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('img[src^="https://api.qrserver.com/v1/create-qr-code/"]')).map((e)=>{
+				e.src = e.src.split('?')[0];
+				e.src += `?data=${location.href.split('?')[0]}`;
+				e.alt = `QR code: ${location.href.split('?')[0]}`;
+				e.title = `QR code: ${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			let category = [];
+			let summary = [];
+			let mondais = [];
+			let template = [];
+			{
+				let token = '';
+				let url = './library/';
+				{
+					const urlparams = get_GETarray();
+					urlparams['byid'] = urlparams['byid'] ?? null;
+					if (urlparams['byid']!==null) {
+						url += `?byid=${urlparams['byid']}`;
+					}
+				}
+				console.log(url);
+				let options = {};
+				let req = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../../../auth/');
+				} else if (req.status === 403) {
+					location.replace('../../');
+				}
+				let res = await req.text();
+				let bin;
+				try {
+					bin = JSON.parse(res);
+					console.debug(bin);
+					bin = bin['data'] ?? [];
+					if (Number.isFinite(bin['index'])) {
+						location.replace(`./?index=${bin['index']}`);
+						return;
+					}
+					category = bin['mondais_category'] ?? [];
+					summary = bin['mondais_summary'] ?? [];
+					template = bin['mondais_template'] ?? [];
+					bin = bin['mondais'] ?? [];
+					bin = Array.isArray(bin) ? bin : [];
+					mondais = [...mondais, ...bin];
+
+				} catch (error) {
+					console.error(res);
+					return;
+				}
+				if (bin.length <= 0) {
+					console.warn(bin);
+					console.warn(`\${array}.length: ${bin.length}`);
+					return;
+				}
+				console.log(bin);
+			}
+
+			const buildPage_20261106a = async (index=0) => {
+				if (document.querySelectorAll('body>div.container').length > 1) { return; }
+				document.querySelector('body>div.container').textContent='';
+				console.log('buildPage_20261106a', index);
+				const d = [];
+
+				const d_category = [];
+				d_category.push(document.createElement('select')); {
+					for (let i=0;i<category.length;i++) {
+						d_category[d_category.length-1].appendChild(new Option(category[i]['name'], category[i]['id']));
+					}
+				}
+
+				d.push(document.createElement('div')); {
+					d[d.length-1].dataset.index = index;
+					d.push(document.createElement('table')); {
+						d.push(document.createElement('tbody')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d.push(document.createElement('a')); {
+										d[d.length-1].textContent = `Idx: ${index}`;
+										d[d.length-1].target = '_self';
+										d[d.length-1].href = `./?index=${index}`;
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.width = '100px';
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Prev (p)';
+										d[d.length-1].addEventListener('click', ()=>{
+											if (index>0) { index--; buildPage_20261106a(index); }
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.width = '100px';
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Next (n)';
+										d[d.length-1].addEventListener('click', ()=>{
+											if (index<mondais.length - 1) { index++; buildPage_20261106a(index); }
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '内部ID';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['id'];
+									}
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '公開ID';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										if (index>=0) {
+											d[d.length-1].value = mondais[index]['openid'];
+										}
+										d[d.length-1].dataset.colname = 'openid';
+										d[d.length-1].addEventListener('blur', (e)=>{
+											e.target.value = e.target.value.trim();
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '登録日時';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['created_at'];
+									}
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '最終更新日時';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									if (index>=0) {
+										d[d.length-1].textContent = mondais[index]['updated_at'];
+									}
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '非公開';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('label')); {
+										d.push(document.createElement('input')); {
+											d[d.length-1].type = 'checkbox';
+											if (index>=0) {
+												d[d.length-1].checked = mondais[index]['deleted'];
+											}
+											d[d.length-1].dataset.colname = 'deleted';
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = 'カテゴリー';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									if (index>=0) {
+										d_category[0].value=mondais[index]['mondai']['category'] ?? 0;
+									} else {
+										d_category[0].value=0;
+									}
+									d_category[0].dataset.colname = 'category';
+									d[d.length-1].appendChild(d_category[0]);
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '過去出題年月';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										if (index>=0) {
+											d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
+										}
+										d[d.length-1].dataset.colname = 'kakosyutsudai';
+										d[d.length-1].addEventListener('blur', (e)=>{
+											e.target.value = e.target.value.replace(/,+$/g, ',');
+											e.target.value = e.target.value.trim();
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('p')); {
+										d.push(document.createElement('small')); {
+											d[d.length-1].textContent = '複数のタグを記載する場合はカンマ(,)で区切ること';
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '問題';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('textarea')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].style.height = '5em';
+										if (index>=0) {
+											d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
+										}
+										d[d.length-1].dataset.colname = 'mondai_text';
+										d[d.length-1].addEventListener('click', async (e)=>{
+											const el = e.target;
+											if (el.value.length == 0) {
+												try {
+													el.value = await navigator.clipboard.readText();
+													console.debug('クリップボードの内容', el.value);
+												} catch (err) {
+													console.error('クリップボードの内容', '読み取り失敗');
+												}
+											}
+										});
+										d[d.length-1].addEventListener('blur', async (e)=>{
+											const el = e.target;
+											if (el.value.length > 0) {
+												el.value = el.value.replace(/\t/g, '').trim();
+												el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
+												el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
+											}
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '解答選択肢';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									if (index>=0) {
+										for (let i=0;i<mondais[index]['mondai']['sentakushi'].length;i++) {
+											d.push(document.createElement('p')); {
+												d.push(document.createElement('input')); {
+													d[d.length-1].type = 'radio';
+													d[d.length-1].name = '_';
+													d[d.length-1].id = `_${i+1}`;
+													d[d.length-1].checked = mondais[index]['mondai']['sentakushi'][i]['answer'];
+													d[d.length-1].dataset.colname = 'sentakushi_answer';
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												d.push(document.createElement('label')); {
+													d[d.length-1].htmlFor = `_${i+1}`;
+													d.push(document.createTextNode(i+1)); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												d.push(document.createElement('input')); {
+													{
+														if (CSS.supports('width', 'stretch')) {
+															d[d.length-1].style.width = 'calc(100% - 40px - 40px)';
+														} else if (CSS.supports('width', '-webkit-fill-available')) {
+															d[d.length-1].style.width = '-webkit-fill-available';
+														} else {
+															d[d.length-1].style.width = '100%';
+														}
+													}
+													d[d.length-1].value = mondais[index]['mondai']['sentakushi'][i]['text'];
+													d[d.length-1].dataset.colname = 'sentakushi_text';
+													d[d.length-1].addEventListener('blur', (e)=>{
+														e.target.value = e.target.value.trim();
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '25px';
+													d[d.length-1].style.height = '2em';
+													d[d.length-1].style.textAlign = 'center';
+													d[d.length-1].style.marginRight = '10px';
+													d[d.length-1].type = 'button';
+													d[d.length-1].value = '-';
+													d[d.length-1].addEventListener('click', (e)=>{
+														const eps = [];
+														eps[0] = null;
+														eps[1] = e.target.parentNode;
+														eps[0] = eps[1].parentNode;
+														eps[1].remove();
+
+														for (let i=0;i<eps[0].querySelectorAll('label').length;i++) {
+															eps[0].querySelectorAll('label')[i].textContent = i+1;
+														}
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+									} else {
+										for (let i=0;i<9;i++) {
+											d.push(document.createElement('p')); {
+												d.push(document.createElement('input')); {
+													d[d.length-1].type = 'radio';
+													d[d.length-1].name = '_';
+													d[d.length-1].id = `_${i+1}`;
+													d[d.length-1].checked = false;
+													d[d.length-1].dataset.colname = 'sentakushi_answer';
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												d.push(document.createElement('label')); {
+													d[d.length-1].htmlFor = `_${i+1}`;
+													d.push(document.createTextNode(i+1)); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												d.push(document.createElement('input')); {
+													{
+														if (CSS.supports('width', 'stretch')) {
+															d[d.length-1].style.width = 'calc(100% - 40px - 40px)';
+														} else if (CSS.supports('width', '-webkit-fill-available')) {
+															d[d.length-1].style.width = '-webkit-fill-available';
+														} else {
+															d[d.length-1].style.width = '100%';
+														}
+													}
+													d[d.length-1].value = '';
+													d[d.length-1].dataset.colname = 'sentakushi_text';
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '25px';
+													d[d.length-1].style.height = '2em';
+													d[d.length-1].style.textAlign = 'center';
+													d[d.length-1].style.marginRight = '10px';
+													d[d.length-1].type = 'button';
+													d[d.length-1].value = '-';
+													d[d.length-1].addEventListener('click', (e)=>{
+														const eps = [];
+														eps[0] = null;
+														eps[1] = e.target.parentNode;
+														eps[0] = eps[1].parentNode;
+														eps[1].remove();
+
+														for (let i=0;i<eps[0].querySelectorAll('label').length;i++) {
+															eps[0].querySelectorAll('label')[i].textContent = i+1;
+														}
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+									}
+
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.width = '25px';
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = '+';
+										d[d.length-1].addEventListener('click', (e)=>{
+											console.log(e.target.previousElementSibling);
+											if (null==e.target.previousElementSibling) {
+												if (index>=0) {
+													buildPage_20261106a(index);
+												}
+												return;
+											}
+
+											const ep = e.target.previousElementSibling;
+											const cloneNode = ep.cloneNode(true);
+
+											cloneNode.querySelector('input[type="radio"][name="_"]').id = `_${ep.parentNode.querySelectorAll(cloneNode.tagName.toLowerCase()).length+1}`;
+											cloneNode.querySelector('input[type="radio"][name="_"]').checked = false;
+											cloneNode.querySelector('input[data-colname$="text"]').value = '';
+											cloneNode.querySelector('label').htmlFor = `_${ep.parentNode.querySelectorAll(cloneNode.tagName.toLowerCase()).length+1}`;
+											cloneNode.querySelector('label').textContent = `${ep.parentNode.querySelectorAll(cloneNode.tagName.toLowerCase()).length+1}`;
+											cloneNode.querySelector('input[type="button"]').addEventListener('click', (e)=>{
+												const eps = [];
+												eps[0] = null;
+												eps[1] = e.target.parentNode;
+												eps[0] = eps[1].parentNode;
+												eps[1].remove();
+
+												for (let i=0;i<eps[0].querySelectorAll('label').length;i++) {
+													eps[0].querySelectorAll('label')[i].textContent = i+1;
+												}
+											});
+
+											if ((ep.parentNode.querySelectorAll(cloneNode.tagName.toLowerCase()).length+1)<=9) {
+												ep.parentNode.appendChild(cloneNode);
+											}
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '解説';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('textarea')); {
+										{
+											if (CSS.supports('width', 'stretch')) {
+												d[d.length-1].style.width = 'stretch';
+											} else if (CSS.supports('width', '-webkit-fill-available')) {
+												d[d.length-1].style.width = '-webkit-fill-available';
+											} else {
+												d[d.length-1].style.width = '100%';
+											}
+										}
+										d[d.length-1].style.height = '15em';
+										if (index>=0) {
+											d[d.length-1].textContent = mondais[index]['mondai']['kaisetsu']['text'];
+										}
+										d[d.length-1].dataset.colname = 'kaisetsu_text';
+										d[d.length-1].addEventListener('click', async (e)=>{
+											const el = e.target;
+											if (el.value.length == 0) {
+												try {
+													el.value = await navigator.clipboard.readText();
+													console.debug('クリップボードの内容', el.value);
+												} catch (err) {
+													console.error('クリップボードの内容', '読み取り失敗');
+												}
+											}
+										});
+										d[d.length-1].addEventListener('blur', async (e)=>{
+											const el = e.target;
+											if (el.value.length == 0) { return; }
+											el.value = el.value.replace(/\t/g, '').trim();
+											el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
+											el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
+											console.log(el.value);
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = '問題文と選択肢を転記';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											el.value += '\n';
+											el.value += '-----\n';
+											el.value += mondais[index]['mondai']['mondai']['text']+'\n';
+											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
+												el.value += `${i+1}: ${mondais[index]['mondai']['sentakushi'][i]['text']}\n`;
+											}
+											el.value += '\n';
+											el.value += '公式正答は';
+											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
+												if (mondais[index]['mondai']['sentakushi'][i]['answer']) {
+													el.value += i+1;
+												}
+											}
+
+											el.value = el.value.trim();
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Googleに投げ';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											if (el.value.length==0) { return; }
+
+											let elv = el.value.split('-----')[1];
+											window.open(`https://www.google.com/search?q=${encodeURIComponent('解説 '+elv.replace(/\n/, '%20').trim())}`, Date.now(), 'width=600,height=400');
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].style.textAlign = 'center';
+									d.push(document.createElement('a')); {
+										d[d.length-1].href = '../../';
+										d[d.length-1].textContent = '../../';
+										d[d.length-1].target = '_self';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.width = '100px';
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'Apply (a)';
+										d[d.length-1].addEventListener('click', ()=>{
+											if (index>=0) {
+												updateResource(index);
+											}
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									if (index>=0) {
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '100px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = 'New (e)';
+											d[d.length-1].addEventListener('click', (e)=>{
+												{
+													template['sentakushi'] = {answer: false, text: ''};
+													template['kakosyutsudai'] = ['令和x年度第x回第x問(x),'];
+													const blob = new Blob([JSON.stringify({template: template, help: [`IFS=$'\n'; for item in $(cat file.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; mv _.txt $(date +%s.%N).txt`]}, null, '\t')], {type: 'application/json;charset=utf-8;'})
+													const url = URL.createObjectURL(blob);
+
+													const link = document.createElement('a');
+													link.href = url;
+													link.download = `template(${parseInt(Date.now()/10**3, 10)}).json`;
+													document.body.appendChild(link);
+													link.click();
+													document.body.removeChild(link);
+
+													URL.revokeObjectURL(url);
+												}
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+
+									if (index>=0) {
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '100px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = 'Delete (d)';
+											d[d.length-1].disabled = true;
+											d[d.length-1].addEventListener('click', ()=>{
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('hr')); {}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('div')); {
+					d[d.length-1].dataset.name = 'search_result';
+					d.push(document.createElement('table')); {
+						d.push(document.createElement('thead')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '#';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '問題文';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('th')); {
+									d[d.length-1].textContent = '非公開';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						d.push(document.createElement('tbody')); {
+							for (let i=0;i<mondais.length;i++) {
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('td')); {
+										d.push(document.createElement('a')); {
+											d[d.length-1].href = `./?index=${i}`;
+											d[d.length-1].target = '_self';
+											d.push(document.createTextNode(mondais[i]['openid'])); {}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('span')); {
+											d[d.length-1].textContent = '';
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('td')); {
+										d[d.length-1].textContent = mondais[i]['mondai']['mondai']['text'];
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('td')); {
+										d.push(document.createElement('input')); {
+											d[d.length-1].type = 'checkbox';
+											d[d.length-1].dataset.checked = mondais[i]['deleted'];
+											d[d.length-1].checked = mondais[i]['deleted'];
+											d[d.length-1].addEventListener('click', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('keydown', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('keypress', (e)=>{e.preventDefault(); return false;});
+											d[d.length-1].addEventListener('touchstart', (e)=>{e.preventDefault(); return false;});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				/* URLを綺麗にする */
+				history.replaceState(null, '', location.pathname);
+			}
+
+			const itemIsUnique = async (htmlDom) => {
+				return htmlDom.length === 1;
+			}
+			const updateResource = async (index=0) => {
+				if (itemIsUnique(document.querySelectorAll('input[data-colname="openid"]'))) {
+					mondais[index]['openid'] = document.querySelector('input[data-colname="openid"]').value;
+				}
+				if (itemIsUnique(document.querySelectorAll('input[type="checkbox"]:not([data-checked])[data-colname="deleted"]'))) {
+					mondais[index]['deleted'] = document.querySelector('input[type="checkbox"]:not([data-checked])[data-colname="deleted"]').checked;
+				}
+				if (itemIsUnique(document.querySelectorAll('select[data-colname="category"]'))&&Number.isInteger(Number(document.querySelector('select[data-colname="category"]').value))) {
+					mondais[index]['mondai']['category'] = 1*document.querySelector('select[data-colname="category"]').value
+				}
+				if (itemIsUnique(document.querySelectorAll('select[data-colname="kakosyutsudai"]'))) {
+					let text1 = document.querySelector('input[data-colname="kakosyutsudai"]').value.split(',');
+					let text2 = [];
+					for (let i=0;i<text1.length;i++) {
+						if (text1[i].length==0)continue;
+						text2[i] = text1[i].trim();
+					}
+					mondais[index]['mondai']['kakosyutsudai'] = text2;
+				}
+				if (itemIsUnique(document.querySelectorAll('select[data-colname="mondai_text"]'))) {
+					mondais[index]['mondai']['mondai']['text'] = document.querySelector('textarea[data-colname="mondai_text"]').value;
+				}
+				if (itemIsUnique(document.querySelectorAll('select[data-colname="kaisetsu_text"]'))) {
+					mondais[index]['mondai']['kaisetsu']['text'] = document.querySelector('textarea[data-colname="kaisetsu_text"]').value;
+				}
+				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_text"]').length;i++) {
+					mondais[index]['mondai']['sentakushi'][i] = mondais[index]['mondai']['sentakushi'][i] ?? [];
+					mondais[index]['mondai']['sentakushi'][i]['text'] = document.querySelectorAll('input[data-colname="sentakushi_text"]')[i].value;
+				}
+				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_answer"]').length;i++) {
+					mondais[index]['mondai']['sentakushi'][i]['answer'] = document.querySelectorAll('input[data-colname="sentakushi_answer"]')[i].checked;
+				}
+				console.log(mondais[index]);
+
+				{
+					let token = '';
+					let url = './library/';
+					let options = {};
+					let req = await fetch(url, {
+						method: 'POST',
+						headers: {
+							'Accept': 'application/json',
+							'Authorization': `Bearer ${token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(mondais[index]),
+					});
+					console.log(req.status, req.statusText);
+					if (req.status === 401) {
+						location.replace('../../../auth/');
+					} else if (req.status === 204) {
+						console.log(req.status, req.statusText);
+						location.href = `${location.href.split('?')[0]}?index=${index}`;
+						return;
+					}
+					let res = await req.text();
+					if (res.length==0) {
+						console.log(204, 'No Content');
+						return;
+					}
+					let bin;
+					try {
+						bin = JSON.parse(res);
+						console.debug(bin);
+						bin = bin['data'] ?? [];
+						category = bin['mondais_category'] ?? [];
+						summary = bin['mondais_summary'] ?? [];
+						bin = bin['mondais'] ?? [];
+						bin = Array.isArray(bin) ? bin : [];
+						mondais = [...mondais, ...bin];
+					} catch (error) {
+						console.error(res);
+						console.error(res.length);
+						return;
+					}
+					if (bin.length <= 0) {
+						console.warn(bin);
+						console.warn(`\${array}.length: ${bin.length}`);
+						return;
+					}
+					console.log(bin);
+				}
+			}
+
+			{
+				const urlparams = get_GETarray();
+				urlparams['index'] = urlparams['index'] ?? 0;
+				urlparams['index'] = Number.isInteger(Number(urlparams['index'])) ? 1*urlparams['index'] : 0;
+				buildPage_20261106a(urlparams['index']);
+			}
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			// 履歴に現在の状態を追加する
+			history.pushState(null, null, window.location.href);
+
+			// 「戻る」ボタンが押されたときのイベントを検知する
+			window.addEventListener('popstate', () => {
+				// 強制的に指定のURLへリダイレクト（履歴を上書き）
+				location.replace('../../');
+			});
+		});
+    </script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div class="container"><a href="../../">../../</a></div>
+</body>
+</html>

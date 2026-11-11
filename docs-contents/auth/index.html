@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../@lib/master.css" />
+	<meta http-equiv="refresh" content="300">
+	<style>
+		#auth, #info {
+			background-color: white;
+			width: 80%;
+			margin: 0 auto;
+		}
+		img.icon {
+			width: 2em;
+			height: 2em;
+		}
+		img.qrcode {
+			width: 128px;
+		}
+		form table, form table input[type="text"], form table input[type="password"] {
+			width: stretch;
+		}
+		form table input[type="text"], form table input[type="password"] {
+			height: 2em;
+		}
+		tr td:first-child {
+			width: 150px;
+		}
+	</style>
+	<script src="../@lib/define.js"></script>
+	<script>
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			let data = {
+				'client_id': '',
+				'redirect_uri': location.href.split('?')[0],
+				'response_type': 'code',
+				'scope': 'identify+email',
+			};
+			{
+				let url = '../@lib/config.json/';
+				let req = await fetch(url);
+				console.log(req.status, req.statusText);
+
+				let res = await req.text();
+				let bin = JSON.parse(res);
+				data = {...data, ...bin.external.discord.bot};
+				console.log(data);
+			}
+
+			Array.from(document.querySelectorAll('a[href^="https://discord.com/oauth2/authorize"]')).map((e)=>{
+				e.href = `${e.href}?`.split('?')[0];
+				e.href += `?client_id=${data.client_id}`;
+				e.href += `&redirect_uri=${data.redirect_uri}`;
+				e.href += `&response_type=${data.response_type}`;
+				e.href += `&scope=${data.scope}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('img[src^="https://api.qrserver.com/v1/create-qr-code/"]')).map((e)=>{
+				e.src = e.src.split('?')[0];
+				e.src += `?data=${location.href.split('?')[0]}`;
+				e.alt = `QR code: ${location.href.split('?')[0]}`;
+				e.title = `QR code: ${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('load', async ()=>{
+			let urlparam = get_GETarray();
+			urlparam['logout'] = urlparam['logout'] ?? null;
+			urlparam['code'] = urlparam['code'] ?? null;
+			urlparam['iss'] = urlparam['iss'] ? decodeURIComponent(urlparam['iss']) : null;
+			if (false) {
+			} else if (urlparam['logout'] !== null) {
+				/* URLを綺麗にする */
+				history.replaceState(null, '', location.pathname);
+
+				const formData = new FormData();
+				formData.append('logout', urlparam['logout']);
+				console.log([...formData.entries()]);
+
+				const req = await fetch('./signin/', {
+					method: 'POST',
+					body: formData,
+				});
+				console.log(req.status, req.statusText);
+
+				if ( req.status == 204 ) {
+					console.log('Response code is 204. Exited.');
+					return;
+				}
+
+				const restext = await req.text();
+				let res = null;
+				try {
+					res = JSON.parse(restext);
+				} catch (err) {
+					console.error(restext);
+					{
+						if (document.getElementById('authError')!=null) {
+							document.getElementById('authError').remove();
+						}
+						if (document.getElementById('authError')==null&&document.getElementById('info')!=null) {
+							document.getElementById('info').textContent = '';
+
+							const d = [];
+							d.push(document.createElement('p')); {
+								d[d.length-1].style.color = '#FF0000';
+								d.push(document.createTextNode(`${err}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createTextNode(`${restext}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							if (d.length-2>=0) {
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							} else {
+								document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						return;
+					}
+				}
+			} else if (urlparam['code'] !== null && urlparam['iss'] !== null) {
+				/* URLを綺麗にする */
+				history.replaceState(null, '', location.pathname);
+
+				const formData = new FormData();
+				formData.append('credential', btoa(stringToBinary(urlparam['code'])));
+				formData.append('iss', urlparam['iss']);
+				console.log([...formData.entries()]);
+
+				document.getElementById('info').textContent = '';
+				{
+					const d = [];
+					d.push(document.createElement('p')); {
+						d.push(document.createElement('img')); {
+							d[d.length-1].src = 'https://cdn.pixabay.com/animation/2025/11/11/02/19/02-19-36-889_512.gif';
+							d[d.length-1].alt = '';
+							d[d.length-1].style.height = '100px';
+							d[d.length-1].style.maxWidth = '80%';
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+				}
+
+				const req = await fetch('./signin/', {
+					method: 'POST',
+					body: formData,
+				});
+				console.log(req.status, req.statusText);
+
+				if ( req.status >= 400 ) {
+					if (document.getElementById('authError')!=null) {
+						document.getElementById('authError').remove();
+					}
+					if (document.getElementById('authError')==null&&document.getElementById('info')!=null) {
+						document.getElementById('info').textContent = '';
+
+						const d = [];
+						d.push(document.createElement('p')); {
+							d[d.length-1].style.color = '#FF0000';
+							d.push(document.createTextNode(`${req.status} ${req.statusText}`)); {}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							d.push(document.createElement('br')); {}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							if (false) {
+							} else if ( req.status == 401 ) {
+								d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							} else if ( req.status >= 500 ) {
+								d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						if (d.length-2>=0) {
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						} else {
+							document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+						}
+					}
+					return;
+				}
+
+				const restext = await req.text();
+				let res = null;
+				try {
+					res = JSON.parse(restext);
+				} catch (err) {
+					console.error(restext);
+					{
+						if (document.getElementById('authError')!=null) {
+							document.getElementById('authError').remove();
+						}
+						if (document.getElementById('authError')==null&&document.getElementById('info')!=null) {
+							document.getElementById('info').textContent = '';
+
+							const d = [];
+							d.push(document.createElement('p')); {
+								d[d.length-1].style.color = '#FF0000';
+								d.push(document.createTextNode(`${err}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createTextNode(`${restext}`)); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createElement('br')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+								d.push(document.createTextNode('If this happens repeatedly, please try again later.')); {}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							if (d.length-2>=0) {
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							} else {
+								document.getElementById('info').appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						return;
+					}
+				}
+
+				if (res.location) {
+					window.location.href = res.location;
+				}
+			}
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			// 履歴に現在の状態を追加する
+			history.pushState(null, null, window.location.href);
+
+			// 「戻る」ボタンが押されたときのイベントを検知する
+			window.addEventListener('popstate', () => {
+				// 強制的に指定のURLへリダイレクト（履歴を上書き）
+				location.replace('../auth/');
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div id="auth">
+		<h2>LOGIN</h2>
+		<p><a target="_self" href="https://discord.com/oauth2/authorize"><img src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d80db9971f10a9757c99_Symbol.svg" class="icon">Discord</a></p>
+	</div>
+	<div id="info">
+		<p><img src="https://api.qrserver.com/v1/create-qr-code/?data=_" class="qrcode" alt=""></p>
+	</div>
+	<div>
+		<p><a href="./?logout=" target="_self">&gt;logout</a></p>
+	</div>
+</body>
+</html>
