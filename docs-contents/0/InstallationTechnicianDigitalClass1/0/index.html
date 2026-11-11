@@ -671,25 +671,24 @@
 											d[d.length-1].type = 'button';
 											d[d.length-1].value = 'New (e)';
 											d[d.length-1].addEventListener('click', (e)=>{
-												buildPage_20261106a(-1);
+												{
+													template['sentakushi'] = {answer: false, text: ''};
+													template['kakosyutsudai'] = ['令和x年度第x回第x問(x),'];
+													const blob = new Blob([JSON.stringify({template: template, help: [`IFS=$'\n'; for item in $(cat file.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; mv _.txt $(date +%s.%N).txt`]}, null, '\t')], {type: 'application/json;charset=utf-8;'})
+													const url = URL.createObjectURL(blob);
+
+													const link = document.createElement('a');
+													link.href = url;
+													link.download = `template(${parseInt(Date.now()/10**3, 10)}).json`;
+													document.body.appendChild(link);
+													link.click();
+													document.body.removeChild(link);
+
+													URL.revokeObjectURL(url);
+												}
 											});
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
-									} else {
-										{
-											console.log(`IFS=$'\n'; for item in $(cat 1794069941.817556341.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; ^C _.txt $(date +%s.%N).txt`);
-											const blob = new Blob([JSON.stringify(template, null, '\t')], {type: 'application/json;charset=utf-8;'})
-											const url = URL.createObjectURL(blob);
-
-											const link = document.createElement('a');
-											link.href = url;
-											link.download = `template(${parseInt(Date.now()/10**3, 10)}).json`;
-											document.body.appendChild(link);
-											link.click();
-											document.body.removeChild(link);
-
-											URL.revokeObjectURL(url);
-										}
 									}
 
 									if (index>=0) {
