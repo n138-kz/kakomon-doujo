@@ -262,6 +262,55 @@ class local {
 
 		return $content;
 	}
+	public function role ($table_basename=null) {
+		if (is_null($table_basename)) {
+			if (is_null($this->table_basename)) {
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL."var \$table_basename is NULL");
+				return;
+			}
+			$table_basename = $this->table_basename;
+		}
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			{
+				$sql = 'SELECT * FROM app_user_role ORDER BY id';
+				$stm = $this->conn_database->prepare($sql);
+				$stm->execute();
+				$role_descr = $res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+
+				$sql = "SELECT * FROM {$table_basename}_user WHERE id = ?";
+				$stm = $this->conn_database->prepare($sql);
+				$stm->execute([$_SESSION['uid']]);
+				$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+				if ($stm->rowCount()===0) {
+					$sql = 'SELECT u.id, u.role FROM app_user u WHERE u.id = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid']]);
+					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+					if ($stm->rowCount()===0) {
+						return [
+							'user'=>0,
+							'role_descr' => $role_descr,
+						];
+					}
+
+					$sql = "INSERT INTO {$table_basename}_user (id, role) SELECT u.id, u.role FROM app_user u WHERE u.id = ? RETURNING id, role;";
+					$stm = $this->conn_database->prepare($sql);
+					$stm->execute([$_SESSION['uid']]);
+					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+				}
+			}
+			if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+			return [
+				'user' => $res[0]['role'],
+				'role_descr' => $role_descr,
+			];
+		} catch (\PDOException $e) {
+			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+			error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+		}
+	}
 }
 
 class simple_resource extends local {
