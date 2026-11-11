@@ -200,7 +200,9 @@ if (false) {
 		unset($_POST[$i]['mondai']);
 		unset($_POST[$i]['kaisetsu']);
 	}
-	error_log(var_export($_POST,1));
+
+	error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_POST,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+	// _log に追加
 
 	$proc1->mondais_assign(null,'reset');
 	$m = json_encode([
