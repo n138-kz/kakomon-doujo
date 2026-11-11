@@ -476,6 +476,20 @@ class resource_1 extends local {
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
 		} elseif ($method == 'addlogging') {
+			try {
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				{
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($options['data'],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+					$sql = "INSERT INTO {$table_basename}_log (user_id, session_id, mondai_id) VALUES (?,?,?);";
+					$res = null;
+				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				return $res;
+			} catch (\PDOException $e) {
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+			}
 		} else {
 			error_log('Unknown params $1: '.$method);
 		}

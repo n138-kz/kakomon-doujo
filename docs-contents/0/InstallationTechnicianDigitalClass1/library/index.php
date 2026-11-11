@@ -200,8 +200,10 @@ if (false) {
 		unset($_POST[$i]['kaisetsu']);
 	}
 
-	error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_POST,JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 	// _log に追加
+	foreach ($_POST as $k => $v) {
+		$proc1->mondais_assign(null,'addlogging', ['data'=>$v]);
+	}
 
 	$proc1->mondais_assign(null,'reset');
 	$m = json_encode([
