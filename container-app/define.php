@@ -431,7 +431,7 @@ class resource_1 extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = 'SELECT * FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ?;';
+					$sql = "SELECT * FROM {$table_basename}_assigns WHERE session_id = ?;";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$_SESSION['sid']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
@@ -447,7 +447,7 @@ class resource_1 extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = 'INSERT INTO InstallationTechnicianDigitalClass1_assigns (user_id, session_id, mondai_id) VALUES (?,?,?);';
+					$sql = "INSERT INTO {$table_basename}_assigns (user_id, session_id, mondai_id) VALUES (?,?,?);";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$_SESSION['uid'], $_SESSION['sid'], $options['mondai_id']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
@@ -463,7 +463,7 @@ class resource_1 extends local {
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = "DELETE FROM InstallationTechnicianDigitalClass1_assigns WHERE session_id = ? OR updated_at <= CURRENT_TIMESTAMP - INTERVAL '12 hours';";
+					$sql = "DELETE FROM {$table_basename}_assigns WHERE session_id = ? OR updated_at <= CURRENT_TIMESTAMP - INTERVAL '12 hours';";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$_SESSION['sid']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
@@ -475,6 +475,7 @@ class resource_1 extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
+		} elseif ($method == 'addlogging') {
 		} else {
 			error_log('Unknown params $1: '.$method);
 		}

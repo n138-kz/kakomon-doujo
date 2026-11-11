@@ -66,7 +66,6 @@ class resource extends local {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 			}
-
 		} elseif ($method == 'count') {
 			$proc = new resource_1();
 			$mondais_category = $proc->mondais_category('InstallationTechnicianDigitalClass1', 'get');
