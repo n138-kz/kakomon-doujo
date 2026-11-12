@@ -120,11 +120,38 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
 -- VIEW
 DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
-    SELECT m.id internal_id, m.openid id, m.mondai,c.name
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
     FROM InstallationTechnicianDigitalClass1_mondaiset m
     JOIN installationtechniciandigitalclass1_category c
     ON m.mondai->>'category' = c.id::text
     WHERE deleted = false
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category1_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category1_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '1'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category2_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category2_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '2'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category3_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category3_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '3'
     ORDER BY random();
 
 DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_count;
