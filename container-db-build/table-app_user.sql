@@ -21,8 +21,8 @@ CREATE TABLE app_user (
     id uuid primary key default gen_random_uuid(),
     email text,
     app_username text,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     rawjson JSONB NOT NULL DEFAULT '{}',
     deleted BOOLEAN DEFAULT false,
     role INT not null default 0,
@@ -39,8 +39,8 @@ CREATE TABLE app_authn_session (
     payload JSONB NOT NULL DEFAULT '{}',
     session_id uuid not null unique default gen_random_uuid(),
     expires_in INT not null DEFAULT (1::int4 << 31),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_userid
         FOREIGN KEY (userid)
         REFERENCES app_user(id)

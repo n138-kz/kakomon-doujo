@@ -16,8 +16,8 @@ $$ LANGUAGE plpgsql;
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_user CASCADE;
 CREATE TABLE InstallationTechnicianDigitalClass1_user (
     id uuid primary key default gen_random_uuid(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     role INT not null default 0,
     CONSTRAINT chk_role_range
         CHECK (role >= 0 AND role <= 63),
@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
     id uuid primary key default gen_random_uuid(),
     openid text unique not null default gen_random_uuid(),
     mondai jsonb not null,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN default false
 );
 
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
     id serial primary key,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     user_id uuid not null,
     session_id uuid not null,
     mondai_id uuid not null,
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_log CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
     id uuid primary key default gen_random_uuid(),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     user_id uuid not null,
     mondai_id uuid not null,
     user_selected varchar(4),
