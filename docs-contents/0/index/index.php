@@ -37,7 +37,10 @@ error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export([$role['user'],DB_ACCESS_LEVE
 
 header('Content-Type: application/json');
 $content = [];
-$content['user'] = $role['user'];
+$content['user'] = [];
+foreach (['app', 'InstallationTechnicianDigitalClass1'] as $v) {
+	$content['user'][$v] = $proc->role($v);
+}
 $content['data'][] = [
 	'name'=>'工事担任者 デジタル1級',
 	'id'=>'InstallationTechnicianDigitalClass1',
