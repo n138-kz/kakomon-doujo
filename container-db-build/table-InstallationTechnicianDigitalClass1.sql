@@ -118,6 +118,7 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- VIEW
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
     SELECT m.id internal_id, m.openid id, m.mondai,c.name
     FROM InstallationTechnicianDigitalClass1_mondaiset m
@@ -126,6 +127,7 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_m
     WHERE deleted = false
     ORDER BY random();
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_count;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
     SELECT (SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET) count_all,
     (
@@ -144,6 +146,7 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
         WHERE MONDAI ->> 'category' = '3'
     ) count_category_3;
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd AS
     SELECT id,openid,created_at,updated_at
     FROM installationtechniciandigitalclass1_mondaiset

@@ -79,10 +79,12 @@ CREATE VIEW vw_app_authn_session_expired AS
 SELECT *
 FROM app_authn_session
 WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
+DROP VIEW IF EXISTS vw_app_authn_session_expired;
 
 CREATE VIEW vw_app_authn_session_active AS
 SELECT *
 FROM app_authn_session
 WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+DROP VIEW IF EXISTS vw_app_authn_session_active;
 
 COMMIT;
