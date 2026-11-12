@@ -153,4 +153,29 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_recentad
     WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '12 hours'
     ORDER BY created_at ASC;
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_exam_rounds;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_exam_rounds AS
+    WITH extracted AS (
+        SELECT DISTINCT
+            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+        FROM installationtechniciandigitalclass1_mondaiset
+    )
+    SELECT o
+    FROM extracted
+    WHERE o IS NOT NULL -- 万が一マッチしない行があっても除外する安全策
+    ORDER BY
+    -- 1. 西暦に変換して年度順に並べる
+        (CASE
+            WHEN o LIKE '平成%' THEN 1988
+            WHEN o LIKE '令和%' THEN 2018
+            ELSE 0
+        END) +
+        (CASE
+            WHEN SUBSTRING(o FROM '(?:平成|令和)(元|[0-9]+)年度?') = '元' THEN 1
+            ELSE CAST(SUBSTRING(o FROM '(?:平成|令和)([0-9]+)年度?') AS INTEGER)
+        END) ASC,
+
+        -- 2. 「第◯回」を数値にして並べる
+        CAST(SUBSTRING(o FROM '第([0-9]+)回') AS INTEGER) ASC;
+
 COMMIT;
