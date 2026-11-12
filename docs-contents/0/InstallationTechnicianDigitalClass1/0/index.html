@@ -249,7 +249,7 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['created_at'];
+										d[d.length-1].textContent = `${new Date(mondais[index]['created_at']).toLocaleString()} (TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -263,7 +263,7 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['updated_at'];
+										d[d.length-1].textContent = `${new Date(mondais[index]['updated_at']).toLocaleString()} (TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
