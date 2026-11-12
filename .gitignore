@@ -8,6 +8,7 @@ backup/
 *.xz
 *.gz
 *.zip
+*.gpg
 
 # Temporary files
 *.tmp
