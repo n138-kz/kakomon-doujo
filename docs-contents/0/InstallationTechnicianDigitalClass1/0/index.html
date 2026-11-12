@@ -720,6 +720,58 @@
 				document.querySelector('body>div.container').appendChild(d[d.length-1]);
 
 				d.push(document.createElement('div')); {
+					d.push(document.createElement('table')); {
+						d[d.length-1].style.backgroundColor = 'aliceblue';
+						d[d.length-1].style.border = '1px solid #333';
+						d.push(document.createElement('tbody')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].style.textAlign = 'left';
+									d[d.length-1].style.fontWeight = 'unset';
+									d[d.length-1].style.border = '1px solid #333';
+									d[d.length-1].textContent = '';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].style.border = '1px solid #333';
+									d[d.length-1].style.minWidth = '5ex';
+									d[d.length-1].style.textAlign = 'right';
+									d[d.length-1].textContent = JSON.stringify(summary['count']['all']);
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							for (let i=0;i<summary['count']['category'].length;i++) {
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.textAlign = 'left';
+										d[d.length-1].style.fontWeight = 'unset';
+										d[d.length-1].style.border = '1px solid #333';
+										d[d.length-1].textContent = `${category[i]['name']}`;
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('td')); {
+										d[d.length-1].style.border = '1px solid #333';
+										d[d.length-1].style.minWidth = '5ex';
+										d[d.length-1].style.textAlign = 'right';
+										d[d.length-1].textContent = `${summary['count']['category'][i]}`;
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('hr')); {}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('div')); {
 					d[d.length-1].dataset.name = 'search_result';
 					d.push(document.createElement('table')); {
 						d.push(document.createElement('thead')); {
