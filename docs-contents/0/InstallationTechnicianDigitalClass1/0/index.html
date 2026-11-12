@@ -584,6 +584,7 @@
 											el.value = el.value.replace(/\t/g, '').trim();
 											el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
 											el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
+											el.value = el.value.replace(/(\r\n|\r|\n){3,}/g, '\n\n').trim();
 											console.log(el.value);
 										});
 									}
