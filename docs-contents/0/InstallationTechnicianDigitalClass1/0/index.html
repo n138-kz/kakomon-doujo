@@ -673,6 +673,12 @@
 												updateResource(index);
 											}
 										});
+										window.addEventListener('keydown', (ev)=>{
+											if (ev.altKey && ev.key.toLowerCase() == 'a'.toLowerCase()) {
+												ev.preventDefault();
+												updateResource(index);
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
