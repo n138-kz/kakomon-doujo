@@ -180,6 +180,12 @@
 										d[d.length-1].addEventListener('click', ()=>{
 											if (index<mondais.length - 1) { index++; buildPage_20261106a(index); }
 										});
+										window.addEventListener('keydown', (ev)=>{
+											if (ev.altKey && ev.key.toLowerCase() == 'n'.toLowerCase()) {
+												ev.preventDefault();
+												if (index<mondais.length - 1) { index++; buildPage_20261106a(index); }
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
