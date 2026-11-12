@@ -200,7 +200,12 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['id'];
+										d.push(document.createElement('a')); {
+											d[d.length-1].href = `./?byid=${mondais[index]['id']}`;
+											d[d.length-1].target = '_self';
+											d[d.length-1].textContent = mondais[index]['id'];
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
