@@ -345,6 +345,18 @@ class auth extends local {
 
 			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
 			$discord_push_item['embeds'][0]['description'] .= "Internal sessionid: `{$_SESSION['sid']}`".PHP_EOL;
+			if (isset($ipinfo_inquiry['bogon'])&&$ipinfo_inquiry['bogon']) {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}` (bogon)".PHP_EOL;
+			} else {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}`".PHP_EOL;
+				$ipinfo_inquiry['continent'] = $ipinfo_inquiry['continent'] ?? '';
+				$ipinfo_inquiry['country'] = $ipinfo_inquiry['country'] ?? '';
+				$ipinfo_inquiry['asn'] = $ipinfo_inquiry['asn'] ?? '';
+				$ipinfo_inquiry['as_name'] = $ipinfo_inquiry['as_name'] ?? '';
+				$ipinfo_inquiry['as_domain'] = $ipinfo_inquiry['as_domain'] ?? '';
+				$discord_push_item['embeds'][0]['description'] .= "Client Country: {$ipinfo_inquiry['continent']}/{$ipinfo_inquiry['country']}".PHP_EOL;
+				$discord_push_item['embeds'][0]['description'] .= "Client AS: {$ipinfo_inquiry['asn']}/{$ipinfo_inquiry['as_name']} ({$ipinfo_inquiry['as_domain']})".PHP_EOL;
+			}
 			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 			{
 				$curl_opt = [ 'Content-Type: application/json', 'Content-Length: '.strlen(json_encode($discord_push_item)), ];
