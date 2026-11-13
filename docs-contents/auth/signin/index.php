@@ -163,9 +163,10 @@ class auth extends local {
 				}
 
 				/* * OAuth --> authn * */
-				$url = 'https://discordapp.com/api/oauth2/token/revoke';
-				// https://discord.com/api/oauth2/token/revoke ?
+				$url = 'https://discord.com/api/oauth2/token/revoke';
 				$data = [
+					'client_id' => $config['external']['discord']['bot']['client_id'],
+					'client_secret' => $config['external']['discord']['bot']['client_secret'],
 					'token' => explode(' ', $credential)[1],
 					'token_type_hint' => 'access_token',
 				];
