@@ -180,8 +180,11 @@ class auth extends local {
 				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
 				$curl_res=curl_exec($curl_req);
 				$curl_res=json_decode($curl_res, TRUE);
+				$curl_resinfo = curl_getinfo($curl_req);
 				$curl_req=null;
-				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				if ($curl_resinfo['http_code']!==200) {
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(['response_body'=>$curl_res, 'response_info'=>$curl_resinfo], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				}
 			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
