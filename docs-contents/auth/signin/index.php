@@ -33,9 +33,7 @@ class auth extends local {
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);
 		$proc_exapi = new exapi($config, $conn_database);
-
 		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry(parent::clientinf_get()['REMOTE_ADDR']);
-		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 
 		if (!isset($_SERVER['REQUEST_METHOD']) || ( $_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'POST' )){
 			http_response_code(405);
@@ -249,7 +247,7 @@ class auth extends local {
 					}
 					unset($curl_req);
 				}
-			} catch (\Exception $th) {
+			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
@@ -343,6 +341,7 @@ class auth extends local {
 
 			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
 			$discord_push_item['embeds'][0]['description'] .= "Internal sessionid: `{$_SESSION['sid']}`".PHP_EOL;
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 			{
 				$curl_opt = [ 'Content-Type: application/json', 'Content-Length: '.strlen(json_encode($discord_push_item)), ];
 				$curl_req = curl_init();
