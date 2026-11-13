@@ -64,6 +64,34 @@ services:
       - db
     profiles:
       - admin
+  db_dump:
+    container_name: db_dump
+    image: alpine
+    command: >
+      sh -c "
+      apk --no-cache add curl postgresql-client gpg xz coreutils gpg-agent &&
+      cd /tmp &&
+      cd /mnt/dump &&
+      while :; do
+        t=$$(date +%s.%N);
+        echo \"t: $${t}\";
+        pg_dump -U ${INTERNAL_PGDATA_USERID:-postgres} -h db -f $${t}.sql ${INTERNAL_PGDATA_DBNAME:-postgres} &&
+        xz $${t}.sql &&
+        gpg --symmetric --cipher-algo AES256 --compress-algo none --no-symkey-cache --batch --pinentry-mode loopback --passphrase \"${ENCRYPTION_KEY:-password}\" $${t}.sql.xz &&
+        shred -uzv $${t}.sql.xz &&
+        echo \"Waiting 5min\";
+        sleep 300;
+      done
+      "
+    restart: unless-stopped
+    environment:
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-password}
+      PGPASSWORD: ${INTERNAL_PGDATA_PASSWORD:-password}
+    volumes:
+      - ./dump:/mnt/dump
+    depends_on:
+      - db
+
 volumes:
   pgdata:
   pgadmin-store:
