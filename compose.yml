@@ -75,18 +75,20 @@ services:
       while :; do
         t=$$(date +%s.%N);
         echo \"t: $${t}\";
-        pg_dump -U ${INTERNAL_PGDATA_USERID:-postgres} -h db -f $${t}.sql ${INTERNAL_PGDATA_DBNAME:-postgres} &&
+        pg_dump -U $${PGDATA_USERID} -h db -f $${t}.sql $${PGDATA_DBNAME} &&
         xz $${t}.sql &&
-        gpg --symmetric --cipher-algo AES256 --compress-algo none --no-symkey-cache --batch --pinentry-mode loopback --passphrase \"${ENCRYPTION_KEY:-password}\" $${t}.sql.xz &&
+        gpg --symmetric --cipher-algo AES256 --compress-algo none --no-symkey-cache --batch --pinentry-mode loopback --passphrase \"$${ENCRYPTION_KEY}\" $${t}.sql.xz &&
         shred -uzv $${t}.sql.xz &&
-        echo \"Waiting 5min\";
-        sleep 300;
+        sleep $${LOOP_INTERVAL};
       done
       "
     restart: unless-stopped
     environment:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:-password}
       PGPASSWORD: ${INTERNAL_PGDATA_PASSWORD:-password}
+      PGDATA_USERID: ${INTERNAL_PGDATA_USERID:-postgres}
+      PGDATA_DBNAME: ${INTERNAL_PGDATA_DBNAME:-postgres}
+      LOOP_INTERVAL: ${INTERNAL_PGDUMP_INTERVAL:-300}
     volumes:
       - ./dump:/mnt/dump
     depends_on:
