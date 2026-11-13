@@ -14,6 +14,7 @@ class local {
 		error_log('------------------------------');
 		error_log('php version: '.phpversion());
 		error_log('script file: '.debug_backtrace()[0]['file']);
+		error_log('remote address: '.self::clientinf_get()['REMOTE_ADDR']);
 		return;
 	}
 	public function config ($method='get',$data=[]) {
