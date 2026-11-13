@@ -331,7 +331,7 @@ class simple_resource extends local {
 	public function __construct () {
 		parent::init();
 		$this->config = parent::config('get');
-		$this->conn_database = local::connectDB($this->config['internal']['database']);
+		$this->conn_database = parent::connectDB($this->config['internal']['database']);
 	}
 }
 
