@@ -87,4 +87,14 @@ CREATE OR REPLACE VIEW vw_app_authn_session_active AS
     FROM app_authn_session
     WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
 
+DROP VIEW IF EXISTS vw_app_user_contact;
+CREATE OR REPLACE VIEW vw_app_user_contact AS
+    SELECT
+        app_username,
+        email,
+        rawjson->>'global_name' discord_global_name,
+        rawjson->>'username' discord_username,
+        rawjson->>'email' discord_email
+    FROM app_user;
+
 COMMIT;
