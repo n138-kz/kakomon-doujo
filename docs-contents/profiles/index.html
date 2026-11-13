@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="ja" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<base target="_blank">
+	<title>n138-kz.github.io</title>
+	<link rel="stylesheet" type="text/css" href="../@lib/master.css" />
+	<meta http-equiv="refresh" content="300">
+	<style>
+	</style>
+	<script src="../@lib/define.js"></script>
+	<script>
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			Array.from(document.querySelectorAll('meta[http-equiv="refresh"]')).map((e)=>{
+				e.content = `${e.content.split(';')[0]};${location.href.split('?')[0]}`;
+			});
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
+			// 履歴に現在の状態を追加する
+			history.pushState(null, null, window.location.href);
+
+			// 「戻る」ボタンが押されたときのイベントを検知する
+			window.addEventListener('popstate', () => {
+				// 強制的に指定のURLへリダイレクト（履歴を上書き）
+				location.replace('../auth/');
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1><a href="https://n138-kz.github.io">n138.jp</a></h1>
+	<div id="info"></div>
+	<div class="container">
+        <div>
+            <h2>Profiles</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <td><input type="text" autocomplete="name"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+	<div class="container">
+        <div>
+            <ul>
+                <li><a href="../auth/" target="_self">サインイン / サインアップ</a></li>
+                <li><a href="../0/" target="_self">問題集TOP</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

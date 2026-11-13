@@ -50,11 +50,10 @@
 				if (false) {
 				} else if (req.status === 401) {
 					location.replace('../auth/');
+					return;
 				} else if (req.status === 403) {
-					catalog.push({
-						name: '',
-						id: null,
-					});
+					location.replace('../profiles/');
+					return;
 				} else {
 					let res = await req.text();
 					if (res.length===0) {
