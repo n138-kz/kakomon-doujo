@@ -93,7 +93,21 @@ services:
       - ./dump:/mnt/dump
     depends_on:
       - db
+  objectstorage:
+    container_name: objectstorage
+    image: pgsty/silo:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # S3 API エンドポイント
+      - "9001:9001" # Web 管理コンソール
+    environment:
+      MINIO_ROOT_USER: ${INTERNAL_S3_USERID:-admin}
+      MINIO_ROOT_PASSWORD: ${INTERNAL_S3_PASSWORD:-password}
+    volumes:
+      - silo_data:/data
+    restart: unless-stopped
 
 volumes:
   pgdata:
   pgadmin-store:
+  silo_data:
