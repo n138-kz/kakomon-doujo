@@ -573,6 +573,12 @@ class exapi {
 		if ($cache==0) {
 			$url = "https://api.ipinfo.io/lite/{$ipaddress}";
 
+			if (!isset($this->config['external']['ipinfo']['scheme'])||!isset($this->config['external']['ipinfo']['token'])) {
+				error_log('Error has occured on '.__FILE__.'#'.__LINE__);
+				error_log('Missing the ipinfo.scheme or ipinfo.token or both');
+				return;
+			}
+
 			$options = [
 				'http' => [
 					'method' => 'GET',
