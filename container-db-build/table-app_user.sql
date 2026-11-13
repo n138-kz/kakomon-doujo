@@ -91,7 +91,7 @@ DROP VIEW IF EXISTS vw_app_user_contact;
 CREATE OR REPLACE VIEW vw_app_user_contact AS
     SELECT
         app_username,
-        app_email,
+        email,
         rawjson->>'global_name' discord_global_name,
         rawjson->>'username' discord_username,
         rawjson->>'email' discord_email
