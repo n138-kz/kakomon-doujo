@@ -312,6 +312,18 @@ class local {
 			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 		}
 	}
+	public function authorizedUser_get () {
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			$sql = "SELECT app_username, email email1, rawjson->>'global_name' global_name, rawjson->>'username' username, rawjson->>'email' email2 FROM app_user WHERE ID = ? LIMIT 1;";
+			$stm = $this->conn_database->prepare($sql);
+			$stm->execute([$_SESSION['uid']]);
+			$res = $stm->fetch(\PDO::FETCH_ASSOC);
+		} catch (\PDOException $e) {
+			//throw $th;
+		}
+		return $res;
+	}
 }
 
 class simple_resource extends local {
