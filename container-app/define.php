@@ -2,11 +2,15 @@
 ini_set('display_errors', 0);
 ini_set('error_log', 'php://stderr');
 ini_set('log_errors', 1);
+require_once('/app/vendor/autoload.php');
 
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
 class local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
 	private $conn_database = null;
+	private $conn_objstorage = null;
 	protected function init () {
 		for($i=0;$i<10;$i++){
 			error_log('');
@@ -324,6 +328,48 @@ class local {
 		}
 		return $res;
 	}
+	public function s3_connect ($method='check') {
+		try {
+			$this->conn_objstorage = $s3 = new S3Client([
+				'version'                 => 'latest',
+				'region'                  => 'jp-east-1',
+				'endpoint'                => $this->config['internal']['s3-object-storage']['endpoint'],
+				'use_path_style_endpoint' => true,
+				'credentials'             => [
+					'key'    => $this->config['internal']['s3-object-storage']['username'],
+					'secret' => $this->config['internal']['s3-object-storage']['password'],
+				],
+			]);
+		} catch (\Throwable $e) {
+			$this->conn_objstorage = null;
+			error_log($e->getAwsErrorMessage() ?? $e->getMessage());
+			return;
+		}
+
+		if (false) {
+		} elseif ($method=='connect') {
+			return $s3;
+		} elseif ($method=='test') {
+			return self::s3_connect('check');
+		} elseif ($method=='check') {
+			try {
+				$s3->putObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+					'Body'   => 'Hello from PHP!'.PHP_EOL.time(),
+				]);
+
+				$result = $s3->getObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+				]);
+				$result = (string)$result['Body'];
+			} catch (S3Exception $e) {
+				error_log($e->getAwsErrorMessage() ?? $e->getMessage());
+			}
+		}
+		return $result ?? null;
+	}
 }
 
 class simple_resource extends local {
@@ -510,8 +556,6 @@ class resource_1 extends local {
 	}
 }
 
-use Aws\S3\S3Client;
-use Aws\S3\Exception\S3Exception;
 class exapi {
 	private $config = [];
 	private $conn_database = null;
@@ -633,38 +677,5 @@ class exapi {
 			}
 		}
 		return $res_fetched;
-	}
-	public function s3_connect ($method='check') {
-		$s3 = new S3Client([
-			'version'                 => 'latest',
-			'region'                  => 'jp-east-1',
-			'endpoint'                => 'http://s3:9000',
-			'use_path_style_endpoint' => true,
-			'credentials'             => [
-				'key'    => $proc->config['internal']['s3-object-storage']['username'],
-				'secret' => $proc->config['internal']['s3-object-storage']['password'],
-			],
-		]);
-
-		if (false) {
-		} elseif ($method=='check') {
-			try {
-				$s3->putObject([
-					'Bucket' => 'my-bucket',
-					'Key'    => 'sample.txt',
-					'Body'   => 'Hello from PHP!',
-				]);
-
-				$result = $s3->getObject([
-					'Bucket' => 'my-bucket',
-					'Key'    => 'sample.txt',
-				]);
-				$result = $result['Body'];
-		
-			} catch (S3Exception $e) {
-				error_log($e->getAwsErrorMessage() ?? $e->getMessage());
-			}
-		}
-		return $result ?? null;
 	}
 }
