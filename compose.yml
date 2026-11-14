@@ -25,7 +25,7 @@ services:
         aliases:
           - app
     volumes:
-      - ./container-app:/app:ro
+      - ./container-app:/app:rw
       - ./docs-contents:/var/www/html:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
   db:
