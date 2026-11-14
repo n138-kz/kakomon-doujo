@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS app_s3storage_key (
     id serial primary key,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    ObjectURL text,
+    ObjectURL text unique,
     Key text,
     ETag text
 );
