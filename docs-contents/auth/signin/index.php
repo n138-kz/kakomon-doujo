@@ -403,6 +403,13 @@ class auth extends local {
 					'ContentType' => $mimeType,
 				]);
 				error_log('Upload Completed. URL: ' . (string)$result['ObjectURL']);
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode([
+					'Bucket' => $s3Bucket,
+					'Key' => $s3Key,
+					'ETag' => (string)$result['ETag'],
+					'ObjectURL' => (string)$result['ObjectURL'],
+					'ProxiedObjectURL' => str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", (string)$result['ObjectURL']),
+				], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 			} catch (\Aws\Exception\AwsException $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
