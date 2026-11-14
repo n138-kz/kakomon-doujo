@@ -933,6 +933,106 @@
 				document.querySelector('body>div.container').appendChild(d[d.length-1]);
 
 				d.push(document.createElement('div')); {
+					d[d.length-1].id = 'imageUpload';
+					d[d.length-1].style.display = 'none';
+					d[d.length-1].style.position = 'fixed';
+					d[d.length-1].style.inset = '0';
+					d[d.length-1].style.margin = 'auto';
+					d[d.length-1].style.width = '50%';
+					d[d.length-1].style.height = '500px';
+					d[d.length-1].style.borderWidth = '1px';
+					d[d.length-1].style.borderColor = '#333';
+					d[d.length-1].style.borderStyle = 'solid';
+					d[d.length-1].style.padding = '10px';
+					d[d.length-1].style.backgroundColor = 'aliceblue';
+					d[d.length-1].style.textAlign = 'center';
+
+					d.push(document.createElement('div')); {
+						d[d.length-1].style.float = 'right';
+						d[d.length-1].style.width = '1.5em';
+						d[d.length-1].style.height = '1.5em';
+						d[d.length-1].style.borderWidth = '1px';
+						d[d.length-1].style.borderColor = '#333';
+						d[d.length-1].style.borderStyle = 'solid';
+						d.push(document.createElement('span')); {
+							d[d.length-1].style.cursor = 'pointer';
+							d[d.length-1].textContent = '✕';
+							d[d.length-1].addEventListener('click', (e)=>{
+								document.getElementById('imageUpload').style.display = 'none';
+								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"]'),(ev2)=>ev2.value='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('h3')); {
+						d[d.length-1].style.textAlign = 'left';
+						d[d.length-1].textContent = '画像アップロード';
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('input')); {
+							d[d.length-1].type = 'file';
+							d[d.length-1].accept = 'image/*';
+							d[d.length-1].style.width = '100%';
+							d[d.length-1].style.maxWidth = '350px';
+							d[d.length-1].style.borderBottomWidth = '1px';
+							d[d.length-1].style.borderBottomColor = '#333';
+							d[d.length-1].style.borderBottomStyle = 'solid';
+							d[d.length-1].addEventListener('change', (e)=>{
+								e.target.parentNode.parentNode.querySelector('img').src = URL.createObjectURL(e.target.files[0]);
+								e.target.parentNode.parentNode.querySelector('input[type="button"]').disabled = false;
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('input')); {
+							d[d.length-1].type = 'hidden';
+							d[d.length-1].name = 'pasteToAddress';
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						d.push(document.createElement('input')); {
+							d[d.length-1].type = 'button';
+							d[d.length-1].value = 'アップロード';
+							d[d.length-1].disabled = true;
+							d[d.length-1].addEventListener('click', ()=>{
+								document.getElementById('imageUpload').style.display = 'none';
+								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"]'),(ev2)=>ev2.value='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('img')); {
+							d[d.length-1].src = '';
+							d[d.length-1].alt = '';
+							d[d.length-1].style.marginTop = '10px';
+							d[d.length-1].style.maxWidth = '100%';
+							d[d.length-1].style.maxHeight = '350px';
+							d[d.length-1].addEventListener('click', (e)=>{
+								window.open(e.target.src, null, 'width=500px,height=500px');
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('div')); {
 					d.push(document.createElement('table')); {
 						d[d.length-1].style.backgroundColor = 'aliceblue';
 						d[d.length-1].style.border = '1px solid #333';
