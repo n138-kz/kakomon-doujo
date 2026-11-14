@@ -510,6 +510,8 @@ class resource_1 extends local {
 	}
 }
 
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
 class exapi {
 	private $config = [];
 	private $conn_database = null;
