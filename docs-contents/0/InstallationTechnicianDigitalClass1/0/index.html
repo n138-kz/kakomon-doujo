@@ -395,7 +395,8 @@
 										for (let i=0;i<mondais[index]['mondai']['mondai']['image'].length;i++) {
 											d.push(document.createElement('p')); {
 												d.push(document.createElement('img')); {
-													d[d.length-1].style.maxWidth = '100px';
+													d[d.length-1].style.width = '100px';
+													d[d.length-1].style.height = '100px';
 													d[d.length-1].alt = '';
 													d[d.length-1].src = mondais[index]['mondai']['mondai']['image'][i];
 													d[d.length-1].dataset.id = i;
@@ -442,7 +443,8 @@
 												const e_d = [];
 												e_d.push(document.createElement('p')); {
 													e_d.push(document.createElement('img')); {
-														e_d[e_d.length-1].style.maxWidth = '100px';
+														e_d[e_d.length-1].style.width = '100px';
+														e_d[e_d.length-1].style.height = '100px';
 														e_d[e_d.length-1].alt = '';
 														e_d[e_d.length-1].src = '';
 														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
@@ -733,7 +735,8 @@
 										for (let i=0;i<mondais[index]['mondai']['kaisetsu']['image'].length;i++) {
 											d.push(document.createElement('p')); {
 												d.push(document.createElement('img')); {
-													d[d.length-1].style.maxWidth = '100px';
+													d[d.length-1].style.width = '100px';
+													d[d.length-1].style.height = '100px';
 													d[d.length-1].alt = '';
 													d[d.length-1].src = mondais[index]['mondai']['kaisetsu']['image'][i];
 													d[d.length-1].dataset.id = i;
@@ -780,7 +783,8 @@
 												const e_d = [];
 												e_d.push(document.createElement('p')); {
 													e_d.push(document.createElement('img')); {
-														e_d[e_d.length-1].style.maxWidth = '100px';
+														e_d[e_d.length-1].style.width = '100px';
+														e_d[e_d.length-1].style.height = '100px';
 														e_d[e_d.length-1].alt = '';
 														e_d[e_d.length-1].src = '';
 														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
