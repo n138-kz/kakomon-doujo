@@ -81,9 +81,8 @@ class auth extends local {
 				if ($this->conn_database->inTransaction()) {
 					$this->conn_database->rollback();
 				}
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
-				error_log('PDO Error has occured: '.$e->getMessage());
 			}
 
 			$_SESSION=[];
@@ -186,7 +185,7 @@ class auth extends local {
 					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(['response_body'=>$curl_res, 'response_info'=>$curl_resinfo], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 				}
 			} catch (\Exception $e) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 				http_response_code(401);
 				echo json_encode([
@@ -253,7 +252,7 @@ class auth extends local {
 					unset($curl_req);
 				}
 			} catch (\Exception $e) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
 			try {
@@ -339,9 +338,8 @@ class auth extends local {
 				if ($this->conn_database->inTransaction()) {
 					$this->conn_database->rollback();
 				}
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
-				error_log('PDO Error has occured: '.$e->getMessage());
 			}
 
 			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
@@ -416,11 +414,11 @@ class auth extends local {
 				]);
 				error_log('Upload Completed. URL: ' . (string)$result['ObjectURL']);
 			} catch (\Aws\Exception\AwsException $e) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine() . ': ' . $e->getMessage());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 				error_log('S3 Error has occured: '.$e->getAwsErrorMessage());
 			} catch (\Throwable $e) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine() . ': ' . $e->getMessage());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
 
