@@ -104,7 +104,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_s3storage_key (
     Bucket text not null,
     ObjectURL text unique not null,
     Key text not null,
-    ETag text not null
+    ETag text not null,
+    MIMEType text not null default 'text/plain'
 );
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES

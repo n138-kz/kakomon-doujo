@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS app_s3storage_key (
     Bucket text not null,
     ObjectURL text unique not null,
     Key text not null,
-    ETag text not null
+    ETag text not null,
+    MIMEType text not null default 'text/plain'
 );
 
 -- INITIAL DATA
