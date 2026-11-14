@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_s3storage_key (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     Bucket text not null,
     ObjectURL text unique not null,
+    ProxiedObjectURL text unique not null,
     Key text not null,
     ETag text not null,
     MIMEType text not null default 'text/plain'
