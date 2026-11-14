@@ -96,6 +96,14 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
         ON UPDATE CASCADE
 );
 
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_s3storage_key CASCADE;
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_s3storage_key (
+    id serial primary key,
+    ObjectURL text,
+    Key text,
+    ETag text
+);
+
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
    (1, '電気通信技術の基礎'),
    (2, '端末設備の接続のための技術及び理論'),
