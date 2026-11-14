@@ -373,6 +373,55 @@ class auth extends local {
 				}
 				unset($curl_req);
 			}
+			try {
+				$s3Client = $proc_local->s3_connect('connect');
+				$sourcePath = 'https://cdn.discordapp.com/avatars/'.$discord_user['id'].'/'.$discord_user['avatar'].'.png';
+
+				$imageBinary = @file_get_contents($sourcePath);
+				if ($imageBinary === false) {
+					throw new \RuntimeException("Unable to fetch image: " . $sourcePath);
+				}
+
+				$s3Bucket = 'app-user';
+				if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+					$s3Client->createBucket(['Bucket' => $s3Bucket]);
+					$s3Client->putBucketVersioning([
+						'Bucket'     => $s3Bucket,
+						'VersioningConfiguration' => [
+							'Status' => 'Enabled',
+						],
+					]);
+					$policy = json_encode([
+						'Version' => '2012-10-17',
+						'Statement' => [
+							[
+								'Effect'    => 'Allow',
+								'Principal' => ['AWS' => ['*']],
+								'Action'    => ['s3:GetObject'],
+								'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+							],
+						],
+					], JSON_UNESCAPED_SLASHES);
+					$s3Client->putBucketPolicy([
+						'Bucket' => $s3Bucket,
+						'Policy' => $policy,
+					]);
+				}
+				$result = $s3Client->putObject([
+					'Bucket'      => $s3Bucket,
+					'Key'         => 'discord.usericon.' . $discord_user['id'] . '.png',
+					'Body'        => $imageBinary,
+					'ContentType' => 'image/png',
+				]);
+				error_log('Upload Completed. URL: ' . (string)$result['ObjectURL']);
+			} catch (\Aws\Exception\AwsException $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine() . ': ' . $e->getMessage());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+				error_log('S3 Error has occured: '.$e->getAwsErrorMessage());
+			} catch (\Throwable $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine() . ': ' . $e->getMessage());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+			}
 
 			http_response_code(200);
 			echo json_encode([
