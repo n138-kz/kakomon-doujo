@@ -420,6 +420,52 @@ class auth extends local {
 						'Bucket' => $s3Bucket,
 					])->get('Contents')
 				, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				try {
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+					$sql = 'SELECT key FROM app_s3storage_key WHERE key = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$res = $stm->execute([$s3Key]);
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode([
+						$sql, $s3Key,
+					], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+					if ($stm->rowCount()==0) {
+						$sql = 'INSERT INTO app_s3storage_key (bucket, key, objecturl, proxiedobjecturl, etag, mimetype) VALUES (?,?,?,?,?,?)';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute([
+							$s3Bucket,
+							$s3Key,
+							$result->get('ObjectURL'),
+							str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')),
+							trim($result->get('ETag'), '"'),
+							$mimeType,
+						]);
+					} else {
+						$sql = 'UPDATE app_s3storage_key SET bucket = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$s3Bucket,]);
+
+						$sql = 'UPDATE app_s3storage_key SET objecturl = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$result->get('ObjectURL'),]);
+
+						$sql = 'UPDATE app_s3storage_key SET proxiedobjecturl = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')),]);
+
+						$sql = 'UPDATE app_s3storage_key SET etag = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>trim($result->get('ETag'), '"'),]);
+
+						$sql = 'UPDATE app_s3storage_key SET mimetype = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$mimeType,]);
+					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				} catch (\PDOException $e) {
+					if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+					error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+					error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+				}
 			} catch (\Aws\Exception\AwsException $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
