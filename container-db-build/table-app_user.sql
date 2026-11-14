@@ -11,13 +11,13 @@ $$ LANGUAGE plpgsql;
 
 -- TABLE
 DROP TABLE IF EXISTS app_user_role CASCADE;
-CREATE TABLE app_user_role (
+CREATE TABLE IF NOT EXISTS IF NOT EXISTS app_user_role (
     id INT PRIMARY KEY,
     description TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS app_user CASCADE;
-CREATE TABLE app_user (
+CREATE TABLE IF NOT EXISTS app_user (
     id uuid primary key default gen_random_uuid(),
     email text,
     app_username text,
@@ -31,7 +31,7 @@ CREATE TABLE app_user (
 );
 
 DROP TABLE IF EXISTS app_authn_session CASCADE;
-CREATE TABLE app_authn_session (
+CREATE TABLE IF NOT EXISTS app_authn_session (
     id serial primary key,
     userid uuid not null,
     ip_address inet not null default '::1'::inet,

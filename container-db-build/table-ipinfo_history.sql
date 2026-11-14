@@ -22,7 +22,7 @@ $$ LANGUAGE plpgsql;
 
 -- TABLE
 DROP TABLE IF EXISTS ipinfo_history CASCADE;
-CREATE TABLE ipinfo_history (
+CREATE TABLE IF NOT EXISTS ipinfo_history (
     ip inet NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

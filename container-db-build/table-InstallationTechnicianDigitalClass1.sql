@@ -14,7 +14,7 @@ $$ LANGUAGE plpgsql;
 
 -- TABLE
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_user CASCADE;
-CREATE TABLE InstallationTechnicianDigitalClass1_user (
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_user (
     id uuid primary key default gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -29,7 +29,7 @@ CREATE TABLE InstallationTechnicianDigitalClass1_user (
 );
 
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_category CASCADE;
-CREATE TABLE InstallationTechnicianDigitalClass1_category (
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_category (
     id integer primary key,
     name text not null
 );
