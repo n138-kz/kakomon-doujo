@@ -48,6 +48,14 @@ CREATE TABLE IF NOT EXISTS app_authn_session (
         ON UPDATE CASCADE
 );
 
+DROP TABLE IF EXISTS app_s3storage_key CASCADE;
+CREATE TABLE IF NOT EXISTS app_s3storage_key (
+    id serial primary key,
+    ObjectURL text,
+    Key text,
+    ETag text
+);
+
 -- INITIAL DATA
 INSERT INTO app_user_role VALUES
 (0,  'NONE'),
