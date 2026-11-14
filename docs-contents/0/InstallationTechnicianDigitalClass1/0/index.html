@@ -476,6 +476,19 @@
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = 'アップロード';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"][name="pasteToAddress"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+															document.getElementById('imageUpload').style.display = 'block';
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
 												}
 												e.target.parentNode.appendChild(e_d[e_d.length-1]);e_d.pop();
 												e.target.parentNode.querySelectorAll('input[data-colname]')[e.target.parentNode.querySelectorAll('input[data-colname]').length-1].select();
@@ -826,6 +839,19 @@
 														e_d[e_d.length-1].value = '-';
 														e_d[e_d.length-1].addEventListener('click', (ev)=>{
 															ev.target.parentNode.remove();
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = 'アップロード';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"][name="pasteToAddress"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+															document.getElementById('imageUpload').style.display = 'block';
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
