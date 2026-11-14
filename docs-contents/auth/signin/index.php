@@ -66,21 +66,15 @@ class auth extends local {
 				return;
 			}
 			try {
-				if (!$this->conn_database->inTransaction()) {
-					$this->conn_database->beginTransaction();
-				}
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ?';
 				if ($this->conn_database->inTransaction()) {
 					$stm = $this->conn_database->prepare($sql);
 					$res = $stm->execute([$_SESSION['sid']]);
 				}
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->commit();
-				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->rollback();
-				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
@@ -259,10 +253,10 @@ class auth extends local {
 				$session_user = [];
 				for ($i=0;$i<2;$i++) {
 					$sql = "SELECT id,rawjson FROM app_user WHERE rawjson->>'id' = ?";
-					$this->conn_database->beginTransaction();
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 					$stm = $this->conn_database->prepare($sql);
 					$res = $stm->execute([$discord_user['id']]);
-					$this->conn_database->commit();
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					if ($stm->rowCount()>0) {
 						$res = $stm->fetch(\PDO::FETCH_ASSOC);
 						$res['id'] = $res['id'] ?? '_';
@@ -270,23 +264,23 @@ class auth extends local {
 						$session_user = $res;
 
 						$sql = 'UPDATE app_user SET rawjson=? WHERE id=?';
-						$this->conn_database->beginTransaction();
+						if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 						$stm = $this->conn_database->prepare($sql);
 						$res = $stm->execute([
 							json_encode($discord_user),
 							$res['id'],
 						]);
-						$this->conn_database->commit();
+						if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					} else {
 						$sql = 'INSERT INTO app_user (rawjson) VALUES (?)';
-						$this->conn_database->beginTransaction();
+						if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 						$stm = $this->conn_database->prepare($sql);
 						$res = $stm->execute([json_encode($discord_user)]);
-						$this->conn_database->commit();
+						if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					}
 				}
 
-				$this->conn_database->beginTransaction();
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				$sql = 'INSERT INTO app_authn_session (userid, ip_address, user_agent, expires_in, payload) VALUES (?,?,?,?,?)';
 				$stm = $this->conn_database->prepare($sql);
 				$res = $stm->execute([
@@ -326,18 +320,12 @@ class auth extends local {
 						json_encode($_SESSION),
 						$_SESSION['sid'],
 					]);
-					if ($this->conn_database->inTransaction()) {
-						$this->conn_database->commit();
-					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				} else {
-					if ($this->conn_database->inTransaction()) {
-						$this->conn_database->rollback();
-					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
 				}
 			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->rollback();
-				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
