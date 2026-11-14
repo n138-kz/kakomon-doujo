@@ -33,9 +33,7 @@ class auth extends local {
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);
 		$proc_exapi = new exapi($config, $conn_database);
-
 		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry(parent::clientinf_get()['REMOTE_ADDR']);
-		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 
 		if (!isset($_SERVER['REQUEST_METHOD']) || ( $_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'POST' )){
 			http_response_code(405);
@@ -165,9 +163,10 @@ class auth extends local {
 				}
 
 				/* * OAuth --> authn * */
-				$url = 'https://discordapp.com/api/oauth2/token/revoke';
-				// https://discord.com/api/oauth2/token/revoke ?
+				$url = 'https://discord.com/api/oauth2/token/revoke';
 				$data = [
+					'client_id' => $config['external']['discord']['bot']['client_id'],
+					'client_secret' => $config['external']['discord']['bot']['client_secret'],
 					'token' => explode(' ', $credential)[1],
 					'token_type_hint' => 'access_token',
 				];
@@ -181,8 +180,11 @@ class auth extends local {
 				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
 				$curl_res=curl_exec($curl_req);
 				$curl_res=json_decode($curl_res, TRUE);
+				$curl_resinfo = curl_getinfo($curl_req);
 				$curl_req=null;
-				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				if ($curl_resinfo['http_code']!==200) {
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(['response_body'=>$curl_res, 'response_info'=>$curl_resinfo], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				}
 			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
@@ -249,7 +251,7 @@ class auth extends local {
 					}
 					unset($curl_req);
 				}
-			} catch (\Exception $th) {
+			} catch (\Exception $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
@@ -343,6 +345,19 @@ class auth extends local {
 
 			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
 			$discord_push_item['embeds'][0]['description'] .= "Internal sessionid: `{$_SESSION['sid']}`".PHP_EOL;
+			if (isset($ipinfo_inquiry['bogon'])&&$ipinfo_inquiry['bogon']) {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}` (bogon)".PHP_EOL;
+			} else {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}`".PHP_EOL;
+				$ipinfo_inquiry['continent'] = $ipinfo_inquiry['continent'] ?? '';
+				$ipinfo_inquiry['country'] = $ipinfo_inquiry['country'] ?? '';
+				$ipinfo_inquiry['asn'] = $ipinfo_inquiry['asn'] ?? '';
+				$ipinfo_inquiry['as_name'] = $ipinfo_inquiry['as_name'] ?? '';
+				$ipinfo_inquiry['as_domain'] = $ipinfo_inquiry['as_domain'] ?? '';
+				$discord_push_item['embeds'][0]['description'] .= "Client Country: {$ipinfo_inquiry['continent']}/{$ipinfo_inquiry['country']}".PHP_EOL;
+				$discord_push_item['embeds'][0]['description'] .= "Client AS: {$ipinfo_inquiry['asn']}/{$ipinfo_inquiry['as_name']} ({$ipinfo_inquiry['as_domain']})".PHP_EOL;
+			}
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 			{
 				$curl_opt = [ 'Content-Type: application/json', 'Content-Length: '.strlen(json_encode($discord_push_item)), ];
 				$curl_req = curl_init();

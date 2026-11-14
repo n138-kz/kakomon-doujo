@@ -33,11 +33,14 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 	]);
 	error_log($m); die($m);
 }
-error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export([$role['user'],DB_ACCESS_LEVEL_FLAG_COMBI_READ],1));
+error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export(['user'=>$role['user'], 'required'=>DB_ACCESS_LEVEL_FLAG_COMBI_READ],1));
 
 header('Content-Type: application/json');
 $content = [];
-$content['user'] = $role['user'];
+$content['user'] = [];
+foreach (['app', 'InstallationTechnicianDigitalClass1'] as $v) {
+	$content['user'][$v] = $proc->role($v);
+}
 $content['data'][] = [
 	'name'=>'工事担任者 デジタル1級',
 	'id'=>'InstallationTechnicianDigitalClass1',

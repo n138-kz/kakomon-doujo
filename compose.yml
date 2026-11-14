@@ -25,7 +25,7 @@ services:
         aliases:
           - app
     volumes:
-      - ./container-app:/app:ro
+      - ./container-app:/app:rw
       - ./docs-contents:/var/www/html:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
   db:
@@ -64,6 +64,55 @@ services:
       - db
     profiles:
       - admin
+  db_dump:
+    container_name: db_dump
+    image: alpine
+    command: >
+      sh -c "
+      apk --no-cache add curl postgresql-client gpg xz coreutils gpg-agent &&
+      cd /tmp &&
+      cd /mnt/dump &&
+      while :; do
+        t=$$(date +%s.%N);
+        echo \"t: $${t}\";
+        pg_dump -U $${PGDATA_USERID} -h db -f $${t}.sql $${PGDATA_DBNAME} &&
+        xz $${t}.sql &&
+        gpg --symmetric --cipher-algo AES256 --compress-algo none --no-symkey-cache --batch --pinentry-mode loopback --passphrase \"$${ENCRYPTION_KEY}\" $${t}.sql.xz &&
+        shred -uzv $${t}.sql.xz &&
+        sleep $${LOOP_INTERVAL};
+      done
+      "
+    restart: unless-stopped
+    environment:
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-password}
+      PGPASSWORD: ${INTERNAL_PGDATA_PASSWORD:-password}
+      PGDATA_USERID: ${INTERNAL_PGDATA_USERID:-postgres}
+      PGDATA_DBNAME: ${INTERNAL_PGDATA_DBNAME:-postgres}
+      LOOP_INTERVAL: ${INTERNAL_PGDUMP_INTERVAL:-300}
+    volumes:
+      - ./dump:/mnt/dump
+    depends_on:
+      - db
+  objectstorage:
+    container_name: objectstorage
+    image: pgsty/silo:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" # S3 API エンドポイント
+      - "9001:9001" # Web 管理コンソール
+    environment:
+      MINIO_ROOT_USER: ${INTERNAL_S3_USERID:-admin}
+      MINIO_ROOT_PASSWORD: ${INTERNAL_S3_PASSWORD:-password}
+    volumes:
+      - silo_data:/data
+    restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - s3
+          - silo
+
 volumes:
   pgdata:
   pgadmin-store:
+  silo_data:

@@ -2,11 +2,15 @@
 ini_set('display_errors', 0);
 ini_set('error_log', 'php://stderr');
 ini_set('log_errors', 1);
+require_once('/app/vendor/autoload.php');
 
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
 class local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
 	private $conn_database = null;
+	private $conn_objstorage = null;
 	protected function init () {
 		for($i=0;$i<10;$i++){
 			error_log('');
@@ -14,6 +18,7 @@ class local {
 		error_log('------------------------------');
 		error_log('php version: '.phpversion());
 		error_log('script file: '.debug_backtrace()[0]['file']);
+		error_log('remote address: '.self::clientinf_get()['REMOTE_ADDR']);
 		return;
 	}
 	public function config ($method='get',$data=[]) {
@@ -311,6 +316,60 @@ class local {
 			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
 		}
 	}
+	public function authorizedUser_get () {
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			$sql = "SELECT app_username, email email1, rawjson->>'global_name' global_name, rawjson->>'username' username, rawjson->>'email' email2 FROM app_user WHERE ID = ? LIMIT 1;";
+			$stm = $this->conn_database->prepare($sql);
+			$stm->execute([$_SESSION['uid']]);
+			$res = $stm->fetch(\PDO::FETCH_ASSOC);
+		} catch (\PDOException $e) {
+			//throw $th;
+		}
+		return $res;
+	}
+	public function s3_connect ($method='check') {
+		try {
+			$this->conn_objstorage = $s3 = new S3Client([
+				'version'                 => 'latest',
+				'region'                  => 'jp-east-1',
+				'endpoint'                => $this->config['internal']['s3-object-storage']['endpoint'],
+				'use_path_style_endpoint' => true,
+				'credentials'             => [
+					'key'    => $this->config['internal']['s3-object-storage']['username'],
+					'secret' => $this->config['internal']['s3-object-storage']['password'],
+				],
+			]);
+		} catch (\Throwable $e) {
+			$this->conn_objstorage = null;
+			error_log($e->getAwsErrorMessage() ?? $e->getMessage());
+			return;
+		}
+
+		if (false) {
+		} elseif ($method=='connect') {
+			return $s3;
+		} elseif ($method=='test') {
+			return self::s3_connect('check');
+		} elseif ($method=='check') {
+			try {
+				$s3->putObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+					'Body'   => 'Hello from PHP!'.PHP_EOL.time(),
+				]);
+
+				$result = $s3->getObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+				]);
+				$result = (string)$result['Body'];
+			} catch (S3Exception $e) {
+				error_log($e->getAwsErrorMessage() ?? $e->getMessage());
+			}
+		}
+		return $result ?? null;
+	}
 }
 
 class simple_resource extends local {
@@ -318,7 +377,7 @@ class simple_resource extends local {
 	public function __construct () {
 		parent::init();
 		$this->config = parent::config('get');
-		$this->conn_database = local::connectDB($this->config['internal']['database']);
+		$this->conn_database = parent::connectDB($this->config['internal']['database']);
 	}
 }
 
@@ -540,7 +599,7 @@ class exapi {
 					$is_ula = ($first_byte & 0xfe) === 0xfc;
 
 					// リンクローカル (fe80::/10) のチェック
-					$is_link_local = ($first_byte & 0xc0) === 0x80; 
+					$is_link_local = ($first_byte & 0xc0) === 0x80;
 
 					if ($is_ula || $is_link_local) {
 						$is_internal = true;
@@ -572,6 +631,12 @@ class exapi {
 
 		if ($cache==0) {
 			$url = "https://api.ipinfo.io/lite/{$ipaddress}";
+
+			if (!isset($this->config['external']['ipinfo']['scheme'])||!isset($this->config['external']['ipinfo']['token'])) {
+				error_log('Error has occured on '.__FILE__.'#'.__LINE__);
+				error_log('Missing the ipinfo.scheme or ipinfo.token or both');
+				return;
+			}
 
 			$options = [
 				'http' => [

@@ -21,8 +21,8 @@ CREATE TABLE app_user (
     id uuid primary key default gen_random_uuid(),
     email text,
     app_username text,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     rawjson JSONB NOT NULL DEFAULT '{}',
     deleted BOOLEAN DEFAULT false,
     role INT not null default 0,
@@ -39,8 +39,8 @@ CREATE TABLE app_authn_session (
     payload JSONB NOT NULL DEFAULT '{}',
     session_id uuid not null unique default gen_random_uuid(),
     expires_in INT not null DEFAULT (1::int4 << 31),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_userid
         FOREIGN KEY (userid)
         REFERENCES app_user(id)
@@ -75,14 +75,26 @@ CREATE OR REPLACE TRIGGER update_app_authn_session_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- VIEW
-CREATE VIEW vw_app_authn_session_expired AS
-SELECT *
-FROM app_authn_session
-WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
+DROP VIEW IF EXISTS vw_app_authn_session_expired;
+CREATE OR REPLACE VIEW vw_app_authn_session_expired AS
+    SELECT *
+    FROM app_authn_session
+    WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
 
-CREATE VIEW vw_app_authn_session_active AS
-SELECT *
-FROM app_authn_session
-WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+DROP VIEW IF EXISTS vw_app_authn_session_active;
+CREATE OR REPLACE VIEW vw_app_authn_session_active AS
+    SELECT *
+    FROM app_authn_session
+    WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+
+DROP VIEW IF EXISTS vw_app_user_contact;
+CREATE OR REPLACE VIEW vw_app_user_contact AS
+    SELECT
+        app_username,
+        email app_email,
+        rawjson->>'global_name' discord_global_name,
+        rawjson->>'username' discord_username,
+        rawjson->>'email' discord_email
+    FROM app_user;
 
 COMMIT;
