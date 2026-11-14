@@ -634,4 +634,37 @@ class exapi {
 		}
 		return $res_fetched;
 	}
+	public function s3_connect ($method='check') {
+		$s3 = new S3Client([
+			'version'                 => 'latest',
+			'region'                  => 'jp-east-1',
+			'endpoint'                => 'http://s3:9000',
+			'use_path_style_endpoint' => true,
+			'credentials'             => [
+				'key'    => $proc->config['internal']['s3-object-storage']['username'],
+				'secret' => $proc->config['internal']['s3-object-storage']['password'],
+			],
+		]);
+
+		if (false) {
+		} elseif ($method=='check') {
+			try {
+				$s3->putObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+					'Body'   => 'Hello from PHP!',
+				]);
+
+				$result = $s3->getObject([
+					'Bucket' => 'my-bucket',
+					'Key'    => 'sample.txt',
+				]);
+				$result = $result['Body'];
+		
+			} catch (S3Exception $e) {
+				error_log($e->getAwsErrorMessage() ?? $e->getMessage());
+			}
+		}
+		return $result ?? null;
+	}
 }
