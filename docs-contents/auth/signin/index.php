@@ -370,6 +370,7 @@ class auth extends local {
 				}
 
 				$s3Bucket = 'app-user';
+				$s3Key = 'discord.usericon.' . $discord_user['id'] . '.png';
 				if (!$s3Client->doesBucketExistV2($s3Bucket)) {
 					$s3Client->createBucket(['Bucket' => $s3Bucket]);
 					$s3Client->putBucketVersioning([
@@ -396,7 +397,7 @@ class auth extends local {
 				}
 				$result = $s3Client->putObject([
 					'Bucket'      => $s3Bucket,
-					'Key'         => 'discord.usericon.' . $discord_user['id'] . '.png',
+					'Key'         => $s3Key,
 					'Body'        => $imageBinary,
 					'ContentType' => 'image/png',
 				]);
