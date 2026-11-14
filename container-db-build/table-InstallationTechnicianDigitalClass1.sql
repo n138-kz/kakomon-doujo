@@ -99,6 +99,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_s3storage_key CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_s3storage_key (
     id serial primary key,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     ObjectURL text,
     Key text,
     ETag text
@@ -122,6 +124,11 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_assigns_updated_at
 
 CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
     BEFORE UPDATE ON InstallationTechnicianDigitalClass1_log
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_s3storage_key_updated_at
+    BEFORE UPDATE ON InstallationTechnicianDigitalClass1_s3storage_key
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
