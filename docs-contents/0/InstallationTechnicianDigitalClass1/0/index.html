@@ -463,6 +463,19 @@
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '25px';
+														e_d[e_d.length-1].style.height = '2em';
+														e_d[e_d.length-1].style.textAlign = 'center';
+														e_d[e_d.length-1].style.marginRight = '10px';
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = '-';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															ev.target.parentNode.remove();
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
 												}
 												e.target.parentNode.appendChild(e_d[e_d.length-1]);e_d.pop();
 												e.target.parentNode.querySelectorAll('input[data-colname]')[e.target.parentNode.querySelectorAll('input[data-colname]').length-1].select();
@@ -800,6 +813,19 @@
 														e_d[e_d.length-1].value = '';
 														e_d[e_d.length-1].addEventListener('change', (ev)=>{
 															ev.target.parentNode.querySelector('img').src=ev.target.value;
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '25px';
+														e_d[e_d.length-1].style.height = '2em';
+														e_d[e_d.length-1].style.textAlign = 'center';
+														e_d[e_d.length-1].style.marginRight = '10px';
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = '-';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															ev.target.parentNode.remove();
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
