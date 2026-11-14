@@ -7,8 +7,8 @@ session_start();
 
 require_once('/app/define.php');
 
-use \n138\simple_resource;
-$proc = new simple_resource();
+use \n138\resource_1;
+$proc = new resource_1();
 header('Content-Type: text/plain');
 $proc->checkAuthn();
 $proc->update_expires_at();
@@ -35,7 +35,7 @@ if (!(($role['user'] & DB_ACCESS_LEVEL_FLAG_COMBI_READ) !== 0)) {
 }
 error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export(['user'=>$role['user'], 'required'=>DB_ACCESS_LEVEL_FLAG_COMBI_READ],1));
 
-header('Content-Type: application/json');
+$role = $proc->role('app');
 $content = [];
 $content['user'] = [];
 foreach (['app', 'InstallationTechnicianDigitalClass1'] as $v) {
@@ -44,8 +44,12 @@ foreach (['app', 'InstallationTechnicianDigitalClass1'] as $v) {
 $content['data'][] = [
 	'name'=>'工事担任者 デジタル1級',
 	'id'=>'InstallationTechnicianDigitalClass1',
-	'content'=>[],
+	'content'=>[
+		'category' => $proc->mondais_category('InstallationTechnicianDigitalClass1')['content'],
+		'category_selected' => 3,
+	],
 ];
 
+header('Content-Type: application/json');
 echo json_encode($content);
 exit;

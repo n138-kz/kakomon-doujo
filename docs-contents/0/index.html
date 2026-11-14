@@ -82,6 +82,36 @@
 							d.push(document.createElement('tbody')); {
 								d.push(document.createElement('tr')); {
 									d.push(document.createElement('th')); {
+										d[d.length-1].textContent = 'カテゴリー';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('td')); {
+										for (let j=0;j<catalog[i]['content']['category'].length;j++) {
+											d.push(document.createElement('label')); {
+												d.push(document.createElement('input')); {
+													d[d.length-1].type = 'radio';
+													d[d.length-1].name = '_';
+													d[d.length-1].value = catalog[i]['content']['category'][j]['id'];
+													if (catalog[i]['content']['category'][j]['id'] === catalog[i]['content']['category_selected']) {
+														d[d.length-1].checked = true;
+													}
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createTextNode(catalog[i]['content']['category'][j]['name'])); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+											d.push(document.createElement('br')); {}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('th')); {
 										d[d.length-1].textContent = '問題数';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
