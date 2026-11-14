@@ -555,7 +555,7 @@ class exapi {
 					$is_ula = ($first_byte & 0xfe) === 0xfc;
 
 					// リンクローカル (fe80::/10) のチェック
-					$is_link_local = ($first_byte & 0xc0) === 0x80; 
+					$is_link_local = ($first_byte & 0xc0) === 0x80;
 
 					if ($is_ula || $is_link_local) {
 						$is_internal = true;
