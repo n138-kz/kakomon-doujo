@@ -48,6 +48,20 @@ class auth extends local {
 			exit;
 		}
 
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			if ($this->conn_database->inTransaction()) {
+				$sql = "DELETE FROM app_user WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '1 hours' AND role = 0;";
+				$stm = $this->conn_database->prepare($sql);
+				$res = $stm->execute();
+				$this->conn_database->commit();
+			}
+		} catch (\PDOException $e) {
+			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+			error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+			error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+		}
+
 		if (false) {
 		} elseif (isset($_REQUEST['logout'])) {
 			$client = self::clientinf_get();
