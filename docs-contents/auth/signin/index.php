@@ -69,7 +69,7 @@ class auth extends local {
 				if (!$this->conn_database->inTransaction()) {
 					$this->conn_database->beginTransaction();
 				}
-				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ? ORDER BY id DESC';
+				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ?';
 				if ($this->conn_database->inTransaction()) {
 					$stm = $this->conn_database->prepare($sql);
 					$res = $stm->execute([$_SESSION['sid']]);
