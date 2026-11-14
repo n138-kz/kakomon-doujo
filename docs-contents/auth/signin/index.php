@@ -371,6 +371,7 @@ class auth extends local {
 
 				$s3Bucket = 'app-user';
 				$s3Key = 'discord.usericon.' . $discord_user['id'] . '.png';
+				$mimeType = 'image/png';
 				if (!$s3Client->doesBucketExistV2($s3Bucket)) {
 					$s3Client->createBucket(['Bucket' => $s3Bucket]);
 					$s3Client->putBucketVersioning([
@@ -399,7 +400,7 @@ class auth extends local {
 					'Bucket'      => $s3Bucket,
 					'Key'         => $s3Key,
 					'Body'        => $imageBinary,
-					'ContentType' => 'image/png',
+					'ContentType' => $mimeType,
 				]);
 				error_log('Upload Completed. URL: ' . (string)$result['ObjectURL']);
 			} catch (\Aws\Exception\AwsException $e) {
