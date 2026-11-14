@@ -410,6 +410,16 @@ class auth extends local {
 					'ObjectURL' => (string)$result['ObjectURL'],
 					'ProxiedObjectURL' => str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", (string)$result['ObjectURL']),
 				], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export(
+					$s3Client->listObjectsV2([
+						'Bucket' => $s3Bucket,
+					])->get('Contents')
+				, 1));
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
+					$s3Client->listObjectsV2([
+						'Bucket' => $s3Bucket,
+					])->get('Contents')
+				, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 			} catch (\Aws\Exception\AwsException $e) {
 				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
