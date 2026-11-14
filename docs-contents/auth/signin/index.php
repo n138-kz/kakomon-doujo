@@ -204,6 +204,7 @@ class auth extends local {
 				$discord_push_item['embed']['color'] = parent::color('get', false, 'success_green');
 				$discord_push_item['embed']['timestamp'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
 				$discord_push_item['embed']['title'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
+				$discord_push_item['embed']['url'] = $_SERVER['HTTP_REFERER'] ?? "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 				$discord_push_item['embed']['timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
 				$discord_push_item['embed']['thumbnail'] = [];
 				$discord_push_item['embed']['thumbnail']['url'] = 'https://cdn.discordapp.com/avatars/'.$discord_user['id'].'/'.$discord_user['avatar'].'.png';
