@@ -1087,6 +1087,10 @@
 										return;
 									}
 									let resText = await req.text();
+									let resData = JSON.parse(resText);
+									console.debug(resData['data']['url']??null);
+									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url']??null;
+									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
 								}
 								document.getElementById('imageUpload').style.display = 'none';
 								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
