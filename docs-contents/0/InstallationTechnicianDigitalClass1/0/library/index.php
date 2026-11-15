@@ -282,6 +282,18 @@ if (false) {
 	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='multipart/form-data') {
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_POST, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_FILES, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		if (! is_uploaded_file($_FILES['image']['tmp_name'])) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has not uploaded.',
+				],
+			]);
+			error_log($m); die($m);
+		}
+
 		{
 			http_response_code(501);
 			$m = json_encode([
