@@ -257,6 +257,8 @@ if (false) {
 		]);
 		error_log($m); die($m);
 	}
+	if (false) {
+	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='application/json') {
 	header('Content-Type: application/json; charset=UTF-8');
 	$_POST = file_get_contents('php://input');
 	$_POST = json_decode($_POST, true);
@@ -276,6 +278,17 @@ if (false) {
 	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
 		error_log('uuid: '.$_POST['id']);
 		error_log(__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
+	}
+	} else {
+		http_response_code(400);
+		$m = json_encode([
+			'status' => http_response_code(),
+			'error' => [
+				'title' => 'Unknown Content-Type',
+				'message' => 'Unknown Content-Type: '.$_SERVER['CONTENT_TYPE'],
+			],
+		]);
+		error_log($m); die($m);
 	}
 
 	http_response_code(204);
