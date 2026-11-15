@@ -323,7 +323,7 @@ if (false) {
 			error_log($m); die($m);
 		}
 
-		error_log(__FILE__.'#'.__LINE__.': '.'MIME-type' => $mimeType);
+		error_log(__FILE__.'#'.__LINE__.': '.'MIME-type: '.$mimeType);
 		$mimeType = explode(';', $mimeType)[0];
 		$allowedMimeTypes = [
 			'image/jpeg'    => 'jpg',
