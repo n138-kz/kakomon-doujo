@@ -112,7 +112,7 @@ class local {
 				'status' => 401,
 				'error' => [
 					'title' => 'Session Expired.',
-					'message' => 'Session has timeouted. Please relogin.',
+					'message' => 'Your session has timed out. Please login again.',
 				],
 			]));
 		}
