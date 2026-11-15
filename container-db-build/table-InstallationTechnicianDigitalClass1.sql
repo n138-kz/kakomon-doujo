@@ -172,6 +172,42 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category
     WHERE deleted = false AND m.mondai->>'category' = '3'
     ORDER BY random();
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mset_rnd_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mset_rnd_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mset_category1_rnd_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mset_cat1_rnd_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '1'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mset_category2_rnd_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mset_cat2_rnd_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '2'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mset_category3_rnd_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mset_cat3_rnd_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '3'
+    ORDER BY random();
+
 DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_count;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
     SELECT (SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET) count_all,
