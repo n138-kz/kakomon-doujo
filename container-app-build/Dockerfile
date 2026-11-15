@@ -10,5 +10,7 @@ RUN (delgroup $(getent group 983 | cut -d: -f1) || true) \
     && addgroup www-data docker
 
 RUN echo "expose_php = Off" > /usr/local/etc/php/conf.d/hide-php-version.ini
+RUN echo "upload_max_filesize = 25M" > /usr/local/etc/php/conf.d/post-size-extention.ini
+RUN echo "post_max_size = 100M" >> /usr/local/etc/php/conf.d/post-size-extention.ini
 
 WORKDIR /var/www/html
