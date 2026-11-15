@@ -23,13 +23,13 @@ class resource extends local {
 			$options['limit'] = (1*$options['limit'])>0 ? 1*$options['limit'] : 1;
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
-					$sql = "SELECT * FROM vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais LIMIT ?;";
+				if ($this->conn_database->inTransaction()) {
+					$sql = "SELECT * FROM vw_InstallationTechnicianDigitalClass1_mset_cat3_rnd_mondais LIMIT ?;";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$options['limit']]);
 					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+					$this->conn_database->commit();
 				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				for ($i=0; $i < count($res); $i++) {
 					$res[$i]['mondai'] = json_decode($res[$i]['mondai'],1);
 				}
@@ -49,13 +49,13 @@ class resource extends local {
 
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
+				if ($this->conn_database->inTransaction()) {
 					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset WHERE id=?;";
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute([$options['id']]);
 					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+					$this->conn_database->commit();
 				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				return [
 					'options' => $options,
 					'content' => $res,
@@ -71,13 +71,13 @@ class resource extends local {
 			$mondais_category = $proc->mondais_category('InstallationTechnicianDigitalClass1', 'get');
 			try {
 				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
-				{
+				if ($this->conn_database->inTransaction()) {
 					$sql = 'SELECT * FROM vw_InstallationTechnicianDigitalClass1_mondaiset_count;';
 					$stm = $this->conn_database->prepare($sql);
 					$stm->execute();
 					$res = $stm->fetch(\PDO::FETCH_ASSOC);
+					$this->conn_database->commit();
 				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				return [
 					'count' => [
 						'all' => $res['count_all'],
