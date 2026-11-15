@@ -366,12 +366,10 @@ if (false) {
 		, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 
 		{
-			http_response_code(501);
 			$m = json_encode([
 				'status' => http_response_code(),
-				'error' => [
-					'title' => 'Not Implemented.',
-					'message' => 'Not Implemented.',
+				'data' => [
+					'url' => $s3ObjectURL,
 				],
 			]);
 			error_log($m); die($m);
