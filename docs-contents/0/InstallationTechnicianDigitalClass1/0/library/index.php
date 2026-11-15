@@ -279,6 +279,20 @@ if (false) {
 			error_log('uuid: '.$_POST['id']);
 			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
 		}
+	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='multipart/form-data') {
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_POST, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_FILES, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		{
+			http_response_code(501);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'Not Implemented.',
+					'message' => 'Not Implemented.',
+				],
+			]);
+			error_log($m); die($m);
+		}
 	} else {
 		http_response_code(400);
 		$m = json_encode([
