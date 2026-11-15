@@ -277,7 +277,7 @@ if (false) {
 
 	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
 		error_log('uuid: '.$_POST['id']);
-		error_log(__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
 	}
 	} else {
 		http_response_code(400);
