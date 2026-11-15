@@ -113,6 +113,7 @@ class local {
 				'error' => [
 					'title' => 'Session Expired.',
 					'message' => 'Your session has timed out. Please login again.',
+					'location' => self::clientinf_get()['REQUEST_SCHEME'].'://'.self::clientinf_get()['HTTP_HOST'].'/',
 				],
 			]));
 		}
