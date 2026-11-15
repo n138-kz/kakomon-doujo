@@ -323,10 +323,33 @@ if (false) {
 			error_log($m); die($m);
 		}
 
+		error_log(__FILE__.'#'.__LINE__.': '.'MIME-type' => $mimeType);
+		$mimeType = explode(';', $mimeType)[0];
+		$allowedMimeTypes = [
+			'image/jpeg'    => 'jpg',
+			'image/pjpeg'   => 'jpg', // レガシー対応も含めて 'jpg' に統一
+			'image/png'     => 'png',
+			'image/x-png'   => 'png', // レガシー対応
+			'image/gif'     => 'gif',
+			'image/webp'    => 'webp',
+			'image/svg+xml' => 'svg',
+		];
+		if (!isset($allowedMimeTypes[$mimeType])) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has invalid MIME type: '.$mimeType,
+				],
+			]);
+			error_log($m); die($m);
+		}
+
 		$s3Client = $proc->s3_connect('connect');
 		$sourcePath = $_FILES['image']['tmp_name'];
 		$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
-		$s3Key = $_FILES['image']['name'];
+		$s3Key = hash_file('md5', $_FILES['image']['tmp_name']).'.'.($allowedMimeTypes[$mimeType]??'dat');
 		if (!$s3Client->doesBucketExistV2($s3Bucket)) {
 			$s3Client->createBucket(['Bucket' => $s3Bucket]);
 			$s3Client->putBucketVersioning([
