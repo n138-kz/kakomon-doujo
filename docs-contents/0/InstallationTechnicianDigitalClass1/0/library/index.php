@@ -157,6 +157,23 @@ class resource extends local {
 			error_log('Unknown params $1: '.$method);
 		}
 	}
+	public function refreshS3Table($table_basename=null, $s3ObjectList=null) {
+		if (is_null($table_basename)) {
+			if (is_null($this->table_basename)) {
+				error_log("var \$table_basename is NULL");
+				return;
+			}
+			$table_basename = $this->table_basename;
+		}
+		if (is_null($s3ObjectList)) {
+			error_log(__FILE__.'#'.__LINE__.': '.'s3ObjectList is NULL');
+			return;
+		}
+		if (!is_array($s3ObjectList)) {
+			error_log(__FILE__.'#'.__LINE__.': '.'s3ObjectList is not List(Array)');
+			return;
+		}
+	}
 }
 
 $proc = new resource();
@@ -387,6 +404,9 @@ if (false) {
 				'Bucket' => $s3Bucket,
 			])->get('Contents')
 		, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		$proc->refreshS3Table('InstallationTechnicianDigitalClass1', $s3Client->listObjectsV2([
+			'Bucket' => $s3Bucket,
+		])->get('Contents'));
 
 		{
 			$m = json_encode([
