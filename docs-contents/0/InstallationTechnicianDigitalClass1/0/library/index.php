@@ -159,6 +159,9 @@ class resource extends local {
 	}
 	public function refreshS3Table($table_basename=null, $s3ObjectList=null) {
 		if (is_null($table_basename)) {
+			error_log("var \$table_basename is NULL");
+			return;
+			/* * class local に持っていったときは以下を残して、ここと上2行消す * */
 			if (is_null($this->table_basename)) {
 				error_log("var \$table_basename is NULL");
 				return;
