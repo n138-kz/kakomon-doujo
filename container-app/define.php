@@ -555,6 +555,14 @@ class resource_1 extends local {
 			error_log('Unknown params $1: '.$method);
 		}
 	}
+	public function getMIMEType($file=null) {
+		if (is_null($file)) {
+			return;
+		}
+		$finfo = new \finfo(FILEINFO_MIME_TYPE);
+		$mimeType = $finfo->file($file);
+		return $mimeType;
+	}
 	public function fileUploadErrorCodeToMessage($code) {
 		switch ($code) {
 			case UPLOAD_ERR_INI_SIZE:
