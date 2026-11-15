@@ -555,7 +555,7 @@ class resource_1 extends local {
 			error_log('Unknown params $1: '.$method);
 		}
 	}
-    public function UploadExceptionCodeToMessage($code) {
+    public function fileUploadErrorCodeToMessage($code) {
         switch ($code) {
             case UPLOAD_ERR_INI_SIZE:
                 $message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
