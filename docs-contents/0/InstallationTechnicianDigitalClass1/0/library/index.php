@@ -299,7 +299,7 @@ if (false) {
 			'status' => http_response_code(),
 			'error' => [
 				'title' => 'Unknown Content-Type',
-				'message' => 'Unknown Content-Type: '.$_SERVER['CONTENT_TYPE'],
+				'message' => 'Unknown Content-Type: '.explode(';', $_SERVER['CONTENT_TYPE'])[0],
 			],
 		]);
 		error_log($m); die($m);
