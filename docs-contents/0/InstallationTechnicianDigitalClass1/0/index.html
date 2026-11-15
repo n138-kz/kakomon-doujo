@@ -1043,6 +1043,7 @@
 									console.error('File has not selected.');
 									return;
 								}
+								e.target.disabled = true;
 
 								const formData = new FormData();
 								formData.append('image', file);
