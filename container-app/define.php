@@ -563,7 +563,7 @@ class resource_1 extends local {
 		$mimeType = $finfo->file($file);
 		return $mimeType;
 	}
-	public function fileUploadErrorCodeToMessage($code) {
+	public function fileUploadErrorCodeToMessage($code=15) {
 		switch ($code) {
 			case UPLOAD_ERR_INI_SIZE:
 				$message = "The uploaded file exceeds the upload_max_filesize directive in php.ini";
