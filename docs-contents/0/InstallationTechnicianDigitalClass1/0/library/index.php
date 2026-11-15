@@ -357,7 +357,8 @@ if (false) {
 			'SourceFile'  => $sourcePath,
 			'ContentType' => $mimeType,
 		]);
-		error_log('Upload Completed. URL: ' . str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')));
+		$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL'));
+		error_log('Upload Completed. URL: ' . $s3ObjectURL);
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
 			$s3Client->listObjectsV2([
 				'Bucket' => $s3Bucket,
