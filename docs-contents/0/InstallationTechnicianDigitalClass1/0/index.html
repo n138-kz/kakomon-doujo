@@ -1050,7 +1050,7 @@
 								const formData = new FormData();
 								formData.append('image', file);
 								console.log([...formData.entries()]);
-								{
+								try {
 									let token = '';
 									let url = './library/';
 									let options = {};
@@ -1085,7 +1085,6 @@
 										return;
 									} else if (req.status === 204) {
 										console.log(req.status, req.statusText);
-										location.href = `${location.href.split('?')[0]}?index=${index}`;
 										return;
 									}
 									let resText = await req.text();
@@ -1093,11 +1092,21 @@
 									console.debug(resData['data']['url']??null);
 									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url']??null;
 									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
+									document.getElementById('imageUpload').style.display = 'none';
+								} catch (error) {
+									console.warn(error.message);
+
+									let errMesg = [];
+									errMesg.push(document.createElement('p')); {
+										errMesg[errMesg.length-1].classList.add('errMesg');
+										errMesg[errMesg.length-1].textContent = error.message;
+									}
+									e.target.parentNode.parentNode.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
+								} finally {
+									Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+									Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+									Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 								}
-								document.getElementById('imageUpload').style.display = 'none';
-								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
-								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 							});
 						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
