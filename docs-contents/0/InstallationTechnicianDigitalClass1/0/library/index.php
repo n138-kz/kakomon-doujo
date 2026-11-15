@@ -176,6 +176,36 @@ class resource extends local {
 			error_log(__FILE__.'#'.__LINE__.': '.'s3ObjectList is not List(Array)');
 			return;
 		}
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			if ($this->conn_database->inTransaction()) {
+				$sql = "DELETE FROM {$table_basename}_s3storage_key";
+				$stm = $this->conn_database->prepare($sql);
+				$stm->execute();
+
+				$sql = "INSERT INTO {$table_basename}_s3storage_key (key, bucket, objecturl, proxiedobjecturl, etag) VALUES (?,?,?,?,?)";
+				$stm = $this->conn_database->prepare($sql);
+				foreach ($s3ObjectList as $k1 => $v1) {
+					$stm->execute([
+						$v1['Key'],
+						mb_strtolower($table_basename),
+						$this->config['internal']['s3-object-storage']['endpoint'].'/'.mb_strtolower($table_basename).'/'.$v1['Key'],
+						str_replace(
+							$this->config['internal']['s3-object-storage']['endpoint']
+							, parent::clientinf_get()['REQUEST_SCHEME'].'://'.parent::clientinf_get()['HTTP_HOST'].'/@lib/object/?q='
+							, $this->config['internal']['s3-object-storage']['endpoint'].'/'.mb_strtolower($table_basename).'/'.$v1['Key']
+						),
+						trim($v1['ETag'], '"'),
+					]);
+				}
+				$this->conn_database->commit();
+			}
+			return;
+		} catch (\PDOException $e) {
+			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+			error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+			error_log('[Stack trace]'.PHP_EOL.'[0] '.$e->getMessage().PHP_EOL.'[1] '.$e->getTraceAsString());
+		}
 	}
 }
 
