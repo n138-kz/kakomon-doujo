@@ -310,6 +310,19 @@ if (false) {
 			error_log($m); die($m);
 		}
 
+		$mimeType = $proc1->getMIMEType($_FILES['image']['tmp_name']);
+		if (strpos($mimeType, 'image/') !== 0) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has image only accept: '.$mimeType,
+				],
+			]);
+			error_log($m); die($m);
+		}
+
 		{
 			http_response_code(501);
 			$m = json_encode([
