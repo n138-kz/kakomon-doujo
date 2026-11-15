@@ -259,26 +259,26 @@ if (false) {
 	}
 	if (false) {
 	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='application/json') {
-	header('Content-Type: application/json; charset=UTF-8');
-	$_POST = file_get_contents('php://input');
-	$_POST = json_decode($_POST, true);
-	$_REQUEST = array_merge($_REQUEST, $_POST);
-	if (json_last_error() !== JSON_ERROR_NONE) {
-		http_response_code(400);
-		$m = json_encode([
-			'status' => http_response_code(),
-			'error' => [
-				'title' => 'Invalid JSON.',
-				'message' => 'Contains invalid JSON format.',
-			],
-		]);
-		error_log($m); die($m);
-	}
+		header('Content-Type: application/json; charset=UTF-8');
+		$_POST = file_get_contents('php://input');
+		$_POST = json_decode($_POST, true);
+		$_REQUEST = array_merge($_REQUEST, $_POST);
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'Invalid JSON.',
+					'message' => 'Contains invalid JSON format.',
+				],
+			]);
+			error_log($m); die($m);
+		}
 
-	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
-		error_log('uuid: '.$_POST['id']);
-		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
-	}
+		if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
+			error_log('uuid: '.$_POST['id']);
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
+		}
 	} else {
 		http_response_code(400);
 		$m = json_encode([

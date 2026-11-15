@@ -482,10 +482,11 @@
 														e_d[e_d.length-1].value = 'アップロード';
 														e_d[e_d.length-1].addEventListener('click', (ev)=>{
 															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"][name="pasteToAddress"]'),(ev2)=>ev2.value='');
 															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
 															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 															document.getElementById('imageUpload').style.display = 'block';
+															d_fileupload = ev.target;
+															console.log(d_fileupload);
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
@@ -848,10 +849,11 @@
 														e_d[e_d.length-1].value = 'アップロード';
 														e_d[e_d.length-1].addEventListener('click', (ev)=>{
 															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"][name="pasteToAddress"]'),(ev2)=>ev2.value='');
 															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
 															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 															document.getElementById('imageUpload').style.display = 'block';
+															d_fileupload = ev.target;
+															console.log(d_fileupload);
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
@@ -986,7 +988,6 @@
 							d[d.length-1].addEventListener('click', (e)=>{
 								document.getElementById('imageUpload').style.display = 'none';
 								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"]'),(ev2)=>ev2.value='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 							});
@@ -1021,18 +1022,12 @@
 
 					d.push(document.createElement('div')); {
 						d.push(document.createElement('input')); {
-							d[d.length-1].type = 'hidden';
-							d[d.length-1].name = 'pasteToAddress';
-						}
-						d[d.length-2].appendChild(d[d.length-1]); d.pop();
-						d.push(document.createElement('input')); {
 							d[d.length-1].type = 'button';
 							d[d.length-1].value = 'アップロード';
 							d[d.length-1].disabled = true;
 							d[d.length-1].addEventListener('click', ()=>{
 								document.getElementById('imageUpload').style.display = 'none';
 								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="hidden"]'),(ev2)=>ev2.value='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
 							});
