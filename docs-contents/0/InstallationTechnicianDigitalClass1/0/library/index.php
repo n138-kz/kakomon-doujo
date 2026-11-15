@@ -323,6 +323,47 @@ if (false) {
 			error_log($m); die($m);
 		}
 
+		$s3Client = $proc->s3_connect('connect');
+		$sourcePath = $_FILES['image']['tmp_name'];
+		$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
+		$s3Key = $_FILES['image']['name'];
+		if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+			$s3Client->createBucket(['Bucket' => $s3Bucket]);
+			$s3Client->putBucketVersioning([
+				'Bucket'     => $s3Bucket,
+				'VersioningConfiguration' => [
+					'Status' => 'Enabled',
+				],
+			]);
+			$policy = json_encode([
+				'Version' => '2012-10-17',
+				'Statement' => [
+					[
+						'Effect'    => 'Allow',
+						'Principal' => ['AWS' => ['*']],
+						'Action'    => ['s3:GetObject'],
+						'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+					],
+				],
+			], JSON_UNESCAPED_SLASHES);
+			$s3Client->putBucketPolicy([
+				'Bucket' => $s3Bucket,
+				'Policy' => $policy,
+			]);
+		}
+		$result = $s3Client->putObject([
+			'Bucket'      => $s3Bucket,
+			'Key'         => $s3Key,
+			'SourceFile'  => $sourcePath,
+			'ContentType' => $mimeType,
+		]);
+		error_log('Upload Completed. URL: ' . str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')));
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
+			$s3Client->listObjectsV2([
+				'Bucket' => $s3Bucket,
+			])->get('Contents')
+		, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+
 		{
 			http_response_code(501);
 			$m = json_encode([
