@@ -1020,6 +1020,7 @@
 							d[d.length-1].addEventListener('cancel', (e)=>{
 								e.target.value = '';
 								e.target.parentNode.parentNode.querySelector('img').src = '';
+								e.target.parentNode.parentNode.querySelector('input[type="button"]').disabled = true;
 								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
 							});
 							d[d.length-1].addEventListener('change', (e)=>{
