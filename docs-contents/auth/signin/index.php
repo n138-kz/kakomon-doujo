@@ -65,8 +65,8 @@ class auth extends local {
 		if (false) {
 		} elseif (isset($_REQUEST['logout'])) {
 			$client = self::clientinf_get();
-			error_log(var_export($_SESSION,1));
-			error_log(var_export($_REQUEST,1));
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($_SESSION, 1));
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($_REQUEST, 1));
 			if (!isset($_SESSION['sid'])) {
 				// error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 				error_log(__FILE__.'#'.__LINE__.': Already logouted.');
