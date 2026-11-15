@@ -51,10 +51,29 @@ class auth extends local {
 		try {
 			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 			if ($this->conn_database->inTransaction()) {
-				$sql = "DELETE FROM app_user WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '1 hours' AND role = 0;";
+				$sql = "DELETE FROM app_user WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '1 hours' AND role = 0 RETURNING *;";
 				$stm = $this->conn_database->prepare($sql);
 				$res = $stm->execute();
 				$this->conn_database->commit();
+				$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+			}
+
+			$client = self::clientinf_get();
+			$s3Client = $proc_local->s3_connect('connect');
+			$s3Bucket = 'app-user';
+			$mimeType = 'application/json';
+			foreach ($res as $v1) {
+				$v1['issued_at'] = date('c');
+				$v1['rawdata'] = json_decode($v1['rawjson']);
+				ksort($v1);
+				$s3Key = 'revoke.app-user.'.$v1['id'].'.'.hash("md5", $v1['id']).'.json';
+				$s3Result = $s3Client->putObject([
+					'Bucket' => $s3Bucket,
+					'Key'    => $s3Key,
+					'Body'   => json_encode($v1, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),
+					'ContentType' => $mimeType,
+				]);
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3Result->get('ObjectURL')));
 			}
 		} catch (\PDOException $e) {
 			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
