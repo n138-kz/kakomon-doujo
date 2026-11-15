@@ -14,10 +14,10 @@ $$ LANGUAGE plpgsql;
 
 -- TABLE
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_user CASCADE;
-CREATE TABLE InstallationTechnicianDigitalClass1_user (
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_user (
     id uuid primary key default gen_random_uuid(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     role INT not null default 0,
     CONSTRAINT chk_role_range
         CHECK (role >= 0 AND role <= 63),
@@ -29,7 +29,7 @@ CREATE TABLE InstallationTechnicianDigitalClass1_user (
 );
 
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_category CASCADE;
-CREATE TABLE InstallationTechnicianDigitalClass1_category (
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_category (
     id integer primary key,
     name text not null
 );
@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
     id uuid primary key default gen_random_uuid(),
     openid text unique not null default gen_random_uuid(),
     mondai jsonb not null,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deleted BOOLEAN default false
 );
 
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_mondaiset (
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_assigns CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
     id serial primary key,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     user_id uuid not null,
     session_id uuid not null,
     mondai_id uuid not null,
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_assigns (
 DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_log CASCADE;
 CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
     id uuid primary key default gen_random_uuid(),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     user_id uuid not null,
     mondai_id uuid not null,
     user_selected varchar(4),
@@ -94,6 +94,19 @@ CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_log (
         REFERENCES InstallationTechnicianDigitalClass1_mondaiset(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS InstallationTechnicianDigitalClass1_s3storage_key CASCADE;
+CREATE TABLE IF NOT EXISTS InstallationTechnicianDigitalClass1_s3storage_key (
+    id serial primary key,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    Bucket text not null,
+    ObjectURL text unique not null,
+    ProxiedObjectURL text unique not null,
+    Key text not null,
+    ETag text not null,
+    MIMEType text not null default 'text/plain'
 );
 
 INSERT INTO InstallationTechnicianDigitalClass1_category (id, name) VALUES
@@ -117,15 +130,49 @@ CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_log_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE OR REPLACE TRIGGER InstallationTechnicianDigitalClass1_s3storage_key_updated_at
+    BEFORE UPDATE ON InstallationTechnicianDigitalClass1_s3storage_key
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- VIEW
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_ramdom_mondais AS
-    SELECT m.id internal_id, m.openid id, m.mondai,c.name
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
     FROM InstallationTechnicianDigitalClass1_mondaiset m
     JOIN installationtechniciandigitalclass1_category c
     ON m.mondai->>'category' = c.id::text
     WHERE deleted = false
     ORDER BY random();
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category1_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category1_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '1'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category2_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category2_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '2'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_category3_ramdom_mondais;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_category3_ramdom_mondais AS
+    SELECT m.id internal_id, m.openid id, m.mondai, c.name
+    FROM InstallationTechnicianDigitalClass1_mondaiset m
+    JOIN installationtechniciandigitalclass1_category c
+    ON m.mondai->>'category' = c.id::text
+    WHERE deleted = false AND m.mondai->>'category' = '3'
+    ORDER BY random();
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_count;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
     SELECT (SELECT COUNT(OPENID) FROM INSTALLATIONTECHNICIANDIGITALCLASS1_MONDAISET) count_all,
     (
@@ -144,10 +191,114 @@ CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_count AS
         WHERE MONDAI ->> 'category' = '3'
     ) count_category_3;
 
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd AS
     SELECT id,openid,created_at,updated_at
     FROM installationtechniciandigitalclass1_mondaiset
     WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '12 hours'
     ORDER BY created_at ASC;
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_exam_rounds;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_exam_rounds AS
+    WITH extracted AS (
+        SELECT DISTINCT
+            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+        FROM installationtechniciandigitalclass1_mondaiset
+    )
+    SELECT o
+    FROM extracted
+    WHERE o IS NOT NULL -- 万が一マッチしない行があっても除外する安全策
+    ORDER BY
+    -- 1. 西暦に変換して年度順に並べる
+        (CASE
+            WHEN o LIKE '平成%' THEN 1988
+            WHEN o LIKE '令和%' THEN 2018
+            ELSE 0
+        END) +
+        (CASE
+            WHEN SUBSTRING(o FROM '(?:平成|令和)(元|[0-9]+)年度?') = '元' THEN 1
+            ELSE CAST(SUBSTRING(o FROM '(?:平成|令和)([0-9]+)年度?') AS INTEGER)
+        END) ASC,
+
+        -- 2. 「第◯回」を数値にして並べる
+        CAST(SUBSTRING(o FROM '第([0-9]+)回') AS INTEGER) ASC;
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category1_exam_rounds;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category1_exam_rounds AS
+    WITH extracted AS (
+        SELECT DISTINCT
+            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+        FROM installationtechniciandigitalclass1_mondaiset m
+        WHERE m.mondai->>'category' = '1'
+    )
+    SELECT o
+    FROM extracted
+    WHERE o IS NOT NULL -- 万が一マッチしない行があっても除外する安全策
+    ORDER BY
+    -- 1. 西暦に変換して年度順に並べる
+        (CASE
+            WHEN o LIKE '平成%' THEN 1988
+            WHEN o LIKE '令和%' THEN 2018
+            ELSE 0
+        END) +
+        (CASE
+            WHEN SUBSTRING(o FROM '(?:平成|令和)(元|[0-9]+)年度?') = '元' THEN 1
+            ELSE CAST(SUBSTRING(o FROM '(?:平成|令和)([0-9]+)年度?') AS INTEGER)
+        END) ASC,
+
+        -- 2. 「第◯回」を数値にして並べる
+        CAST(SUBSTRING(o FROM '第([0-9]+)回') AS INTEGER) ASC;
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category2_exam_rounds;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category2_exam_rounds AS
+    WITH extracted AS (
+        SELECT DISTINCT
+            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+        FROM installationtechniciandigitalclass1_mondaiset m
+        WHERE m.mondai->>'category' = '2'
+    )
+    SELECT o
+    FROM extracted
+    WHERE o IS NOT NULL -- 万が一マッチしない行があっても除外する安全策
+    ORDER BY
+    -- 1. 西暦に変換して年度順に並べる
+        (CASE
+            WHEN o LIKE '平成%' THEN 1988
+            WHEN o LIKE '令和%' THEN 2018
+            ELSE 0
+        END) +
+        (CASE
+            WHEN SUBSTRING(o FROM '(?:平成|令和)(元|[0-9]+)年度?') = '元' THEN 1
+            ELSE CAST(SUBSTRING(o FROM '(?:平成|令和)([0-9]+)年度?') AS INTEGER)
+        END) ASC,
+
+        -- 2. 「第◯回」を数値にして並べる
+        CAST(SUBSTRING(o FROM '第([0-9]+)回') AS INTEGER) ASC;
+
+DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category3_exam_rounds;
+CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category3_exam_rounds AS
+    WITH extracted AS (
+        SELECT DISTINCT
+            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+        FROM installationtechniciandigitalclass1_mondaiset m
+        WHERE m.mondai->>'category' = '3'
+    )
+    SELECT o
+    FROM extracted
+    WHERE o IS NOT NULL -- 万が一マッチしない行があっても除外する安全策
+    ORDER BY
+    -- 1. 西暦に変換して年度順に並べる
+        (CASE
+            WHEN o LIKE '平成%' THEN 1988
+            WHEN o LIKE '令和%' THEN 2018
+            ELSE 0
+        END) +
+        (CASE
+            WHEN SUBSTRING(o FROM '(?:平成|令和)(元|[0-9]+)年度?') = '元' THEN 1
+            ELSE CAST(SUBSTRING(o FROM '(?:平成|令和)([0-9]+)年度?') AS INTEGER)
+        END) ASC,
+
+        -- 2. 「第◯回」を数値にして並べる
+        CAST(SUBSTRING(o FROM '第([0-9]+)回') AS INTEGER) ASC;
 
 COMMIT;

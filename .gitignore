@@ -8,6 +8,7 @@ backup/
 *.xz
 *.gz
 *.zip
+*.gpg
 
 # Temporary files
 *.tmp
@@ -46,3 +47,7 @@ build/
 *.msi
 *.jar
 *.swp
+
+# compose library
+composer.lock
+vendor/

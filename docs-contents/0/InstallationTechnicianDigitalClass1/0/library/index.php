@@ -157,6 +157,23 @@ class resource extends local {
 			error_log('Unknown params $1: '.$method);
 		}
 	}
+	public function refreshS3Table($table_basename=null, $s3ObjectList=null) {
+		if (is_null($table_basename)) {
+			if (is_null($this->table_basename)) {
+				error_log("var \$table_basename is NULL");
+				return;
+			}
+			$table_basename = $this->table_basename;
+		}
+		if (is_null($s3ObjectList)) {
+			error_log(__FILE__.'#'.__LINE__.': '.'s3ObjectList is NULL');
+			return;
+		}
+		if (!is_array($s3ObjectList)) {
+			error_log(__FILE__.'#'.__LINE__.': '.'s3ObjectList is not List(Array)');
+			return;
+		}
+	}
 }
 
 $proc = new resource();
@@ -257,25 +274,159 @@ if (false) {
 		]);
 		error_log($m); die($m);
 	}
-	header('Content-Type: application/json; charset=UTF-8');
-	$_POST = file_get_contents('php://input');
-	$_POST = json_decode($_POST, true);
-	$_REQUEST = array_merge($_REQUEST, $_POST);
-	if (json_last_error() !== JSON_ERROR_NONE) {
+	if (false) {
+	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='application/json') {
+		header('Content-Type: application/json; charset=UTF-8');
+		$_POST = file_get_contents('php://input');
+		$_POST = json_decode($_POST, true);
+		$_REQUEST = array_merge($_REQUEST, $_POST);
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'Invalid JSON.',
+					'message' => 'Contains invalid JSON format.',
+				],
+			]);
+			error_log($m); die($m);
+		}
+
+		if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
+			error_log('uuid: '.$_POST['id']);
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
+		}
+	} elseif (explode(';', $_SERVER['CONTENT_TYPE'])[0]==='multipart/form-data') {
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_POST, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($_FILES, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode([
+				'upload_max_filesize' => ini_get('upload_max_filesize'),
+				'post_max_size'       => ini_get('post_max_size'),
+			], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has not uploaded: '.$proc1->fileUploadErrorCodeToMessage($_FILES['image']['error']).'',
+				],
+			]);
+			error_log($m); die($m);
+		}
+
+		if (! is_uploaded_file($_FILES['image']['tmp_name'])) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has not uploaded.',
+				],
+			]);
+			error_log($m); die($m);
+		}
+
+		$mimeType = $proc1->getMIMEType($_FILES['image']['tmp_name']);
+		if (strpos($mimeType, 'image/') !== 0) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has image only accept: '.$mimeType,
+				],
+			]);
+			error_log($m); die($m);
+		}
+
+		error_log(__FILE__.'#'.__LINE__.': '.'MIME-type: '.$mimeType);
+		$mimeType = explode(';', $mimeType)[0];
+		$allowedMimeTypes = [
+			'image/jpeg'    => 'jpg',
+			'image/pjpeg'   => 'jpg', // レガシー対応も含めて 'jpg' に統一
+			'image/png'     => 'png',
+			'image/x-png'   => 'png', // レガシー対応
+			'image/gif'     => 'gif',
+			'image/webp'    => 'webp',
+			'image/svg+xml' => 'svg',
+		];
+		if (!isset($allowedMimeTypes[$mimeType])) {
+			http_response_code(400);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'File has invalid MIME type: '.$mimeType,
+				],
+			]);
+			error_log($m); die($m);
+		}
+
+		$s3Client = $proc->s3_connect('connect');
+		$sourcePath = $_FILES['image']['tmp_name'];
+		$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
+		$s3Key = hash_file('md5', $_FILES['image']['tmp_name']).'.'.($allowedMimeTypes[$mimeType]??'dat');
+		if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+			$s3Client->createBucket(['Bucket' => $s3Bucket]);
+			$s3Client->putBucketVersioning([
+				'Bucket'     => $s3Bucket,
+				'VersioningConfiguration' => [
+					'Status' => 'Enabled',
+				],
+			]);
+			$policy = json_encode([
+				'Version' => '2012-10-17',
+				'Statement' => [
+					[
+						'Effect'    => 'Allow',
+						'Principal' => ['AWS' => ['*']],
+						'Action'    => ['s3:GetObject'],
+						'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+					],
+				],
+			], JSON_UNESCAPED_SLASHES);
+			$s3Client->putBucketPolicy([
+				'Bucket' => $s3Bucket,
+				'Policy' => $policy,
+			]);
+		}
+		$result = $s3Client->putObject([
+			'Bucket'      => $s3Bucket,
+			'Key'         => $s3Key,
+			'SourceFile'  => $sourcePath,
+			'ContentType' => $mimeType,
+		]);
+		$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL'));
+		error_log('Upload Completed. URL: ' . $s3ObjectURL);
+		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
+			$s3Client->listObjectsV2([
+				'Bucket' => $s3Bucket,
+			])->get('Contents')
+		, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+		$proc->refreshS3Table('InstallationTechnicianDigitalClass1', $s3Client->listObjectsV2([
+			'Bucket' => $s3Bucket,
+		])->get('Contents'));
+
+		{
+			$m = json_encode([
+				'status' => http_response_code(),
+				'data' => [
+					'url' => $s3ObjectURL,
+				],
+			]);
+			error_log($m); die($m);
+		}
+	} else {
 		http_response_code(400);
 		$m = json_encode([
 			'status' => http_response_code(),
 			'error' => [
-				'title' => 'Invalid JSON.',
-				'message' => 'Contains invalid JSON format.',
+				'title' => 'Unknown Content-Type',
+				'message' => 'Unknown Content-Type: '.explode(';', $_SERVER['CONTENT_TYPE'])[0],
 			],
 		]);
 		error_log($m); die($m);
-	}
-
-	if ($proc->mondais('getbyid', ['id' => $_POST['id']])['summary']===1) {
-		error_log('uuid: '.$_POST['id']);
-		error_log(__LINE__.PHP_EOL.json_encode($proc->mondais('update', $_POST)));
 	}
 
 	http_response_code(204);

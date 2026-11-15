@@ -23,7 +23,12 @@ if ($proc->clientIsInternal($proc->clientinf_get()['REMOTE_ADDR'])) {
 		exit();
 	}
 }
-echo '<!DOCTYPE html><html lang="ja"><head><meta http-equiv="refresh" content="3;./auth/">';
+echo '<!DOCTYPE html><html lang="ja"><head>';
+if ($proc->clientIsInternal($proc->clientinf_get()['REMOTE_ADDR'])) {
+	echo '<meta http-equiv="refresh" content="3;./auth/">';
+} else {
+	echo '<meta http-equiv="refresh" content="0;./auth/">';
+}
 echo '<style>p{font-size: xx-large;}</style>';
 echo '<script>';
 echo 'window.addEventListener(`DOMContentLoaded`, ()=>{';
