@@ -429,13 +429,13 @@ class auth extends local {
 						'Policy' => $policy,
 					]);
 				}
-				$result = $s3Client->putObject([
+				$s3result = $s3Client->putObject([
 					'Bucket'      => $s3Bucket,
 					'Key'         => $s3Key,
 					'Body'        => $imageBinary,
 					'ContentType' => $mimeType,
 				]);
-				error_log('Upload Completed. URL: ' . $result->get('ObjectURL'));
+				error_log('Upload Completed. URL: ' . $s3result->get('ObjectURL'));
 				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
 					$s3Client->listObjectsV2([
 						'Bucket' => $s3Bucket,
@@ -455,9 +455,9 @@ class auth extends local {
 						$res = $stm->execute([
 							$s3Bucket,
 							$s3Key,
-							$result->get('ObjectURL'),
-							str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')),
-							trim($result->get('ETag'), '"'),
+							$s3result->get('ObjectURL'),
+							str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL')),
+							trim($s3result->get('ETag'), '"'),
 							$mimeType,
 						]);
 					} else {
@@ -467,15 +467,15 @@ class auth extends local {
 
 						$sql = 'UPDATE app_s3storage_key SET objecturl = :item WHERE key = :key';
 						$stm = $this->conn_database->prepare($sql);
-						$res = $stm->execute(['key'=>$s3Key, 'item'=>$result->get('ObjectURL'),]);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$s3result->get('ObjectURL'),]);
 
 						$sql = 'UPDATE app_s3storage_key SET proxiedobjecturl = :item WHERE key = :key';
 						$stm = $this->conn_database->prepare($sql);
-						$res = $stm->execute(['key'=>$s3Key, 'item'=>str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL')),]);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL')),]);
 
 						$sql = 'UPDATE app_s3storage_key SET etag = :item WHERE key = :key';
 						$stm = $this->conn_database->prepare($sql);
-						$res = $stm->execute(['key'=>$s3Key, 'item'=>trim($result->get('ETag'), '"'),]);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>trim($s3result->get('ETag'), '"'),]);
 
 						$sql = 'UPDATE app_s3storage_key SET mimetype = :item WHERE key = :key';
 						$stm = $this->conn_database->prepare($sql);
