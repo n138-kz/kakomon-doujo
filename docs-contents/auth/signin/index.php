@@ -6,6 +6,15 @@ session_name('sessid');
 session_start();
 
 require_once('/app/define.php');
+use function imagecreatefromstring;
+use function imagepalettetotruecolor;
+use function imagealphablending;
+use function imagesavealpha;
+use function imagewebp;
+use function imagedestroy;
+use function ob_start;
+use function ob_get_clean;
+
 class auth extends local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
@@ -403,7 +412,7 @@ class auth extends local {
 				}
 
 				$s3Bucket = 'app-user';
-				$s3Key = 'discord.usericon.' . $discord_user['id'] . '.png';
+				$s3Key = 'discord.usericon.' . $discord_user['id'];
 				$mimeType = 'image/png';
 				if (!$s3Client->doesBucketExistV2($s3Bucket)) {
 					$s3Client->createBucket(['Bucket' => $s3Bucket]);
@@ -435,6 +444,28 @@ class auth extends local {
 					'Body'        => $imageBinary,
 					'ContentType' => $mimeType,
 				]);
+
+				{
+					$image = imagecreatefromstring($imageBinary);
+					if ($image === false) {
+						throw new \RuntimeException("Unable to create image from binary string.");
+					}
+					imagepalettetotruecolor($image);
+					imagealphablending($image, true);
+					imagesavealpha($image, true);
+					ob_start();
+					imagewebp($image, null, 80);
+					$webpBinary = ob_get_clean();
+
+					$mimeType = 'image/webp';
+					$s3result = $s3Client->putObject([
+						'Bucket'      => $s3Bucket,
+						'Key'         => $s3Key,
+						'Body'        => $webpBinary,
+						'ContentType' => $mimeType,
+					]);
+				}
+
 				error_log('Upload Completed. URL: ' . $s3result->get('ObjectURL'));
 				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
 					$s3Client->listObjectsV2([
