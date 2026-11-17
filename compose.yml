@@ -28,6 +28,19 @@ services:
       - ./container-app:/app:rw
       - ./docs-contents:/var/www/html:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  webp-converter:
+    build:
+      context: ./container-webpconverter-build
+      dockerfile: ./Dockerfile
+    container_name: webp-converter
+    restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - webp-converter
+          - webp_converter
+          - webp-encoder
+          - webp_encoder
   db:
     container_name: db
     image: postgres:16-alpine
