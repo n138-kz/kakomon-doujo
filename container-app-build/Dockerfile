@@ -5,6 +5,16 @@ RUN apk --no-cache add \
     postgresql-dev \
     && docker-php-ext-install pdo_pgsql
 
+# GDとFreeTypeの依存パッケージをインストールし、有効化
+RUN apk add --no-cache \
+        freetype-dev \
+        libjpeg-turbo-dev \
+        libpng-dev \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
+
 RUN (delgroup $(getent group 983 | cut -d: -f1) || true) \
     && addgroup -g 983 -S docker \
     && addgroup www-data docker
