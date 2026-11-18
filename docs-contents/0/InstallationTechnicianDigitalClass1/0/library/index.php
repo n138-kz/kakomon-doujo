@@ -6,6 +6,14 @@ session_name('sessid');
 session_start();
 
 require_once('/app/define.php');
+use function imagecreatefromstring;
+use function imagepalettetotruecolor;
+use function imagealphablending;
+use function imagesavealpha;
+use function imagewebp;
+use function imagedestroy;
+use function ob_start;
+use function ob_get_clean;
 
 use \n138\resource;
 class resource extends local {
@@ -381,6 +389,7 @@ if (false) {
 			'image/png'     => 'png',
 			'image/x-png'   => 'png', // レガシー対応
 			'image/gif'     => 'gif',
+			'image/bmp'     => 'bmp',
 			'image/webp'    => 'webp',
 			'image/svg+xml' => 'svg',
 		];
@@ -396,10 +405,24 @@ if (false) {
 			error_log($m); die($m);
 		}
 
+		switch ($allowedMimeTypes[$mimeType]) {
+			case 'jpg':
+				$image = imagecreatefromjpeg($_FILES['image']['tmp_name']);
+				break;
+			case 'png':
+				$image = imagecreatefrompng($_FILES['image']['tmp_name']);
+				// PNGの透過（アルファチャンネル）を維持する場合
+				imagealphablending($image, true);
+				imagesavealpha($image, true);
+				break;
+			case 'bmp':
+				$image = imagecreatefrombmp($_FILES['image']['tmp_name']);
+				break;
+		}
+
 		$s3Client = $proc->s3_connect('connect');
-		$sourcePath = $_FILES['image']['tmp_name'];
 		$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
-		$s3Key = hash_file('md5', $_FILES['image']['tmp_name']).'.'.($allowedMimeTypes[$mimeType]??'dat');
+		$s3Key = hash_file('md5', $_FILES['image']['tmp_name']);
 		if (!$s3Client->doesBucketExistV2($s3Bucket)) {
 			$s3Client->createBucket(['Bucket' => $s3Bucket]);
 			$s3Client->putBucketVersioning([
@@ -424,13 +447,35 @@ if (false) {
 				'Policy' => $policy,
 			]);
 		}
-		$result = $s3Client->putObject([
-			'Bucket'      => $s3Bucket,
-			'Key'         => $s3Key,
-			'SourceFile'  => $sourcePath,
-			'ContentType' => $mimeType,
-		]);
-		$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $result->get('ObjectURL'));
+
+		$s3result = null;
+		switch ($allowedMimeTypes[$mimeType]) {
+			case 'jpg':
+			case 'png':
+			case 'bmp':
+				imagepalettetotruecolor($image);
+				ob_start();
+				imagewebp($image, null, 80);
+				$webpBinary = ob_get_clean();
+				$mimeType = 'image/webp';
+
+				$s3result = $s3Client->putObject([
+					'Bucket'      => $s3Bucket,
+					'Key'         => $s3Key,
+					'Body'        => $webpBinary,
+					'ContentType' => $mimeType,
+				]);
+				break;
+			default:
+				$sourcePath = $_FILES['image']['tmp_name'];
+				$s3result = $s3Client->putObject([
+					'Bucket'      => $s3Bucket,
+					'Key'         => $s3Key,
+					'SourceFile'  => $sourcePath,
+					'ContentType' => $mimeType,
+				]);
+		}
+		$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL'));
 		error_log('Upload Completed. URL: ' . $s3ObjectURL);
 		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
 			$s3Client->listObjectsV2([
