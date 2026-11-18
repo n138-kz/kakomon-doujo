@@ -369,8 +369,10 @@ if (false) {
 		}
 
 		$mimeType = $proc1->getMIMEType($_FILES['image']['tmp_name']);
-		if (strpos($mimeType, 'image/') !== 0) {
-			http_response_code(400);
+		$mimeType = explode(';', $mimeType)[0];
+		if (false) {
+		} elseif (strpos($mimeType, 'image/') !== 0) {
+			http_response_code(415);
 			$m = json_encode([
 				'status' => http_response_code(),
 				'error' => [
