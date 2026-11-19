@@ -28,6 +28,16 @@ services:
       - ./container-app:/app:rw
       - ./docs-contents:/var/www/html:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+  pdf-converter:
+    build:
+      context: ./container-pdfconverter-build
+      dockerfile: ./Dockerfile
+    container_name: pdf-converter
+    restart: unless-stopped
+    volumes:
+      - ./container-pdfconverter-build/html:/var/www/html
+    ports:
+      - '8120-8199:80'
   webp-converter:
     build:
       context: ./container-webpconverter-build
