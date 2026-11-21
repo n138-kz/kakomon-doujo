@@ -428,7 +428,6 @@ if (false) {
 				$success = curl_exec($curl_req);
 				$curlError = curl_error($curl_req);
 				$statusCode = curl_getinfo($curl_req, CURLINFO_HTTP_CODE);
-				curl_close($curl_req);
 				$curl_req = null;
 
 				// 通信エラーまたはファイルオープン失敗時のクリーンアップ
@@ -472,85 +471,209 @@ if (false) {
 				} elseif ($isZip) {
 					fclose($saveFile['fp']);
 					$saveFile['size'] = filesize($saveFile['path']);
-					$saveFile['s3Url'] = '';
 
-					{
-						$s3Client = $proc->s3_connect('connect');
-						$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
-						$s3Key = hash_file('md5', $saveFile['path']);
-						$sourcePath = $saveFile['path'];
-						$mimeType = 'application/zip';
-						$metadata = [
-							'original-name' => rawurlencode($_FILES['image']['name']),
-							'tmp-name' => $_FILES['image']['tmp_name'],
-							'original-filehash' => hash_file('md5', $_FILES['image']['tmp_name']),
-						];
-						error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export([
-							'Bucket'      => $s3Bucket,
-							'Key'         => $s3Key,
-							'SourceFile'  => $sourcePath,
-							'ContentType' => $mimeType,
-							'Metadata'     => $metadata,
-						],1));
+					$s3Client = $proc->s3_connect('connect');
+					$s3Bucket = mb_strtolower('InstallationTechnicianDigitalClass1');
 
-						if (!$s3Client->doesBucketExistV2($s3Bucket)) {
-							$s3Client->createBucket(['Bucket' => $s3Bucket]);
-							$s3Client->putBucketVersioning([
-								'Bucket'     => $s3Bucket,
-								'VersioningConfiguration' => [
-									'Status' => 'Enabled',
-								],
-							]);
-							$policy = json_encode([
-								'Version' => '2012-10-17',
-								'Statement' => [
-									[
-										'Effect'    => 'Allow',
-										'Principal' => ['AWS' => ['*']],
-										'Action'    => ['s3:GetObject'],
-										'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
-									],
-								],
-							], JSON_UNESCAPED_SLASHES);
-							$s3Client->putBucketPolicy([
-								'Bucket' => $s3Bucket,
-								'Policy' => $policy,
-							]);
-						}
-
-						$s3result = null;
-						$s3result = $s3Client->putObject([
-							'Bucket'      => $s3Bucket,
-							'Key'         => $s3Key,
-							'SourceFile'  => $sourcePath,
-							'ContentType' => $mimeType,
-							'Metadata'     => $metadata,
+					if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+						$s3Client->createBucket(['Bucket' => $s3Bucket]);
+						$s3Client->putBucketVersioning([
+							'Bucket'     => $s3Bucket,
+							'VersioningConfiguration' => [
+								'Status' => 'Enabled',
+							],
 						]);
+						$policy = json_encode([
+							'Version' => '2012-10-17',
+							'Statement' => [
+								[
+									'Effect'    => 'Allow',
+									'Principal' => ['AWS' => ['*']],
+									'Action'    => ['s3:GetObject'],
+									'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+								],
+							],
+						], JSON_UNESCAPED_SLASHES);
+						$s3Client->putBucketPolicy([
+							'Bucket' => $s3Bucket,
+							'Policy' => $policy,
+						]);
+					}
 
-						// S3アップロード完了後、ローカルの一時ZIPファイルを削除
+					$originalPdfName = rawurlencode($_FILES['image']['name']);
+					$originalPdfHash = hash_file('md5', $_FILES['image']['tmp_name']);
+
+					$zipS3Key = hash_file('md5', $saveFile['path']);
+
+					// 1. バックアップとしてダウンロードした元のZIPファイル（PNGのみ）を S3 へアップロード（Version 1）
+					$s3resultV1 = $s3Client->putObject([
+						'Bucket'      => $s3Bucket,
+						'Key'         => $zipS3Key,
+						'SourceFile'  => $saveFile['path'],
+						'ContentType' => 'application/zip',
+						'Metadata'    => [
+							'original-pdf-name' => $originalPdfName,
+							'original-pdf-hash' => $originalPdfHash,
+							'archive-stage'     => 'png-only',
+						],
+					]);
+					error_log('Backup ZIP (v1: PNG only) Upload Completed. Key: ' . $zipS3Key . ' / VersionId: ' . ($s3resultV1->get('VersionId') ?? 'N/A'));
+
+					// 2. ZIPを解凍し、各PNGを1ページごとのPDFに変換して元のZIPへ追加
+					$extractDir = sys_get_temp_dir() . '/unzip_' . bin2hex(random_bytes(16));
+					if (!mkdir($extractDir, 0700, true)) {
 						if (file_exists($saveFile['path'])) {
 							unlink($saveFile['path']);
 						}
-
-						$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL'));
-						$saveFile['s3Url'] = $s3ObjectURL;
-						error_log('Upload Completed. URL: ' . $s3ObjectURL);
-						error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
-							$s3Client->listObjectsV2([
-								'Bucket' => $s3Bucket,
-							])->get('Contents')
-						, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+						http_response_code(500);
+						$m = json_encode([
+							'status' => http_response_code(),
+							'error' => [
+								'title' => 'File upload error.',
+								'message' => 'Failed to create temporary extract directory.',
+							],
+						], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						error_log($m); die($m);
 					}
-					http_response_code(501);
+
+					$zip = new \ZipArchive();
+					$openResult = $zip->open($saveFile['path']);
+					if ($openResult !== true) {
+						rmdir($extractDir);
+						if (file_exists($saveFile['path'])) {
+							unlink($saveFile['path']);
+						}
+						http_response_code(400);
+						$m = json_encode([
+							'status' => http_response_code(),
+							'error' => [
+								'title' => 'File upload error.',
+								'message' => 'Failed to open ZIP archive. Code: ' . $openResult,
+							],
+						], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						error_log($m); die($m);
+					}
+
+					$tempCreatedFiles = [];
+					$numFiles = $zip->numFiles;
+
+					for ($i = 0; $i < $numFiles; $i++) {
+						$entryName = $zip->getNameIndex($i);
+						$baseEntryName = basename($entryName);
+
+						// ディレクトリ・隠しファイル・PNG以外をスキップ
+						if (str_ends_with($entryName, '/') || str_starts_with($baseEntryName, '.')) {
+							continue;
+						}
+						if (strtolower(pathinfo($baseEntryName, PATHINFO_EXTENSION)) !== 'png') {
+							continue;
+						}
+
+						// Zip Slip対策として安全なローカルパスへ一旦展開
+						$extractedPngPath = $extractDir . '/' . sprintf('%04d_%s', $i, $baseEntryName);
+						if (!copy('zip://' . $saveFile['path'] . '#' . $entryName, $extractedPngPath)) {
+							continue;
+						}
+						$tempCreatedFiles[] = $extractedPngPath;
+
+						// PNGを1ページのPDFファイルへ変換
+						$pdfEntryName = pathinfo($baseEntryName, PATHINFO_FILENAME) . '.pdf';
+						$generatedPdfPath = $extractDir . '/' . sprintf('%04d_%s', $i, $pdfEntryName);
+
+						if (!class_exists('\Imagick')) {
+							error_log('Imagick extension is not loaded. Cannot convert PNG to PDF.');
+							http_response_code(500);
+							die(json_encode([
+								'status' => 500,
+								'error' => ['title' => 'Server Error', 'message' => 'Imagick extension is not loaded.'],
+							]));
+						}
+
+						try {
+							$imagick = new \Imagick($extractedPngPath);
+							// 透過PNGをPDF化する際に背景が黒くなるのを防ぐため白背景でフラット化
+							$imagick->setImageBackgroundColor('white');
+							$imagick = $imagick->mergeImageLayers(\Imagick::LAYERMETHOD_FLATTEN);
+							$imagick->setImageFormat('pdf');
+							if (!$imagick->writeImage($generatedPdfPath)) {
+								throw new \RuntimeException('writeImage returned false');
+							}
+							$imagick->clear();
+							$imagick->destroy();
+						} catch (\Throwable $e) {
+							error_log('Imagick PNG-to-PDF conversion failed (' . $baseEntryName . '): ' . $e->getMessage());
+							http_response_code(500);
+							die(json_encode([
+								'status' => 500,
+								'error' => [
+									'title' => 'PDF conversion error.',
+									'message' => 'Failed to convert PNG to PDF (' . $baseEntryName . '): ' . $e->getMessage(),
+								],
+							], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+						}
+
+						if (file_exists($generatedPdfPath) && filesize($generatedPdfPath) > 0) {
+							$tempCreatedFiles[] = $generatedPdfPath;
+							$entryDir = dirname($entryName);
+							$zipPdfEntryPath = ($entryDir !== '.' && $entryDir !== '') ? ($entryDir . '/' . $pdfEntryName) : $pdfEntryName;
+							if (!$zip->addFile($generatedPdfPath, $zipPdfEntryPath)) {
+								error_log('ZipArchive::addFile failed for: ' . $zipPdfEntryPath);
+							}
+						}
+					}
+
+					// close() することで追加したPDFファイルがZIPアーカイブへ書き込まれる
+					$zip->close();
+
+					// 展開作業用の一時PNG・PDFファイルおよび一時ディレクトリを削除
+					foreach ($tempCreatedFiles as $tmpFile) {
+						if (file_exists($tmpFile)) {
+							unlink($tmpFile);
+						}
+					}
+					if (is_dir($extractDir)) {
+						rmdir($extractDir);
+					}
+
+					// 同じ名前（同一 S3 Key）で S3 へ再アップロード（Version 2 として保存）
+					$s3resultV2 = $s3Client->putObject([
+						'Bucket'      => $s3Bucket,
+						'Key'         => $zipS3Key,
+						'SourceFile'  => $saveFile['path'],
+						'ContentType' => 'application/zip',
+						'Metadata'    => [
+							'original-pdf-name' => $originalPdfName,
+							'original-pdf-hash' => $originalPdfHash,
+							'archive-stage'     => 'png-and-pdf',
+						],
+					]);
+
+					// S3アップロード完了後、ローカルの一時ZIPファイルを削除
+					if (file_exists($saveFile['path'])) {
+						unlink($saveFile['path']);
+					}
+
+					$s3ObjectURL = str_replace(
+						$proc->config['internal']['s3-object-storage']['endpoint'],
+						"{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=",
+						$s3resultV2->get('ObjectURL')
+					);
+					error_log('Updated ZIP (v2: PNG + PDF) Upload Completed. URL: ' . $s3ObjectURL . ' / VersionId: ' . ($s3resultV2->get('VersionId') ?? 'N/A'));
+
+					$s3Contents = $s3Client->listObjectsV2([
+						'Bucket' => $s3Bucket,
+					])->get('Contents');
+					$proc->refreshS3Table('InstallationTechnicianDigitalClass1', $s3Contents);
+
+					// 3. クライアントへ S3 の URL のみを返却
+					http_response_code(200);
+					header('Content-Type: application/json; charset=UTF-8');
 					$m = json_encode([
 						'status' => http_response_code(),
-						'error' => [
-							'title' => 'File upload error.',
-							'message' => 'PDF file is not yet supported',
-							'length' => $saveFile['size'],
-							'objecturl' => $saveFile['s3Url'],
+						'data' => [
+							'url' => $s3ObjectURL,
 						],
-					], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+					], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 					error_log($m); die($m);
 				}
 				$curl_req=null;
