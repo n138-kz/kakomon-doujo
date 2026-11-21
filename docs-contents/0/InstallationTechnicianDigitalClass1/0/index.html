@@ -65,6 +65,26 @@
 			});
 		});
 		window.addEventListener('DOMContentLoaded', async ()=>{
+			setInterval(async ()=>{
+				let token = '';
+				let url = '../../../auth/checkauthz/';
+				let options = {};
+				let req = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../../../auth/');
+					return;
+				}
+			}, 30000);
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
 			let category = [];
 			let summary = [];
 			let mondais = [];
