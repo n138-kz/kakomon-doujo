@@ -373,22 +373,92 @@ if (false) {
 		if (false) {
 		} elseif ($mimeType === 'application/pdf') {
 			{
+				$saveFile = [];
+				$saveFile['path'] = sys_get_temp_dir() . '/' . bin2hex(random_bytes(32));
+				$saveFile['fp'] = null;
+
+				$contentType = '';
+				$isZip = false;
+
 				$url = 'http://pdf-converter/';
-				$cfile = new \CURLFile($_FILES['image']['tmp_name'], 'application/pdf', $_FILES['image']['tmp_name'].'.pdf');
+				$cfile = new \CURLFile($_FILES['image']['tmp_name'], 'application/pdf', basename($_FILES['image']['tmp_name']).'.pdf');
 				$postData = [
 					'file' => $cfile,
 				];
+
 				$curl_req = curl_init();
 				curl_setopt($curl_req, CURLOPT_URL, $url);
 				curl_setopt($curl_req, CURLOPT_POST, TRUE);
-				curl_setopt($curl_req, CURLOPT_POSTFIELDS, http_build_query($postData));
+				curl_setopt($curl_req, CURLOPT_POSTFIELDS, $postData);
 				curl_setopt($curl_req, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'PHP-CURL-Client/1.0');
-				curl_setopt($curl_req, CURLOPT_RETURNTRANSFER, TRUE);
 				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
-				$curl_res=curl_exec($curl_req); // application/zip
+				curl_setopt($curl_req, CURLOPT_TIMEOUT, 300);
+				curl_setopt($curl_req, CURLOPT_FAILONERROR, false);
+
+				// 1. ヘッダー受信時に Content-Type を判定
+				curl_setopt($curl_req, CURLOPT_HEADERFUNCTION, function ($ch, string $headerLine) use (&$contentType): int {
+					// リダイレクト発生時に前のレスポンスの Content-Type をリセット
+					if (stripos($headerLine, 'HTTP/') === 0) {
+						$contentType = '';
+					}
+					if (stripos($headerLine, 'Content-Type:') === 0) {
+						$raw = trim(substr($headerLine, strlen('Content-Type:')));
+						$parts = explode(';', $raw);
+						$contentType = strtolower(trim($parts[0]));
+					}
+					return strlen($headerLine);
+				});
+
+				// 2. ボディ受信時に Content-Type に合わせて保存先を切り替えてストリーム書き込み
+				curl_setopt($curl_req, CURLOPT_WRITEFUNCTION, function ($ch, string $chunk) use (&$saveFile, &$isZip, &$contentType): int {
+					if ($saveFile['fp'] === null) {
+						if ($contentType === 'application/zip') {
+							$isZip = true;
+							$saveFile['fp'] = fopen($saveFile['path'], 'wb');
+						} else {
+							$saveFile['fp'] = fopen('php://temp', 'w+b');
+						}
+
+						if ($saveFile['fp'] === false) {
+							return 0; // 書き込み失敗をcURLに通知して中断
+						}
+					}
+					return fwrite($saveFile['fp'], $chunk);
+				});
+				$success = curl_exec($curl_req);
+				$curlError = curl_error($curl_req);
+				$statusCode = curl_getinfo($curl_req, CURLINFO_HTTP_CODE);
+				curl_close($curl_req);
+				$curl_req = null;
+
+				// 通信エラーまたはファイルオープン失敗時のクリーンアップ
+				if (!$success) {
+					if (is_resource($saveFile['fp'])) {
+						fclose($saveFile['fp']);
+					}
+					if ($isZip && file_exists($saveFile['path'])) {
+						unlink($saveFile['path']);
+					}
+					http_response_code(502);
+					$m = json_encode([
+						'status' => http_response_code(),
+						'error' => [
+							'title' => 'File upload error.',
+							'message' => 'PDF converter connection failed: ' . $curlError,
+						],
+					], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+					error_log($m);
+					die($m);
+				}
+
+				// 3. Content-Type に応じた分岐処理
 				if (false) {
-				} elseif (explode(';', curl_getinfo($curl_req)['content_type'])[0] === 'application/json') {
-					$curl_res = json_decode($curl_res, true);
+				} elseif ($contentType === 'application/json') {
+					rewind($saveFile['fp']);
+					$jsonBody = stream_get_contents($saveFile['fp']);
+					fclose($saveFile['fp']);
+
+					$curl_res = json_decode($jsonBody, true);
 					http_response_code(400);
 					$m = json_encode([
 						'status' => http_response_code(),
@@ -399,15 +469,99 @@ if (false) {
 						],
 					]);
 					error_log($m); die($m);
+				} elseif ($isZip) {
+					fclose($saveFile['fp']);
+					$saveFile['size'] = filesize($saveFile['path']);
+					$saveFile['s3Url'] = '';
+
+					{
+						$s3Client = $proc->s3_connect('connect');
+						$s3Bucket =  mb_strtolower('InstallationTechnicianDigitalClass1');
+						$s3Key = hash_file('md5', $saveFile['path']);
+						$sourcePath = $saveFile['path'];
+						$mimeType = 'application/zip';
+						$metadata = [
+							'original-name' => rawurlencode($_FILES['image']['name']),
+							'tmp-name' => $_FILES['image']['tmp_name'],
+							'original-filehash' => hash_file('md5', $_FILES['image']['tmp_name']),
+						];
+						error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export([
+							'Bucket'      => $s3Bucket,
+							'Key'         => $s3Key,
+							'SourceFile'  => $sourcePath,
+							'ContentType' => $mimeType,
+							'Metadata'     => $metadata,
+						],1));
+
+						if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+							$s3Client->createBucket(['Bucket' => $s3Bucket]);
+							$s3Client->putBucketVersioning([
+								'Bucket'     => $s3Bucket,
+								'VersioningConfiguration' => [
+									'Status' => 'Enabled',
+								],
+							]);
+							$policy = json_encode([
+								'Version' => '2012-10-17',
+								'Statement' => [
+									[
+										'Effect'    => 'Allow',
+										'Principal' => ['AWS' => ['*']],
+										'Action'    => ['s3:GetObject'],
+										'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+									],
+								],
+							], JSON_UNESCAPED_SLASHES);
+							$s3Client->putBucketPolicy([
+								'Bucket' => $s3Bucket,
+								'Policy' => $policy,
+							]);
+						}
+
+						$s3result = null;
+						$s3result = $s3Client->putObject([
+							'Bucket'      => $s3Bucket,
+							'Key'         => $s3Key,
+							'SourceFile'  => $sourcePath,
+							'ContentType' => $mimeType,
+							'Metadata'     => $metadata,
+						]);
+
+						// S3アップロード完了後、ローカルの一時ZIPファイルを削除
+						if (file_exists($saveFile['path'])) {
+							unlink($saveFile['path']);
+						}
+
+						$s3ObjectURL = str_replace($proc->config['internal']['s3-object-storage']['endpoint'], "{$proc->clientinf_get()['REQUEST_SCHEME']}://{$proc->clientinf_get()['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL'));
+						$saveFile['s3Url'] = $s3ObjectURL;
+						error_log('Upload Completed. URL: ' . $s3ObjectURL);
+						error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
+							$s3Client->listObjectsV2([
+								'Bucket' => $s3Bucket,
+							])->get('Contents')
+						, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+					}
+					http_response_code(501);
+					$m = json_encode([
+						'status' => http_response_code(),
+						'error' => [
+							'title' => 'File upload error.',
+							'message' => 'PDF file is not yet supported',
+							'length' => $saveFile['size'],
+							'objecturl' => $saveFile['s3Url'],
+						],
+					], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+					error_log($m); die($m);
+				}
 				$curl_req=null;
 				return;
 			}
-			http_response_code(415);
+			http_response_code(502);
 			$m = json_encode([
 				'status' => http_response_code(),
 				'error' => [
 					'title' => 'File upload error.',
-					'message' => 'PDF file is not yet supported: '.$mimeType,
+					'message' => "Unexpected Content-Type ({$contentType}) / HTTP {$statusCode}",
 				],
 			]);
 			error_log($m); die($m);
