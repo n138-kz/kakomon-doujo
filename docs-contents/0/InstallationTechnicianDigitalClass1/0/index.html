@@ -988,7 +988,7 @@
 					d[d.length-1].style.margin = 'auto';
 					d[d.length-1].style.width = '50%';
 					d[d.length-1].style.height = '500px';
-					d[d.length-1].style.minWidth = '260px';
+					d[d.length-1].style.minWidth = '310px';
 					d[d.length-1].style.borderWidth = '1px';
 					d[d.length-1].style.borderColor = '#333';
 					d[d.length-1].style.borderStyle = 'solid';
@@ -1044,6 +1044,7 @@
 								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
 							});
 							d[d.length-1].addEventListener('change', (e)=>{
+								e.target.parentNode.parentNode.querySelector('img').style.display = 'unset';
 								e.target.parentNode.parentNode.querySelector('img').src = URL.createObjectURL(e.target.files[0]);
 								e.target.parentNode.parentNode.querySelector('input[type="button"]').disabled = false;
 								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
@@ -1100,6 +1101,7 @@
 										}
 										e.target.parentNode.parentNode.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
 										e.target.parentNode.parentNode.querySelector('img').src = '';
+										e.target.parentNode.parentNode.querySelector('img').style.display = 'none';
 										e.target.parentNode.parentNode.querySelector('input[type="file"]').value = '';
 										return;
 									} else if (req.status === 204) {
