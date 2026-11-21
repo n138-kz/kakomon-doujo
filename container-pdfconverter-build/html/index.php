@@ -30,7 +30,7 @@ if('POST' !== $_SERVER['REQUEST_METHOD']) {
     echo PHP_EOL.'            <div class="block-center">';
     echo PHP_EOL.'                <h2 class="text-center">PDF to Image</h2>';
     echo PHP_EOL.'                <form action="./index.php" method="POST" enctype="multipart/form-data">';
-    echo PHP_EOL.'                    <input type="file" name="file_pdf" required accept="application/pdf">';
+    echo PHP_EOL.'                    <input type="file" name="file" required accept="application/pdf">';
     echo PHP_EOL.'                    <input type="submit" value="変換">';
     echo PHP_EOL.'                </form>';
     echo PHP_EOL.'            </div>';
@@ -52,7 +52,7 @@ if(! isset($_POST) || ! isset($_FILES)){
     exit(1);
 }
 
-$uploadkey = 'file_pdf';
+$uploadkey = 'file';
 $workdir = sys_get_temp_dir() . '/' . bin2hex(random_bytes(32));
 $workdir = sys_get_temp_dir() . '/' . str_replace('php', '', basename($_FILES[$uploadkey]['tmp_name']));
 $splitdir = "{$workdir}/split";
