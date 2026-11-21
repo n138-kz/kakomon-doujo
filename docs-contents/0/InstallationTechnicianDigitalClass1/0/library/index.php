@@ -371,6 +371,46 @@ if (false) {
 		$mimeType = $proc1->getMIMEType($_FILES['image']['tmp_name']);
 		$mimeType = explode(';', $mimeType)[0];
 		if (false) {
+		} elseif ($mimeType === 'application/pdf') {
+			{
+				$url = 'http://pdf-converter/';
+				$cfile = new \CURLFile($_FILES['image']['tmp_name'], 'application/pdf', $_FILES['image']['tmp_name'].'.pdf');
+				$postData = [
+					'file' => $cfile,
+				];
+				$curl_req = curl_init();
+				curl_setopt($curl_req, CURLOPT_URL, $url);
+				curl_setopt($curl_req, CURLOPT_POST, TRUE);
+				curl_setopt($curl_req, CURLOPT_POSTFIELDS, http_build_query($postData));
+				curl_setopt($curl_req, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT'] ?? 'PHP-CURL-Client/1.0');
+				curl_setopt($curl_req, CURLOPT_RETURNTRANSFER, TRUE);
+				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
+				$curl_res=curl_exec($curl_req); // application/zip
+				if (false) {
+				} elseif (explode(';', curl_getinfo($curl_req)['content_type'])[0] === 'application/json') {
+					$curl_res = json_decode($curl_res, true);
+					http_response_code(400);
+					$m = json_encode([
+						'status' => http_response_code(),
+						'error' => [
+							'title' => 'File upload error.',
+							'message' => 'PDF parse error: '.$curl_res['error']['message'],
+							'forwarded' => $curl_res,
+						],
+					]);
+					error_log($m); die($m);
+				$curl_req=null;
+				return;
+			}
+			http_response_code(415);
+			$m = json_encode([
+				'status' => http_response_code(),
+				'error' => [
+					'title' => 'File upload error.',
+					'message' => 'PDF file is not yet supported: '.$mimeType,
+				],
+			]);
+			error_log($m); die($m);
 		} elseif (strpos($mimeType, 'image/') !== 0) {
 			http_response_code(415);
 			$m = json_encode([

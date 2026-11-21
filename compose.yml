@@ -38,6 +38,12 @@ services:
       - ./container-pdfconverter-build/html:/var/www/html
     ports:
       - '8120-8199:80'
+    networks:
+      default:
+        aliases:
+          - pdf-converter
+          - pdf_converter
+          - pdfconverter
   webp-converter:
     build:
       context: ./container-webpconverter-build
