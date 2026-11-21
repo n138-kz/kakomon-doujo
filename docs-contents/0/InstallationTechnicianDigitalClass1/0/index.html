@@ -1011,6 +1011,7 @@
 								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
 								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
 							});
 						}
 						d[d.length-2].appendChild(d[d.length-1]); d.pop();
