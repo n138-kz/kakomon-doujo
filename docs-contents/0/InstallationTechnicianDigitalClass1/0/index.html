@@ -1063,30 +1063,58 @@
 							d[d.length-1].disabled = true;
 							d[d.length-1].addEventListener('click', async (e)=>{
 								console.log(d_fileupload); // Return to
-								const file = e.target.parentNode.parentNode.querySelector('input[type="file"]').files[0];
+								const btn = e.target;
+								const modal = btn.parentNode.parentNode;
+								const file = modal.querySelector('input[type="file"]').files[0];
 								if (!file) {
 									console.error('File has not selected.');
 									return;
 								}
-								e.target.disabled = true;
+								btn.disabled = true;
+								btn.value = '0%';
+								Array.from(modal.querySelectorAll('p.errMesg'), (ev2) => ev2.remove());
 
 								const formData = new FormData();
 								formData.append('image', file);
 								console.log([...formData.entries()]);
-								try {
-									let token = '';
-									let url = './library/';
-									let options = {};
-									let req = await fetch(url, {
-										method: 'POST',
-										body: formData,
+
+								const uploadWithProgress = (url, body) => {
+									return new Promise((resolve, reject) => {
+										const xhr = new XMLHttpRequest();
+										xhr.open('POST', url, true);
+
+										xhr.upload.onprogress = (ev) => {
+											if (ev.lengthComputable) {
+												const percent = Math.round((ev.loaded / ev.total) * 100);
+												btn.value = percent >= 100 ? '100% (処理中...)' : `${percent}%`;
+											}
+										};
+
+										xhr.onload = () => {
+											resolve({
+												status: xhr.status,
+												statusText: xhr.statusText,
+												text: xhr.responseText,
+											});
+										};
+
+										xhr.onerror = () => reject(new Error('Network error'));
+										xhr.onabort = () => reject(new Error('Upload aborted'));
+
+										xhr.send(body);
 									});
+								};
+
+								try {
+									let url = './library/';
+									let req = await uploadWithProgress(url, formData);
 									console.log(req.status, req.statusText);
 									if (false) {
 									} else if (req.status === 401) {
 										location.replace('../../../auth/');
+										return;
 									} else if (req.status >= 400) {
-										let resText = await req.text();
+										let resText = req.text;
 										console.error(resText);
 										let resData = null;
 										if (resText.length > 0) {
@@ -1101,29 +1129,29 @@
 											errMesg[errMesg.length-1].classList.add('errMesg');
 											errMesg[errMesg.length-1].textContent = resData['error']['message'];
 										}
-										e.target.parentNode.parentNode.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
-										e.target.parentNode.parentNode.querySelector('img').src = '';
-										e.target.parentNode.parentNode.querySelector('img').style.display = 'none';
-										e.target.parentNode.parentNode.querySelector('input[type="file"]').value = '';
+										modal.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
+										modal.querySelector('img').src = '';
+										modal.querySelector('img').style.display = 'none';
+										modal.querySelector('input[type="file"]').value = '';
 										return;
 									} else if (req.status === 204) {
 										console.log(req.status, req.statusText);
 										return;
 									}
-									let resText = await req.text();
+									let resText = req.text;
 									console.log(resText);
-									if (resText.length===0) {
+									if (resText.length === 0) {
 										return;
 									}
 									let resData = JSON.parse(resText);
-									console.debug(resData['data']['url']??null);
-									console.debug(resData['data']['content-type'].split(';')[0]??null);
+									console.debug(resData['data']['url'] ?? null);
+									console.debug((resData['data']['content-type'] ?? '').split(';')[0] ?? null);
 									if (false) {
-									} else if ((resData['data']['content-type']??'').startsWith('image/')) {
-										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url']??null;
+									} else if ((resData['data']['content-type'] ?? '').startsWith('image/')) {
+										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url'] ?? null;
 										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
-										document.getElementById('imageUpload').style.display = 'none';
-									} else if ((resData['data']['content-type']??'').startsWith('application/zip')) {
+										modal.style.display = 'none';
+									} else if ((resData['data']['content-type'] ?? '').startsWith('application/zip')) {
 										const link = document.createElement('a');
 										link.href = resData['data']['url'];
 										link.download = `${resData['data']['url'].split('/').pop().split('.').shift()}.zip`;
@@ -1139,11 +1167,12 @@
 										errMesg[errMesg.length-1].classList.add('errMesg');
 										errMesg[errMesg.length-1].textContent = error.message;
 									}
-									e.target.parentNode.parentNode.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
+									modal.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
 								} finally {
-									Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
-									Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
-									Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+									btn.value = 'アップロード';
+									Array.from(modal.querySelectorAll('input[type="file"]'), (ev2) => ev2.value = '');
+									Array.from(modal.querySelectorAll('img'), (ev2) => ev2.src = '');
+									Array.from(modal.querySelectorAll('img'), (ev2) => ev2.alt = '');
 								}
 							});
 						}
