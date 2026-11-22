@@ -672,6 +672,7 @@ if (false) {
 						'status' => http_response_code(),
 						'data' => [
 							'url' => $s3ObjectURL,
+							'content-type' => 'application/zip',
 						],
 					], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 					error_log($m); die($m);
@@ -810,6 +811,7 @@ if (false) {
 				'status' => http_response_code(),
 				'data' => [
 					'url' => $s3ObjectURL,
+					'content-type' => $mimeType,
 				],
 			]);
 			error_log($m); die($m);

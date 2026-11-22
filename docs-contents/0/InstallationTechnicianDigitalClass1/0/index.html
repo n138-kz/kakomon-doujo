@@ -1117,9 +1117,20 @@
 									}
 									let resData = JSON.parse(resText);
 									console.debug(resData['data']['url']??null);
-									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url']??null;
-									d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
-									document.getElementById('imageUpload').style.display = 'none';
+									console.debug(resData['data']['content-type'].split(';')[0]??null);
+									if (false) {
+									} else if ((resData['data']['content-type']??'').startsWith('image/')) {
+										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url']??null;
+										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
+										document.getElementById('imageUpload').style.display = 'none';
+									} else if ((resData['data']['content-type']??'').startsWith('application/zip')) {
+										const link = document.createElement('a');
+										link.href = resData['data']['url'];
+										link.download = `${resData['data']['url'].split('/').pop().split('.').shift()}.zip`;
+										document.body.appendChild(link);
+										link.click();
+										document.body.removeChild(link);
+									}
 								} catch (error) {
 									console.warn(error.message);
 
