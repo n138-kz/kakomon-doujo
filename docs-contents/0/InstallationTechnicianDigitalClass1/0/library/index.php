@@ -502,7 +502,7 @@ if (false) {
 
 					$originalPdfName = rawurlencode($_FILES['image']['name']);
 					$originalPdfHash = hash_file('md5', $_FILES['image']['tmp_name']);
-
+					// バージョン管理のため、1回目・2回目で共通の S3 キーを使用
 					$zipS3Key = hash_file('md5', $saveFile['path']);
 
 					// 1. バックアップとしてダウンロードした元のZIPファイル（PNGのみ）を S3 へアップロード（Version 1）
@@ -519,7 +519,7 @@ if (false) {
 					]);
 					error_log('Backup ZIP (v1: PNG only) Upload Completed. Key: ' . $zipS3Key . ' / VersionId: ' . ($s3resultV1->get('VersionId') ?? 'N/A'));
 
-					// 2. ZIPを解凍し、各PNGを1ページごとのPDFに変換して元のZIPへ追加
+					// 2. ZIPを解凍し、PNGを image/、1ページごとのPDFを document/ に格納した新しいZIPを作成
 					$extractDir = sys_get_temp_dir() . '/unzip_' . bin2hex(random_bytes(16));
 					if (!mkdir($extractDir, 0700, true)) {
 						if (file_exists($saveFile['path'])) {
@@ -536,8 +536,8 @@ if (false) {
 						error_log($m); die($m);
 					}
 
-					$zip = new \ZipArchive();
-					$openResult = $zip->open($saveFile['path']);
+					$srcZip = new \ZipArchive();
+					$openResult = $srcZip->open($saveFile['path']);
 					if ($openResult !== true) {
 						rmdir($extractDir);
 						if (file_exists($saveFile['path'])) {
@@ -554,11 +554,50 @@ if (false) {
 						error_log($m); die($m);
 					}
 
+					if (!class_exists('\Imagick')) {
+						$srcZip->close();
+						rmdir($extractDir);
+						if (file_exists($saveFile['path'])) {
+							unlink($saveFile['path']);
+						}
+						http_response_code(500);
+						$m = json_encode([
+							'status' => http_response_code(),
+							'error' => [
+								'title' => 'Server Error.',
+								'message' => 'Imagick extension is not loaded.',
+							],
+						], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						error_log($m); die($m);
+					}
+
+					$repackedZipPath = $saveFile['path'] . '_repacked.zip';
+					$dstZip = new \ZipArchive();
+					if ($dstZip->open($repackedZipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+						$srcZip->close();
+						rmdir($extractDir);
+						if (file_exists($saveFile['path'])) {
+							unlink($saveFile['path']);
+						}
+						http_response_code(500);
+						$m = json_encode([
+							'status' => http_response_code(),
+							'error' => [
+								'title' => 'File upload error.',
+								'message' => 'Failed to create repacked ZIP archive.',
+							],
+						], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+						error_log($m); die($m);
+					}
+
+					$dstZip->addEmptyDir('image');
+					$dstZip->addEmptyDir('document');
+
 					$tempCreatedFiles = [];
-					$numFiles = $zip->numFiles;
+					$numFiles = $srcZip->numFiles;
 
 					for ($i = 0; $i < $numFiles; $i++) {
-						$entryName = $zip->getNameIndex($i);
+						$entryName = $srcZip->getNameIndex($i);
 						$baseEntryName = basename($entryName);
 
 						// ディレクトリ・隠しファイル・PNG以外をスキップ
@@ -580,15 +619,6 @@ if (false) {
 						$pdfEntryName = pathinfo($baseEntryName, PATHINFO_FILENAME) . '.pdf';
 						$generatedPdfPath = $extractDir . '/' . sprintf('%04d_%s', $i, $pdfEntryName);
 
-						if (!class_exists('\Imagick')) {
-							error_log('Imagick extension is not loaded. Cannot convert PNG to PDF.');
-							http_response_code(500);
-							die(json_encode([
-								'status' => 500,
-								'error' => ['title' => 'Server Error', 'message' => 'Imagick extension is not loaded.'],
-							]));
-						}
-
 						try {
 							$imagick = new \Imagick($extractedPngPath);
 							// 透過PNGをPDF化する際に背景が黒くなるのを防ぐため白背景でフラット化
@@ -602,28 +632,37 @@ if (false) {
 							$imagick->destroy();
 						} catch (\Throwable $e) {
 							error_log('Imagick PNG-to-PDF conversion failed (' . $baseEntryName . '): ' . $e->getMessage());
+							$srcZip->close();
+							$dstZip->close();
+							foreach ($tempCreatedFiles as $tmpFile) {
+								if (file_exists($tmpFile)) unlink($tmpFile);
+							}
+							if (is_dir($extractDir)) rmdir($extractDir);
+							if (file_exists($repackedZipPath)) unlink($repackedZipPath);
+							if (file_exists($saveFile['path'])) unlink($saveFile['path']);
+
 							http_response_code(500);
-							die(json_encode([
-								'status' => 500,
+							$m = json_encode([
+								'status' => http_response_code(),
 								'error' => [
 									'title' => 'PDF conversion error.',
 									'message' => 'Failed to convert PNG to PDF (' . $baseEntryName . '): ' . $e->getMessage(),
 								],
-							], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+							], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+							error_log($m); die($m);
 						}
 
 						if (file_exists($generatedPdfPath) && filesize($generatedPdfPath) > 0) {
 							$tempCreatedFiles[] = $generatedPdfPath;
-							$entryDir = dirname($entryName);
-							$zipPdfEntryPath = ($entryDir !== '.' && $entryDir !== '') ? ($entryDir . '/' . $pdfEntryName) : $pdfEntryName;
-							if (!$zip->addFile($generatedPdfPath, $zipPdfEntryPath)) {
-								error_log('ZipArchive::addFile failed for: ' . $zipPdfEntryPath);
-							}
+							// image/ フォルダにPNG、document/ フォルダにPDFを追加
+							$dstZip->addFile($extractedPngPath, 'image/' . $baseEntryName);
+							$dstZip->addFile($generatedPdfPath, 'document/' . $pdfEntryName);
 						}
 					}
 
-					// close() することで追加したPDFファイルがZIPアーカイブへ書き込まれる
-					$zip->close();
+					$srcZip->close();
+					// close() することで image/ と document/ の各ファイルがZIPへ書き込まれる
+					$dstZip->close();
 
 					// 展開作業用の一時PNG・PDFファイルおよび一時ディレクトリを削除
 					foreach ($tempCreatedFiles as $tmpFile) {
@@ -634,6 +673,9 @@ if (false) {
 					if (is_dir($extractDir)) {
 						rmdir($extractDir);
 					}
+
+					// 元のZIPファイルを再構成したZIPファイルで置き換え
+					rename($repackedZipPath, $saveFile['path']);
 
 					// 同じ名前（同一 S3 Key）で S3 へ再アップロード（Version 2 として保存）
 					$s3resultV2 = $s3Client->putObject([
