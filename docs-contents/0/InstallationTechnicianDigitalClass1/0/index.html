@@ -423,6 +423,9 @@
 													d[d.length-1].addEventListener('error', (e)=>{
 														e.target.src='';
 													});
+													d[d.length-1].addEventListener('click', (e)=>{
+														window.open(e.target.src, '_blank', 'width=380,height=214');
+													});
 												}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
@@ -470,6 +473,9 @@
 														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
 														e_d[e_d.length-1].addEventListener('error', (ev)=>{
 															ev.target.src='';
+														});
+														e_d[e_d.length-1].addEventListener('click', (e)=>{
+															window.open(e.target.src, '_blank', 'width=380,height=214');
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
@@ -791,6 +797,9 @@
 													d[d.length-1].addEventListener('error', (e)=>{
 														e.target.src='';
 													});
+													d[d.length-1].addEventListener('click', (e)=>{
+														window.open(e.target.src, '_blank', 'width=380,height=214');
+													});
 												}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
@@ -838,6 +847,9 @@
 														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
 														e_d[e_d.length-1].addEventListener('error', (ev)=>{
 															ev.target.src='';
+														});
+														e_d[e_d.length-1].addEventListener('click', (e)=>{
+															window.open(ev.target.src, '_blank', 'width=380,height=214');
 														});
 													}
 													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
