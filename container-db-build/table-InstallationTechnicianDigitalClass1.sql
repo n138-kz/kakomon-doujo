@@ -238,7 +238,7 @@ DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_exam_rounds;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_exam_rounds AS
     WITH extracted AS (
         SELECT DISTINCT
-            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+            SUBSTRING(mondai->>'kakosyutsudai' FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
         FROM installationtechniciandigitalclass1_mondaiset
     )
     SELECT o
@@ -263,7 +263,7 @@ DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category1_exam_rounds
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category1_exam_rounds AS
     WITH extracted AS (
         SELECT DISTINCT
-            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+            SUBSTRING(mondai->>'kakosyutsudai' FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
         FROM installationtechniciandigitalclass1_mondaiset m
         WHERE m.mondai->>'category' = '1'
     )
@@ -289,7 +289,7 @@ DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category2_exam_rounds
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category2_exam_rounds AS
     WITH extracted AS (
         SELECT DISTINCT
-            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+            SUBSTRING(mondai->>'kakosyutsudai' FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
         FROM installationtechniciandigitalclass1_mondaiset m
         WHERE m.mondai->>'category' = '2'
     )
@@ -315,7 +315,7 @@ DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_category3_exam_rounds
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_category3_exam_rounds AS
     WITH extracted AS (
         SELECT DISTINCT
-            SUBSTRING(mondai->'kakosyutsudai'->>0 FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
+            SUBSTRING(mondai->>'kakosyutsudai' FROM '(?:平成|令和)(?:元|[0-9]+)年度?第[0-9]+回') AS o
         FROM installationtechniciandigitalclass1_mondaiset m
         WHERE m.mondai->>'category' = '3'
     )
