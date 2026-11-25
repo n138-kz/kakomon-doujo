@@ -15,6 +15,9 @@ backup/
 *.dat
 *.log
 
+# Laboratory files
+15/
+
 # Secret files
 *.env
 .secret
