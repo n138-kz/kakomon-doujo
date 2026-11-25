@@ -231,7 +231,7 @@ DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd;
 CREATE OR REPLACE VIEW vw_InstallationTechnicianDigitalClass1_mondaiset_recentadd AS
     SELECT id,openid,created_at,updated_at
     FROM installationtechniciandigitalclass1_mondaiset
-    WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '12 hours'
+    WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '12 hours' OR mondai->'kaisetsu'->'text' IS NULL OR mondai->'kaisetsu'->>'text' <> ''
     ORDER BY created_at ASC;
 
 DROP VIEW IF EXISTS vw_InstallationTechnicianDigitalClass1_exam_rounds;
