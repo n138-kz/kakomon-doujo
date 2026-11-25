@@ -347,7 +347,7 @@
 											}
 										}
 										if (index>=0) {
-											d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
+											d[d.length-1].value = mondais[index]['mondai']['kakosyutsudai'];
 										}
 										d[d.length-1].dataset.colname = 'kakosyutsudai';
 										d[d.length-1].addEventListener('blur', (e)=>{
@@ -751,7 +751,7 @@
 											const el = e.target.parentNode.querySelector('textarea');
 											el.value += '\n';
 											el.value += '-----\n';
-											el.value += `[${mondais[index]['mondai']['kakosyutsudai'].join(',')}]`+'\n';
+											el.value += `[${mondais[index]['mondai']['kakosyutsudai']}]`+'\n';
 											el.value += mondais[index]['mondai']['mondai']['text']+'\n';
 											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
 												el.value += `${i+1}: ${mondais[index]['mondai']['sentakushi'][i]['text']}\n`;
@@ -975,7 +975,7 @@
 											d[d.length-1].addEventListener('click', (e)=>{
 												{
 													template['sentakushi'] = {answer: false, text: ''};
-													template['kakosyutsudai'] = ['令和x年度第x回第x問(x),'];
+													template['kakosyutsudai'] = '令和x年度第x回第x問(x)';
 													const blob = new Blob([JSON.stringify({template: template, help: [`IFS=$'\n'; for item in $(cat file.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; mv _.txt $(date +%s.%N).txt`]}, null, '\t')], {type: 'application/json;charset=utf-8;'})
 													const url = URL.createObjectURL(blob);
 
@@ -1539,13 +1539,7 @@
 					mondais[index]['mondai']['category'] = 1*document.querySelector('select[data-colname="category"]').value
 				}
 				if (itemIsUnique(document.querySelectorAll('select[data-colname="kakosyutsudai"]'))) {
-					let text1 = document.querySelector('input[data-colname="kakosyutsudai"]').value.split(',');
-					let text2 = [];
-					for (let i=0;i<text1.length;i++) {
-						if (text1[i].length==0)continue;
-						text2[i] = text1[i].trim();
-					}
-					mondais[index]['mondai']['kakosyutsudai'] = text2;
+					mondais[index]['mondai']['kakosyutsudai'] = document.querySelector('input[data-colname="kakosyutsudai"]').value;
 				}
 				if (itemIsUnique(document.querySelectorAll('select[data-colname="mondai_text"]'))) {
 					mondais[index]['mondai']['mondai']['text'] = document.querySelector('textarea[data-colname="mondai_text"]').value;
