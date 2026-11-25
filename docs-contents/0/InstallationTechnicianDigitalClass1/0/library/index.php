@@ -26,6 +26,7 @@ class resource extends local {
 	public function mondais($method='get', $options=[]) {
 		if (false){
 		} elseif ($method == 'get') {
+			$res_item = [];
 			$template_mondai = [];
 			{
 				$template_mondai['category'] = 0;
@@ -41,27 +42,42 @@ class resource extends local {
 				ksort($template_mondai);
 			}
 			try {
-				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				{
-					$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset ORDER BY openid ASC;";
-					$stm = $this->conn_database->prepare($sql);
-					$stm->execute();
-					$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
-				}
-				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
-				for ($i=0; $i < count($res); $i++) {
-					$res[$i]['mondai'] = json_decode($res[$i]['mondai'],1);
-					ksort($res[0]['mondai']);
-					$res[$i]['mondai'] = array_merge($template_mondai, $res[$i]['mondai']);
-					foreach ($res[$i]['mondai'] as $k1 => $v1) {
-						if (!is_array($v1)) continue;
-						$res[$i]['mondai'][$k1] = array_merge($template_mondai[$k1], $res[$i]['mondai'][$k1]);
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+					{
+						$sql = "SELECT * FROM InstallationTechnicianDigitalClass1_mondaiset ORDER BY openid ASC;";
+						$stm = $this->conn_database->prepare($sql);
+						$stm->execute();
+						$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
 					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+					for ($i=0; $i < count($res); $i++) {
+						$res[$i]['mondai'] = json_decode($res[$i]['mondai'],1);
+						ksort($res[0]['mondai']);
+						$res[$i]['mondai'] = array_merge($template_mondai, $res[$i]['mondai']);
+						foreach ($res[$i]['mondai'] as $k1 => $v1) {
+							if (!is_array($v1)) continue;
+							$res[$i]['mondai'][$k1] = array_merge($template_mondai[$k1], $res[$i]['mondai'][$k1]);
+						}
+					}
+					$res_item[] = $res;
+				}
+				{
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+					{
+						$sql = "SELECT * FROM vw_installationtechniciandigitalclass1_mondaiset_recentadd ORDER BY openid ASC;";
+						$stm = $this->conn_database->prepare($sql);
+						$stm->execute();
+						$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+					$res_item[] = $res;
 				}
 				return [
 					'options' => $options,
-					'content' => $res,
+					'content' => $res_item[0],
 					'template' => $template_mondai,
+					'recentry_add' => $res_item[1],
 				];
 			} catch (\PDOException $e) {
 				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
@@ -290,6 +306,7 @@ if (false) {
 				'mondais_category' => $proc1->mondais_category()['content'],
 				'mondais_summary' => $proc->mondais('count'),
 				'mondais_template' => $proc->mondais('get')['template'],
+				'mondais_recentry_add' => $proc->mondais('get')['recentry_add'],
 			]
 		]);
 	}
