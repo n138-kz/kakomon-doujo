@@ -745,6 +745,7 @@
 										d[d.length-1].style.textAlign = 'center';
 										d[d.length-1].style.marginRight = '10px';
 										d[d.length-1].type = 'button';
+										d[d.length-1].dataset.action = 'copytext';
 										d[d.length-1].value = '問題文と選択肢を転記';
 										d[d.length-1].addEventListener('click', (e)=>{
 											const el = e.target.parentNode.querySelector('textarea');
@@ -773,14 +774,19 @@
 										d[d.length-1].style.textAlign = 'center';
 										d[d.length-1].style.marginRight = '10px';
 										d[d.length-1].type = 'button';
-										d[d.length-1].value = 'Googleに投げ';
+										d[d.length-1].value = 'Google検索';
 										d[d.length-1].addEventListener('click', (e)=>{
 											const el = e.target.parentNode.querySelector('textarea');
-											if (el.value.length==0) { return; }
+											if (el.value.length==0) {
+												e.target.parentNode.querySelector('input[data-action="copytext"]').dispatchEvent(new Event('click'));
+											}
 
 											let elv = el.value.split('-----');
+											for (let i=0;i<3;i++) { elv.push(''); }
 											el.value = elv[0];
-											window.open(`https://www.google.com/search?q=${encodeURIComponent('解説 '+elv[1].replace(/\n/, '%20').trim())}`, '_', 'width=600,height=400');
+											let url = `https://www.google.com/search?q=${encodeURIComponent('解説\nmarkdown消して、プレーンテキストだけにして\n'+elv[1].replace(/\n/, '%20').trim())}`;
+											console.log(url);
+											window.open(url, '_', 'width=600,height=400');
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
