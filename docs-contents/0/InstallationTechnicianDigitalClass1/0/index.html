@@ -1187,8 +1187,8 @@
 									console.debug((resData['data']['content-type'] ?? '').split(';')[0] ?? null);
 									if (false) {
 									} else if ((resData['data']['content-type'] ?? '').startsWith('image/')) {
-										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').value = resData['data']['url'] ?? null;
-										d_fileupload.parentNode.querySelector('input[data-colname="kaisetsu_image"]').dispatchEvent(new Event('change'));
+										d_fileupload.parentNode.querySelector('input[data-colname$="_image"]').value = resData['data']['url'] ?? null;
+										d_fileupload.parentNode.querySelector('input[data-colname$="_image"]').dispatchEvent(new Event('change'));
 										modal.style.display = 'none';
 									} else if ((resData['data']['content-type'] ?? '').startsWith('application/zip')) {
 										const link = document.createElement('a');
@@ -1200,6 +1200,7 @@
 									}
 								} catch (error) {
 									console.warn(error.message);
+									console.warn(error.stack);
 
 									let errMesg = [];
 									errMesg.push(document.createElement('p')); {
