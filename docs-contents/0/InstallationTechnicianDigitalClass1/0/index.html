@@ -791,6 +791,28 @@
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'GoogleAIモード';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											if (el.value.length==0) {
+												e.target.parentNode.querySelector('input[data-action="copytext"]').dispatchEvent(new Event('click'));
+											}
+
+											let elv = el.value.split('-----');
+											for (let i=0;i<3;i++) { elv.push(''); }
+											el.value = elv[0];
+											let url = `https://www.google.com/search?udm=50&q=${encodeURIComponent('解説\nmarkdown消して、プレーンテキストだけにして\n'+elv[1].replace(/\n/, '%20').trim())}`;
+											console.log(url);
+											window.open(url, '_', 'width=600,height=400');
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
 									d.push(document.createElement('div')); {
 										for (let i=0;i<mondais[index]['mondai']['kaisetsu']['image'].length;i++) {
 											d.push(document.createElement('p')); {
