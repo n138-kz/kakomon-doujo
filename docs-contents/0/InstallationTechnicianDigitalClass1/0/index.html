@@ -744,6 +744,7 @@
 											const el = e.target.parentNode.querySelector('textarea');
 											el.value += '\n';
 											el.value += '-----\n';
+											el.value += `[${mondais[index]['mondai']['kakosyutsudai'].join(',')}]`+'\n';
 											el.value += mondais[index]['mondai']['mondai']['text']+'\n';
 											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
 												el.value += `${i+1}: ${mondais[index]['mondai']['sentakushi'][i]['text']}\n`;
