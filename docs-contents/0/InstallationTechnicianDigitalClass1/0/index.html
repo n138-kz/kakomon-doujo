@@ -1355,6 +1355,13 @@
 										d[d.length-1].textContent = 'updated_at';
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'elapsed in';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 							}
@@ -1401,6 +1408,36 @@
 											d[d.length-1].style.borderStyle = 'solid'
 											d[d.length-1].style.borderWidth = '1px';
 											d.push(document.createTextNode(new Date(mondais_recent[i]['updated_at']).toLocaleString())); {}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											let elapsed_in = '-';
+											if (new Date(mondais_recent[i]['created_at']).getTime() !== new Date(mondais_recent[i]['updated_at']).getTime()) {
+												elapsed_in = Math.floor(new Date().getTime()/10**3-new Date(mondais_recent[i]['updated_at']).getTime()/10**3);
+												elapsed_in = Math.round(elapsed_in/10)*10;
+												if (false) {
+												} else if (elapsed_in>=24*3600) {
+													elapsed_in /= 24*3600;
+													elapsed_in = Math.floor(elapsed_in);
+													elapsed_in += 'h';
+												} else if (elapsed_in>=3600) {
+													elapsed_in /= 3600;
+													elapsed_in = Math.floor(elapsed_in);
+													elapsed_in += 'h';
+												} else if (elapsed_in>=60) {
+													elapsed_in /= 60;
+													elapsed_in = Math.floor(elapsed_in);
+													console.log(elapsed_in);
+													elapsed_in += 'm';
+												} else {
+													elapsed_in += 's';
+												}
+											}
+											d.push(document.createTextNode(elapsed_in)); {}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
