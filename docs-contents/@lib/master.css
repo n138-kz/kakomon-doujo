@@ -44,3 +44,14 @@ p {
 body>div {
 	padding-bottom: 20px;
 }
+.container {
+	display: flex;
+	width: 100vw;
+	align-items: stretch;
+}
+.container>div {
+	background-color: white;
+	box-sizing: border-box;
+	width: 98vw;
+	margin: 0 auto;
+}

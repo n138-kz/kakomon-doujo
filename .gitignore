@@ -8,11 +8,15 @@ backup/
 *.xz
 *.gz
 *.zip
+*.gpg
 
 # Temporary files
 *.tmp
 *.dat
 *.log
+
+# Laboratory files
+15/
 
 # Secret files
 *.env
@@ -46,3 +50,7 @@ build/
 *.msi
 *.jar
 *.swp
+
+# compose library
+composer.lock
+vendor/

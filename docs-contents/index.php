@@ -23,12 +23,30 @@ if ($proc->clientIsInternal($proc->clientinf_get()['REMOTE_ADDR'])) {
 		exit();
 	}
 }
-echo '<!DOCTYPE html><html lang="ja"><head><meta http-equiv="refresh" content="3;./auth/">';
+echo '<!DOCTYPE html><html lang="ja"><head>';
+if ($proc->clientIsInternal($proc->clientinf_get()['REMOTE_ADDR'])) {
+	echo '<meta http-equiv="refresh" content="3;./auth/">';
+} else {
+	echo '<meta http-equiv="refresh" content="0;./auth/">';
+}
 echo '<style>p{font-size: xx-large;}</style>';
 echo '<script>';
 echo 'window.addEventListener(`DOMContentLoaded`, ()=>{';
-echo 'const t=(Date.now()/10**3)+(1*document.querySelector(`meta[http-equiv="refresh"]`).content.split(`;`)[0]);const d=document.createElement(`p`);document.body.appendChild(d);';
-echo 'const s=setInterval(()=>{const r=Math.ceil(t-(Date.now()/10**3));d.textContent = `Redirecting in ${r}s`;if(r<=0) {clearInterval(s);location.replace(document.querySelector(`meta[http-equiv="refresh"]`).content.split(`;`)[1]);}}, 500);';
+echo 'const t=(Date.now()/10**3)+(1*document.querySelector(`meta[http-equiv="refresh"]`).content.split(`;`)[0]);';
+echo 'const d1=document.createElement(\'p\');';
+echo 'const d2=document.createElement(\'a\');';
+echo 'const m=document.querySelector(`meta[http-equiv="refresh"]`).content.split(`;`);';
+echo 'd2.href=m[1];';
+echo 'd2.textContent=`Redirecting in ${m[0]}s`;';
+echo 'd1.appendChild(d2);document.body.appendChild(d1);';
+echo 'const s=setInterval(()=>{';
+echo 'const r=Math.ceil(t-(Date.now()/10**3));';
+echo 'd2.textContent = `Redirecting in ${r}s`;';
+echo 'if(r<=0) {';
+echo 'clearInterval(s);';
+echo 'location.replace(m[1]);';
+echo '}';
+echo '}, 500);';
 echo '});';
 echo '</script>';
 echo '</head><body>';

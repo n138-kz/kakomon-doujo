@@ -11,18 +11,18 @@ $$ LANGUAGE plpgsql;
 
 -- TABLE
 DROP TABLE IF EXISTS app_user_role CASCADE;
-CREATE TABLE app_user_role (
+CREATE TABLE IF NOT EXISTS IF NOT EXISTS app_user_role (
     id INT PRIMARY KEY,
     description TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS app_user CASCADE;
-CREATE TABLE app_user (
+CREATE TABLE IF NOT EXISTS app_user (
     id uuid primary key default gen_random_uuid(),
     email text,
     app_username text,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     rawjson JSONB NOT NULL DEFAULT '{}',
     deleted BOOLEAN DEFAULT false,
     role INT not null default 0,
@@ -31,7 +31,7 @@ CREATE TABLE app_user (
 );
 
 DROP TABLE IF EXISTS app_authn_session CASCADE;
-CREATE TABLE app_authn_session (
+CREATE TABLE IF NOT EXISTS app_authn_session (
     id serial primary key,
     userid uuid not null,
     ip_address inet not null default '::1'::inet,
@@ -39,13 +39,26 @@ CREATE TABLE app_authn_session (
     payload JSONB NOT NULL DEFAULT '{}',
     session_id uuid not null unique default gen_random_uuid(),
     expires_in INT not null DEFAULT (1::int4 << 31),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_userid
         FOREIGN KEY (userid)
         REFERENCES app_user(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS app_s3storage_key CASCADE;
+CREATE TABLE IF NOT EXISTS app_s3storage_key (
+    id serial primary key,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    Bucket text not null,
+    ObjectURL text unique not null,
+    ProxiedObjectURL text unique not null,
+    Key text not null,
+    ETag text not null,
+    MIMEType text not null default 'text/plain'
 );
 
 -- INITIAL DATA
@@ -74,15 +87,32 @@ CREATE OR REPLACE TRIGGER update_app_authn_session_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- VIEW
-CREATE VIEW vw_app_authn_session_expired AS
-SELECT *
-FROM app_authn_session
-WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
+CREATE OR REPLACE TRIGGER update_app_s3storage_key_updated_at
+    BEFORE UPDATE ON app_s3storage_key
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
 
-CREATE VIEW vw_app_authn_session_active AS
-SELECT *
-FROM app_authn_session
-WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+-- VIEW
+DROP VIEW IF EXISTS vw_app_authn_session_expired;
+CREATE OR REPLACE VIEW vw_app_authn_session_expired AS
+    SELECT *
+    FROM app_authn_session
+    WHERE updated_at + make_interval(secs => expires_in) <= CURRENT_TIMESTAMP;
+
+DROP VIEW IF EXISTS vw_app_authn_session_active;
+CREATE OR REPLACE VIEW vw_app_authn_session_active AS
+    SELECT *
+    FROM app_authn_session
+    WHERE updated_at + make_interval(secs => expires_in) > CURRENT_TIMESTAMP;
+
+DROP VIEW IF EXISTS vw_app_user_contact;
+CREATE OR REPLACE VIEW vw_app_user_contact AS
+    SELECT
+        app_username,
+        email app_email,
+        rawjson->>'global_name' discord_global_name,
+        rawjson->>'username' discord_username,
+        rawjson->>'email' discord_email
+    FROM app_user;
 
 COMMIT;

@@ -65,6 +65,26 @@
 			});
 		});
 		window.addEventListener('DOMContentLoaded', async ()=>{
+			setInterval(async ()=>{
+				let token = '';
+				let url = '../../../auth/checkauthz/';
+				let options = {};
+				let req = await fetch(url, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'Content-Type': 'application/json',
+					},
+				});
+				console.log(req.status, req.statusText);
+				if (req.status === 401) {
+					location.replace('../../../auth/');
+					return;
+				}
+			}, 30000);
+		});
+		window.addEventListener('DOMContentLoaded', async ()=>{
 			let category = [];
 			let summary = [];
 			let mondais = [];
@@ -108,10 +128,10 @@
 					category = bin['mondais_category'] ?? [];
 					summary = bin['mondais_summary'] ?? [];
 					template = bin['mondais_template'] ?? [];
+					recentryadd = bin['mondais_recentry_add'] ?? [];
 					bin = bin['mondais'] ?? [];
 					bin = Array.isArray(bin) ? bin : [];
 					mondais = [...mondais, ...bin];
-
 				} catch (error) {
 					console.error(res);
 					return;
@@ -162,6 +182,12 @@
 										d[d.length-1].addEventListener('click', ()=>{
 											if (index>0) { index--; buildPage_20261106a(index); }
 										});
+										window.addEventListener('keydown', (ev)=>{
+											if (ev.altKey && ev.key.toLowerCase() == 'p'.toLowerCase()) {
+												ev.preventDefault();
+												if (index>0) { index--; buildPage_20261106a(index); }
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									d.push(document.createElement('input')); {
@@ -173,6 +199,12 @@
 										d[d.length-1].value = 'Next (n)';
 										d[d.length-1].addEventListener('click', ()=>{
 											if (index<mondais.length - 1) { index++; buildPage_20261106a(index); }
+										});
+										window.addEventListener('keydown', (ev)=>{
+											if (ev.altKey && ev.key.toLowerCase() == 'n'.toLowerCase()) {
+												ev.preventDefault();
+												if (index<mondais.length - 1) { index++; buildPage_20261106a(index); }
+											}
 										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -188,7 +220,12 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['id'];
+										d.push(document.createElement('a')); {
+											d[d.length-1].href = `./?byid=${mondais[index]['id']}`;
+											d[d.length-1].target = '_self';
+											d[d.length-1].textContent = mondais[index]['id'];
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -232,7 +269,7 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['created_at'];
+										d[d.length-1].textContent = `${new Date(mondais[index]['created_at']).toLocaleString()} (TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -246,7 +283,7 @@
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								d.push(document.createElement('td')); {
 									if (index>=0) {
-										d[d.length-1].textContent = mondais[index]['updated_at'];
+										d[d.length-1].textContent = `${new Date(mondais[index]['updated_at']).toLocaleString()} (TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone})`;
 									}
 								}
 								d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -310,20 +347,13 @@
 											}
 										}
 										if (index>=0) {
-											d[d.length-1].value = `${mondais[index]['mondai']['kakosyutsudai'].join()},`;
+											d[d.length-1].value = mondais[index]['mondai']['kakosyutsudai'];
 										}
 										d[d.length-1].dataset.colname = 'kakosyutsudai';
 										d[d.length-1].addEventListener('blur', (e)=>{
 											e.target.value = e.target.value.replace(/,+$/g, ',');
 											e.target.value = e.target.value.trim();
 										});
-									}
-									d[d.length-2].appendChild(d[d.length-1]); d.pop();
-									d.push(document.createElement('p')); {
-										d.push(document.createElement('small')); {
-											d[d.length-1].textContent = '複数のタグを記載する場合はカンマ(,)で区切ること';
-										}
-										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -347,7 +377,7 @@
 												d[d.length-1].style.width = '100%';
 											}
 										}
-										d[d.length-1].style.height = '5em';
+										d[d.length-1].style.height = '15em';
 										if (index>=0) {
 											d[d.length-1].textContent = mondais[index]['mondai']['mondai']['text'];
 										}
@@ -371,6 +401,120 @@
 												el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
 											}
 										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('div')); {
+										for (let i=0;i<mondais[index]['mondai']['mondai']['image'].length;i++) {
+											d.push(document.createElement('p')); {
+												d.push(document.createElement('img')); {
+													d[d.length-1].style.width = '100px';
+													d[d.length-1].style.height = '100px';
+													d[d.length-1].alt = '';
+													d[d.length-1].src = mondais[index]['mondai']['mondai']['image'][i];
+													d[d.length-1].dataset.id = i;
+													d[d.length-1].addEventListener('error', (e)=>{
+														e.target.src='';
+													});
+													d[d.length-1].addEventListener('click', (e)=>{
+														window.open(e.target.src, '_blank', 'width=380,height=214');
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '50%';
+													d[d.length-1].dataset.colname = 'mondai_image';
+													d[d.length-1].value = mondais[index]['mondai']['mondai']['image'][i];
+													d[d.length-1].addEventListener('change', (e)=>{
+														e.target.parentNode.querySelector('img').src=e.target.value;
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '25px';
+													d[d.length-1].style.height = '2em';
+													d[d.length-1].style.textAlign = 'center';
+													d[d.length-1].style.marginRight = '10px';
+													d[d.length-1].type = 'button';
+													d[d.length-1].value = '-';
+													d[d.length-1].addEventListener('click', (e)=>{
+														e.target.parentNode.remove();
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '25px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = '+';
+											d[d.length-1].addEventListener('click', (e)=>{
+												const e_d = [];
+												e_d.push(document.createElement('p')); {
+													e_d.push(document.createElement('img')); {
+														e_d[e_d.length-1].style.width = '100px';
+														e_d[e_d.length-1].style.height = '100px';
+														e_d[e_d.length-1].alt = '';
+														e_d[e_d.length-1].src = '';
+														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
+														e_d[e_d.length-1].addEventListener('error', (ev)=>{
+															ev.target.src='';
+														});
+														e_d[e_d.length-1].addEventListener('click', (e)=>{
+															window.open(e.target.src, '_blank', 'width=380,height=214');
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '50%';
+														e_d[e_d.length-1].dataset.colname = 'mondai_image';
+														e_d[e_d.length-1].value = '';
+														e_d[e_d.length-1].addEventListener('change', (ev)=>{
+															ev.target.parentNode.querySelector('img').src=ev.target.value;
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '25px';
+														e_d[e_d.length-1].style.height = '2em';
+														e_d[e_d.length-1].style.textAlign = 'center';
+														e_d[e_d.length-1].style.marginRight = '10px';
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = '-';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															ev.target.parentNode.remove();
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = 'アップロード';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+															document.getElementById('imageUpload').style.display = 'block';
+															d_fileupload = ev.target;
+															console.log(d_fileupload);
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+												}
+												e.target.parentNode.appendChild(e_d[e_d.length-1]);e_d.pop();
+												e.target.parentNode.querySelectorAll('input[data-colname]')[e.target.parentNode.querySelectorAll('input[data-colname]').length-1].select();
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -584,6 +728,7 @@
 											el.value = el.value.replace(/\t/g, '').trim();
 											el.value = el.value.replaceAll("\u2022", "\u30FB").trim();
 											el.value = el.value.replaceAll("\u30FB ", "\u30FB").trim();
+											el.value = el.value.replace(/(\r\n|\r|\n){3,}/g, '\n\n').trim();
 											console.log(el.value);
 										});
 									}
@@ -593,11 +738,13 @@
 										d[d.length-1].style.textAlign = 'center';
 										d[d.length-1].style.marginRight = '10px';
 										d[d.length-1].type = 'button';
+										d[d.length-1].dataset.action = 'copytext';
 										d[d.length-1].value = '問題文と選択肢を転記';
 										d[d.length-1].addEventListener('click', (e)=>{
 											const el = e.target.parentNode.querySelector('textarea');
 											el.value += '\n';
 											el.value += '-----\n';
+											el.value += `[${mondais[index]['mondai']['kakosyutsudai']}]`+'\n';
 											el.value += mondais[index]['mondai']['mondai']['text']+'\n';
 											for (let i=0;i<mondais[index]['mondai']['sentakushi'].length; i++) {
 												el.value += `${i+1}: ${mondais[index]['mondai']['sentakushi'][i]['text']}\n`;
@@ -620,14 +767,156 @@
 										d[d.length-1].style.textAlign = 'center';
 										d[d.length-1].style.marginRight = '10px';
 										d[d.length-1].type = 'button';
-										d[d.length-1].value = 'Googleに投げ';
+										d[d.length-1].value = 'Google検索';
 										d[d.length-1].addEventListener('click', (e)=>{
 											const el = e.target.parentNode.querySelector('textarea');
-											if (el.value.length==0) { return; }
+											if (el.value.length==0) {
+												e.target.parentNode.querySelector('input[data-action="copytext"]').dispatchEvent(new Event('click'));
+											}
 
-											let elv = el.value.split('-----')[1];
-											window.open(`https://www.google.com/search?q=${encodeURIComponent('解説 '+elv.replace(/\n/, '%20').trim())}`, Date.now(), 'width=600,height=400');
+											let elv = el.value.split('-----');
+											for (let i=0;i<3;i++) { elv.push(''); }
+											el.value = elv[0];
+											let url = `https://www.google.com/search?q=${encodeURIComponent('解説\nmarkdown消して、プレーンテキストだけにして\n'+elv[1].replace(/\n/, '%20').trim())}`;
+											console.log(url);
+											window.open(url, '_', 'width=600,height=400');
 										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('input')); {
+										d[d.length-1].style.height = '2em';
+										d[d.length-1].style.textAlign = 'center';
+										d[d.length-1].style.marginRight = '10px';
+										d[d.length-1].type = 'button';
+										d[d.length-1].value = 'GoogleAIモード';
+										d[d.length-1].addEventListener('click', (e)=>{
+											const el = e.target.parentNode.querySelector('textarea');
+											if (el.value.length==0) {
+												e.target.parentNode.querySelector('input[data-action="copytext"]').dispatchEvent(new Event('click'));
+											}
+
+											let elv = el.value.split('-----');
+											for (let i=0;i<3;i++) { elv.push(''); }
+											el.value = elv[0];
+											let url = `https://www.google.com/search?udm=50&q=${encodeURIComponent('解説\nmarkdown消して、プレーンテキストだけにして\n'+elv[1].replace(/\n/, '%20').trim())}`;
+											console.log(url);
+											window.open(url, '_', 'width=600,height=400');
+										});
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+									d.push(document.createElement('div')); {
+										for (let i=0;i<mondais[index]['mondai']['kaisetsu']['image'].length;i++) {
+											d.push(document.createElement('p')); {
+												d.push(document.createElement('img')); {
+													d[d.length-1].style.width = '100px';
+													d[d.length-1].style.height = '100px';
+													d[d.length-1].alt = '';
+													d[d.length-1].src = mondais[index]['mondai']['kaisetsu']['image'][i];
+													d[d.length-1].dataset.id = i;
+													d[d.length-1].addEventListener('error', (e)=>{
+														e.target.src='';
+													});
+													d[d.length-1].addEventListener('click', (e)=>{
+														window.open(e.target.src, '_blank', 'width=380,height=214');
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '50%';
+													d[d.length-1].dataset.colname = 'kaisetsu_image';
+													d[d.length-1].value = mondais[index]['mondai']['kaisetsu']['image'][i];
+													d[d.length-1].addEventListener('change', (e)=>{
+														e.target.parentNode.querySelector('img').src=e.target.value;
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+												d.push(document.createElement('input')); {
+													d[d.length-1].style.width = '25px';
+													d[d.length-1].style.height = '2em';
+													d[d.length-1].style.textAlign = 'center';
+													d[d.length-1].style.marginRight = '10px';
+													d[d.length-1].type = 'button';
+													d[d.length-1].value = '-';
+													d[d.length-1].addEventListener('click', (e)=>{
+														e.target.parentNode.remove();
+													});
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+
+										d.push(document.createElement('input')); {
+											d[d.length-1].style.width = '25px';
+											d[d.length-1].style.height = '2em';
+											d[d.length-1].style.textAlign = 'center';
+											d[d.length-1].style.marginRight = '10px';
+											d[d.length-1].type = 'button';
+											d[d.length-1].value = '+';
+											d[d.length-1].addEventListener('click', (e)=>{
+												const e_d = [];
+												e_d.push(document.createElement('p')); {
+													e_d.push(document.createElement('img')); {
+														e_d[e_d.length-1].style.width = '100px';
+														e_d[e_d.length-1].style.height = '100px';
+														e_d[e_d.length-1].alt = '';
+														e_d[e_d.length-1].src = '';
+														e_d[e_d.length-1].dataset.id = e.target.parentNode.querySelectorAll('p').length;
+														e_d[e_d.length-1].addEventListener('error', (ev)=>{
+															ev.target.src='';
+														});
+														e_d[e_d.length-1].addEventListener('click', (e)=>{
+															window.open(ev.target.src, '_blank', 'width=380,height=214');
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '50%';
+														e_d[e_d.length-1].dataset.colname = 'kaisetsu_image';
+														e_d[e_d.length-1].value = '';
+														e_d[e_d.length-1].addEventListener('change', (ev)=>{
+															ev.target.parentNode.querySelector('img').src=ev.target.value;
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].style.width = '25px';
+														e_d[e_d.length-1].style.height = '2em';
+														e_d[e_d.length-1].style.textAlign = 'center';
+														e_d[e_d.length-1].style.marginRight = '10px';
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = '-';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															ev.target.parentNode.remove();
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+
+													e_d.push(document.createElement('input')); {
+														e_d[e_d.length-1].type = 'button';
+														e_d[e_d.length-1].value = 'アップロード';
+														e_d[e_d.length-1].addEventListener('click', (ev)=>{
+															Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+															Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+															document.getElementById('imageUpload').style.display = 'block';
+															d_fileupload = ev.target;
+															console.log(d_fileupload);
+														});
+													}
+													e_d[e_d.length-2].appendChild(e_d[e_d.length-1]);e_d.pop();
+												}
+												e.target.parentNode.appendChild(e_d[e_d.length-1]);e_d.pop();
+												e.target.parentNode.querySelectorAll('input[data-colname]')[e.target.parentNode.querySelectorAll('input[data-colname]').length-1].select();
+											});
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 								}
@@ -659,6 +948,12 @@
 												updateResource(index);
 											}
 										});
+										window.addEventListener('keydown', (ev)=>{
+											if (ev.altKey && ev.key.toLowerCase() == 'a'.toLowerCase()) {
+												ev.preventDefault();
+												updateResource(index);
+											}
+										});
 									}
 									d[d.length-2].appendChild(d[d.length-1]); d.pop();
 
@@ -673,7 +968,7 @@
 											d[d.length-1].addEventListener('click', (e)=>{
 												{
 													template['sentakushi'] = {answer: false, text: ''};
-													template['kakosyutsudai'] = ['令和x年度第x回第x問(x),'];
+													template['kakosyutsudai'] = '令和x年度第x回第x問(x)';
 													const blob = new Blob([JSON.stringify({template: template, help: [`IFS=$'\n'; for item in $(cat file.json | jq -c '.[]'); do echo $item | jq -c >> _.txt; done; mv _.txt $(date +%s.%N).txt`]}, null, '\t')], {type: 'application/json;charset=utf-8;'})
 													const url = URL.createObjectURL(blob);
 
@@ -719,6 +1014,454 @@
 				d.push(document.createElement('hr')); {}
 				document.querySelector('body>div.container').appendChild(d[d.length-1]);
 
+				d.push(document.createElement('div')); {
+					d[d.length-1].id = 'imageUpload';
+					d[d.length-1].style.display = 'none';
+					d[d.length-1].style.position = 'fixed';
+					d[d.length-1].style.inset = '0';
+					d[d.length-1].style.margin = 'auto';
+					d[d.length-1].style.width = '50%';
+					d[d.length-1].style.height = '500px';
+					d[d.length-1].style.minWidth = '310px';
+					d[d.length-1].style.borderWidth = '1px';
+					d[d.length-1].style.borderColor = '#333';
+					d[d.length-1].style.borderStyle = 'solid';
+					d[d.length-1].style.padding = '10px';
+					d[d.length-1].style.backgroundColor = 'aliceblue';
+					d[d.length-1].style.textAlign = 'center';
+
+					d.push(document.createElement('div')); {
+						d[d.length-1].style.float = 'right';
+						d[d.length-1].style.width = '1.5em';
+						d[d.length-1].style.height = '1.5em';
+						d[d.length-1].style.borderWidth = '1px';
+						d[d.length-1].style.borderColor = '#333';
+						d[d.length-1].style.borderStyle = 'solid';
+						d.push(document.createElement('span')); {
+							d[d.length-1].style.cursor = 'pointer';
+							d[d.length-1].textContent = '✕';
+							d[d.length-1].addEventListener('click', (e)=>{
+								document.getElementById('imageUpload').style.display = 'none';
+								Array.from(document.getElementById('imageUpload').querySelectorAll('input[type="file"]'),(ev2)=>ev2.value='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.src='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('img'),(ev2)=>ev2.alt='');
+								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('h3')); {
+						d[d.length-1].style.textAlign = 'left';
+						d[d.length-1].textContent = '画像アップロード';
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('input')); {
+							d[d.length-1].type = 'file';
+							d[d.length-1].accept = 'application/pdf, image/*';
+							d[d.length-1].style.width = '100%';
+							d[d.length-1].style.maxWidth = '350px';
+							d[d.length-1].style.borderBottomWidth = '1px';
+							d[d.length-1].style.borderBottomColor = '#333';
+							d[d.length-1].style.borderBottomStyle = 'solid';
+							d[d.length-1].addEventListener('click', (e)=>{
+								e.target.value = '';
+								e.target.parentNode.parentNode.querySelector('img').src = 'https://cdn.pixabay.com/animation/2025/11/11/02/19/02-19-36-889_512.gif';
+								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
+							});
+							d[d.length-1].addEventListener('cancel', (e)=>{
+								e.target.value = '';
+								e.target.parentNode.parentNode.querySelector('img').src = '';
+								e.target.parentNode.parentNode.querySelector('input[type="button"]').disabled = true;
+								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
+							});
+							d[d.length-1].addEventListener('change', (e)=>{
+								e.target.parentNode.parentNode.querySelector('img').style.display = 'unset';
+								e.target.parentNode.parentNode.querySelector('img').src = URL.createObjectURL(e.target.files[0]);
+								console.log(`${e.target.files[0].size} bytes\n${Math.round((e.target.files[0].size/10**3)-0.3)} KB`);
+								e.target.parentNode.parentNode.querySelector('input[type="button"]').disabled = false;
+								Array.from(document.getElementById('imageUpload').querySelectorAll('p.errMesg'),(ev2)=>ev2.remove());
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('input')); {
+							d[d.length-1].type = 'button';
+							d[d.length-1].value = 'アップロード';
+							d[d.length-1].disabled = true;
+							d[d.length-1].addEventListener('click', async (e)=>{
+								console.log(d_fileupload); // Return to
+								const btn = e.target;
+								const modal = btn.parentNode.parentNode;
+								const file = modal.querySelector('input[type="file"]').files[0];
+								if (!file) {
+									console.error('File has not selected.');
+									return;
+								}
+								btn.disabled = true;
+								btn.value = '0%';
+								Array.from(modal.querySelectorAll('p.errMesg'), (ev2) => ev2.remove());
+
+								const formData = new FormData();
+								formData.append('image', file);
+								console.log([...formData.entries()]);
+
+								let processTimer = null;
+								const clearProcessTimer = () => {
+									if (processTimer !== null) {
+										clearInterval(processTimer);
+										processTimer = null;
+									}
+								};
+
+								const uploadWithProgress = (url, body) => {
+									return new Promise((resolve, reject) => {
+										const xhr = new XMLHttpRequest();
+										xhr.open('POST', url, true);
+
+										xhr.upload.onprogress = (ev) => {
+											if (ev.lengthComputable) {
+												const percent = Math.round((ev.loaded / ev.total) * 100);
+												if (percent >= 100) {
+													if (processTimer === null) {
+														const startTime = Date.now();
+														btn.value = '100% (処理中... 0秒経過)';
+														processTimer = setInterval(() => {
+															const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+															btn.value = `100% (処理中... ${elapsedSec}秒経過)`;
+														}, 1000);
+													}
+												} else {
+													btn.value = `${percent}%`;
+												}
+											}
+										};
+
+										xhr.onload = () => {
+											clearProcessTimer();
+											resolve({
+												status: xhr.status,
+												statusText: xhr.statusText,
+												text: xhr.responseText,
+											});
+										};
+
+										xhr.onerror = () => {
+											clearProcessTimer();
+											reject(new Error('Network error'));
+										};
+										xhr.onabort = () => {
+											clearProcessTimer();
+											reject(new Error('Upload aborted'));
+										};
+
+										xhr.send(body);
+									});
+								};
+
+								try {
+									let url = './library/';
+									let req = await uploadWithProgress(url, formData);
+									console.log(req.status, req.statusText);
+									if (false) {
+									} else if (req.status === 401) {
+										location.replace('../../../auth/');
+										return;
+									} else if (req.status >= 400) {
+										let resText = req.text;
+										console.error(resText);
+										let resData = null;
+										if (resText.length > 0) {
+											resData = JSON.parse(resText);
+										} else {
+											resData = {error: {title: `${req.status} ${req.statusText}`, message: `${req.status} ${req.statusText}`}};
+										}
+										console.error(resData);
+
+										let errMesg = [];
+										errMesg.push(document.createElement('p')); {
+											errMesg[errMesg.length-1].classList.add('errMesg');
+											errMesg[errMesg.length-1].textContent = resData['error']['message'];
+										}
+										modal.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
+										modal.querySelector('img').src = '';
+										modal.querySelector('img').style.display = 'none';
+										modal.querySelector('input[type="file"]').value = '';
+										return;
+									} else if (req.status === 204) {
+										console.log(req.status, req.statusText);
+										return;
+									}
+									let resText = req.text;
+									console.log(resText);
+									if (resText.length === 0) {
+										return;
+									}
+									let resData = JSON.parse(resText);
+									console.debug(resData['data']['url'] ?? null);
+									console.debug((resData['data']['content-type'] ?? '').split(';')[0] ?? null);
+									if (false) {
+									} else if ((resData['data']['content-type'] ?? '').startsWith('image/')) {
+										d_fileupload.parentNode.querySelector('input[data-colname$="_image"]').value = resData['data']['url'] ?? null;
+										d_fileupload.parentNode.querySelector('input[data-colname$="_image"]').dispatchEvent(new Event('change'));
+										modal.style.display = 'none';
+									} else if ((resData['data']['content-type'] ?? '').startsWith('application/zip')) {
+										const link = document.createElement('a');
+										link.href = resData['data']['url'];
+										link.download = `${resData['data']['url'].split('/').pop().split('.').shift()}.zip`;
+										document.body.appendChild(link);
+										link.click();
+										document.body.removeChild(link);
+									}
+								} catch (error) {
+									console.warn(error.message);
+									console.warn(error.stack);
+
+									let errMesg = [];
+									errMesg.push(document.createElement('p')); {
+										errMesg[errMesg.length-1].classList.add('errMesg');
+										errMesg[errMesg.length-1].textContent = error.message;
+									}
+									modal.appendChild(errMesg[errMesg.length-1]); errMesg.pop();
+								} finally {
+									clearProcessTimer();
+									btn.value = 'アップロード';
+									Array.from(modal.querySelectorAll('input[type="file"]'), (ev2) => ev2.value = '');
+									Array.from(modal.querySelectorAll('img'), (ev2) => ev2.src = '');
+									Array.from(modal.querySelectorAll('img'), (ev2) => ev2.alt = '');
+								}
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('img')); {
+							d[d.length-1].src = '';
+							d[d.length-1].alt = '';
+							d[d.length-1].style.marginTop = '10px';
+							d[d.length-1].style.maxWidth = '100%';
+							d[d.length-1].style.maxHeight = '350px';
+							d[d.length-1].addEventListener('click', (e)=>{
+								window.open(e.target.src, null, 'width=500px,height=500px');
+							});
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('div')); {
+					d.push(document.createElement('table')); {
+						d[d.length-1].style.backgroundColor = 'aliceblue';
+						d[d.length-1].style.border = '1px solid #333';
+						d.push(document.createElement('tbody')); {
+							d.push(document.createElement('tr')); {
+								d.push(document.createElement('th')); {
+									d[d.length-1].style.textAlign = 'left';
+									d[d.length-1].style.fontWeight = 'unset';
+									d[d.length-1].style.border = '1px solid #333';
+									d[d.length-1].textContent = '';
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								d.push(document.createElement('td')); {
+									d[d.length-1].style.border = '1px solid #333';
+									d[d.length-1].style.minWidth = '5ex';
+									d[d.length-1].style.textAlign = 'right';
+									d[d.length-1].textContent = JSON.stringify(summary['count']['all']);
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+
+							for (let i=0;i<summary['count']['category'].length;i++) {
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.textAlign = 'left';
+										d[d.length-1].style.fontWeight = 'unset';
+										d[d.length-1].style.border = '1px solid #333';
+										d[d.length-1].textContent = `${category[i]['name']}`;
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('td')); {
+										d[d.length-1].style.border = '1px solid #333';
+										d[d.length-1].style.minWidth = '5ex';
+										d[d.length-1].style.textAlign = 'right';
+										d[d.length-1].textContent = `${summary['count']['category'][i]}`;
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					d[d.length-2].appendChild(d[d.length-1]); d.pop();
+				}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				d.push(document.createElement('hr')); {}
+				document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+				mondais_recent = JSON.parse(JSON.stringify(recentryadd));
+				console.debug('mondais recent add', mondais_recent);
+				if (mondais_recent.length>0) {
+					d.push(document.createElement('div')); {
+						d.push(document.createElement('table')); {
+							d[d.length-1].style.backgroundColor = 'aliceblue';
+							d[d.length-1].style.border = '1px solid #333';
+							d.push(document.createElement('thead')); {
+								d.push(document.createElement('tr')); {
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'internal-id';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'open-id';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'created_at';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'updated_at';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									d.push(document.createElement('th')); {
+										d[d.length-1].style.borderColor = '#333';
+										d[d.length-1].style.borderStyle = 'solid'
+										d[d.length-1].style.borderWidth = '1px';
+										d[d.length-1].textContent = 'elapsed in';
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+								d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+							d.push(document.createElement('tbody')); {
+								for (let i=0;i<mondais_recent.length;i++) {
+									d.push(document.createElement('tr')); {
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											d.push(document.createElement('small')); {
+												d.push(document.createElement('a')); {
+													d[d.length-1].href = `./?byid=${mondais_recent[i]['id']}`;
+													d[d.length-1].target = '_self';
+													d.push(document.createTextNode(mondais_recent[i]['id'])); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											d.push(document.createElement('small')); {
+												d.push(document.createElement('a')); {
+													d[d.length-1].href = `./?byid=${mondais_recent[i]['openid']}`;
+													d[d.length-1].target = '_self';
+													d.push(document.createTextNode(mondais_recent[i]['openid'])); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(new Date(mondais_recent[i]['created_at']).toLocaleString())); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(new Date(mondais_recent[i]['updated_at']).toLocaleString())); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										d.push(document.createElement('td')); {
+											d[d.length-1].style.borderColor = '#333';
+											d[d.length-1].style.borderStyle = 'solid'
+											d[d.length-1].style.borderWidth = '1px';
+											let elapsed_in = '-';
+											if (new Date(mondais_recent[i]['created_at']).getTime() !== new Date(mondais_recent[i]['updated_at']).getTime()) {
+												elapsed_in = Math.floor(new Date().getTime()/10**3-new Date(mondais_recent[i]['created_at']).getTime()/10**3);
+												elapsed_in = Math.round(elapsed_in/10)*10;
+												if (false) {
+												} else if (elapsed_in>=24*3600) {
+													elapsed_in /= 24*3600;
+													elapsed_in = Math.floor(elapsed_in);
+													elapsed_in += 'd';
+												} else if (elapsed_in>=3600) {
+													elapsed_in /= 3600;
+													elapsed_in = Math.floor(elapsed_in);
+													elapsed_in += 'h';
+												} else if (elapsed_in>=60) {
+													elapsed_in /= 60;
+													elapsed_in = Math.floor(elapsed_in);
+													console.log(elapsed_in);
+													elapsed_in += 'm';
+												} else {
+													elapsed_in += 's';
+												}
+											}
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(elapsed_in)); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
+											d[d.length-2].appendChild(d[d.length-1]); d.pop();
+										}
+										d[d.length-2].appendChild(d[d.length-1]); d.pop();
+									}
+									d[d.length-2].appendChild(d[d.length-1]); d.pop();
+								}
+							}
+							d[d.length-2].appendChild(d[d.length-1]); d.pop();
+						}
+						d[d.length-2].appendChild(d[d.length-1]); d.pop();
+					}
+					document.querySelector('body>div.container').appendChild(d[d.length-1]);
+
+					d.push(document.createElement('hr')); {}
+					document.querySelector('body>div.container').appendChild(d[d.length-1]);
+				}
 				d.push(document.createElement('div')); {
 					d[d.length-1].dataset.name = 'search_result';
 					d.push(document.createElement('table')); {
@@ -804,20 +1547,16 @@
 					mondais[index]['mondai']['category'] = 1*document.querySelector('select[data-colname="category"]').value
 				}
 				if (itemIsUnique(document.querySelectorAll('select[data-colname="kakosyutsudai"]'))) {
-					let text1 = document.querySelector('input[data-colname="kakosyutsudai"]').value.split(',');
-					let text2 = [];
-					for (let i=0;i<text1.length;i++) {
-						if (text1[i].length==0)continue;
-						text2[i] = text1[i].trim();
-					}
-					mondais[index]['mondai']['kakosyutsudai'] = text2;
+					mondais[index]['mondai']['kakosyutsudai'] = document.querySelector('input[data-colname="kakosyutsudai"]').value;
 				}
 				if (itemIsUnique(document.querySelectorAll('select[data-colname="mondai_text"]'))) {
 					mondais[index]['mondai']['mondai']['text'] = document.querySelector('textarea[data-colname="mondai_text"]').value;
 				}
+				mondais[index]['mondai']['mondai']['image'] = Array.from(document.querySelectorAll('input[data-colname="mondai_image"]'), el=>el.value).filter(val => val !== '');
 				if (itemIsUnique(document.querySelectorAll('select[data-colname="kaisetsu_text"]'))) {
 					mondais[index]['mondai']['kaisetsu']['text'] = document.querySelector('textarea[data-colname="kaisetsu_text"]').value;
 				}
+				mondais[index]['mondai']['kaisetsu']['image'] = Array.from(document.querySelectorAll('input[data-colname="kaisetsu_image"]'), el=>el.value).filter(val => val !== '');
 				for (let i=0;i<document.querySelectorAll('input[data-colname="sentakushi_text"]').length;i++) {
 					mondais[index]['mondai']['sentakushi'][i] = mondais[index]['mondai']['sentakushi'][i] ?? [];
 					mondais[index]['mondai']['sentakushi'][i]['text'] = document.querySelectorAll('input[data-colname="sentakushi_text"]')[i].value;
@@ -836,7 +1575,7 @@
 						headers: {
 							'Accept': 'application/json',
 							'Authorization': `Bearer ${token}`,
-							'Content-Type': 'application/json',
+							'Content-Type': 'application/json; charset=UTF-8',
 						},
 						body: JSON.stringify(mondais[index]),
 					});

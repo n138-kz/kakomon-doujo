@@ -6,6 +6,15 @@ session_name('sessid');
 session_start();
 
 require_once('/app/define.php');
+use function imagecreatefromstring;
+use function imagepalettetotruecolor;
+use function imagealphablending;
+use function imagesavealpha;
+use function imagewebp;
+use function imagedestroy;
+use function ob_start;
+use function ob_get_clean;
+
 class auth extends local {
 	const FILE_CONFIG = '/app'.'/config.json';
 	public $config = [];
@@ -33,9 +42,7 @@ class auth extends local {
 		$config = $proc_local->config();
 		$this->conn_database = $conn_database = $proc_local->connectDB($config['internal']['database']);
 		$proc_exapi = new exapi($config, $conn_database);
-
 		$ipinfo_inquiry = $proc_exapi->ipinfo_inquiry(parent::clientinf_get()['REMOTE_ADDR']);
-		error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 
 		if (!isset($_SERVER['REQUEST_METHOD']) || ( $_SERVER['REQUEST_METHOD'] != 'GET' && $_SERVER['REQUEST_METHOD'] != 'POST' )){
 			http_response_code(405);
@@ -50,11 +57,44 @@ class auth extends local {
 			exit;
 		}
 
+		try {
+			if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+			if ($this->conn_database->inTransaction()) {
+				$sql = "DELETE FROM app_user WHERE created_at < CURRENT_TIMESTAMP - INTERVAL '1 hours' AND role = 0 RETURNING *;";
+				$stm = $this->conn_database->prepare($sql);
+				$res = $stm->execute();
+				$this->conn_database->commit();
+				$res = $stm->fetchAll(\PDO::FETCH_ASSOC);
+			}
+
+			$client = self::clientinf_get();
+			$s3Client = $proc_local->s3_connect('connect');
+			$s3Bucket = 'app-user';
+			$mimeType = 'application/json';
+			foreach ($res as $v1) {
+				$v1['issued_at'] = date('c');
+				$v1['rawdata'] = json_decode($v1['rawjson']);
+				ksort($v1);
+				$s3Key = 'revoke.app-user.'.$v1['id'].'.'.hash("md5", $v1['id']).'.json';
+				$s3Result = $s3Client->putObject([
+					'Bucket' => $s3Bucket,
+					'Key'    => $s3Key,
+					'Body'   => json_encode($v1, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES),
+					'ContentType' => $mimeType,
+				]);
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3Result->get('ObjectURL')));
+			}
+		} catch (\PDOException $e) {
+			if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+			error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+			error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+		}
+
 		if (false) {
 		} elseif (isset($_REQUEST['logout'])) {
 			$client = self::clientinf_get();
-			error_log(var_export($_SESSION,1));
-			error_log(var_export($_REQUEST,1));
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($_SESSION, 1));
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.var_export($_REQUEST, 1));
 			if (!isset($_SESSION['sid'])) {
 				// error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
 				error_log(__FILE__.'#'.__LINE__.': Already logouted.');
@@ -68,24 +108,17 @@ class auth extends local {
 				return;
 			}
 			try {
-				if (!$this->conn_database->inTransaction()) {
-					$this->conn_database->beginTransaction();
-				}
-				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ? ORDER BY id DESC';
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+				$sql = 'UPDATE app_authn_session SET expires_in = -1 WHERE session_id = ?';
 				if ($this->conn_database->inTransaction()) {
 					$stm = $this->conn_database->prepare($sql);
 					$res = $stm->execute([$_SESSION['sid']]);
 				}
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->commit();
-				}
+				if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->rollback();
-				}
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
-				error_log('PDO Error has occured: '.$e->getMessage());
 			}
 
 			$_SESSION=[];
@@ -165,9 +198,10 @@ class auth extends local {
 				}
 
 				/* * OAuth --> authn * */
-				$url = 'https://discordapp.com/api/oauth2/token/revoke';
-				// https://discord.com/api/oauth2/token/revoke ?
+				$url = 'https://discord.com/api/oauth2/token/revoke';
 				$data = [
+					'client_id' => $config['external']['discord']['bot']['client_id'],
+					'client_secret' => $config['external']['discord']['bot']['client_secret'],
 					'token' => explode(' ', $credential)[1],
 					'token_type_hint' => 'access_token',
 				];
@@ -181,10 +215,13 @@ class auth extends local {
 				curl_setopt($curl_req, CURLOPT_FOLLOWLOCATION, TRUE);
 				$curl_res=curl_exec($curl_req);
 				$curl_res=json_decode($curl_res, TRUE);
+				$curl_resinfo = curl_getinfo($curl_req);
 				$curl_req=null;
-				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($curl_res, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				if ($curl_resinfo['http_code']!==200) {
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(['response_body'=>$curl_res, 'response_info'=>$curl_resinfo], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				}
 			} catch (\Exception $e) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 				http_response_code(401);
 				echo json_encode([
@@ -202,6 +239,7 @@ class auth extends local {
 				$discord_push_item['embed']['color'] = parent::color('get', false, 'success_green');
 				$discord_push_item['embed']['timestamp'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
 				$discord_push_item['embed']['title'] = 'OAuth Test PASS: #'.($discord_user['id']??'unknown');
+				$discord_push_item['embed']['url'] = $_SERVER['HTTP_REFERER'] ?? "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 				$discord_push_item['embed']['timestamp'] = gmdate('Y-m-d\TH:i:s\Z');
 				$discord_push_item['embed']['thumbnail'] = [];
 				$discord_push_item['embed']['thumbnail']['url'] = 'https://cdn.discordapp.com/avatars/'.$discord_user['id'].'/'.$discord_user['avatar'].'.png';
@@ -249,18 +287,18 @@ class auth extends local {
 					}
 					unset($curl_req);
 				}
-			} catch (\Exception $th) {
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+			} catch (\Exception $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
 			try {
 				$session_user = [];
 				for ($i=0;$i<2;$i++) {
 					$sql = "SELECT id,rawjson FROM app_user WHERE rawjson->>'id' = ?";
-					$this->conn_database->beginTransaction();
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 					$stm = $this->conn_database->prepare($sql);
 					$res = $stm->execute([$discord_user['id']]);
-					$this->conn_database->commit();
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					if ($stm->rowCount()>0) {
 						$res = $stm->fetch(\PDO::FETCH_ASSOC);
 						$res['id'] = $res['id'] ?? '_';
@@ -268,23 +306,23 @@ class auth extends local {
 						$session_user = $res;
 
 						$sql = 'UPDATE app_user SET rawjson=? WHERE id=?';
-						$this->conn_database->beginTransaction();
+						if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 						$stm = $this->conn_database->prepare($sql);
 						$res = $stm->execute([
 							json_encode($discord_user),
 							$res['id'],
 						]);
-						$this->conn_database->commit();
+						if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					} else {
 						$sql = 'INSERT INTO app_user (rawjson) VALUES (?)';
-						$this->conn_database->beginTransaction();
+						if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 						$stm = $this->conn_database->prepare($sql);
 						$res = $stm->execute([json_encode($discord_user)]);
-						$this->conn_database->commit();
+						if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 					}
 				}
 
-				$this->conn_database->beginTransaction();
+				if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
 				$sql = 'INSERT INTO app_authn_session (userid, ip_address, user_agent, expires_in, payload) VALUES (?,?,?,?,?)';
 				$stm = $this->conn_database->prepare($sql);
 				$res = $stm->execute([
@@ -324,25 +362,31 @@ class auth extends local {
 						json_encode($_SESSION),
 						$_SESSION['sid'],
 					]);
-					if ($this->conn_database->inTransaction()) {
-						$this->conn_database->commit();
-					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
 				} else {
-					if ($this->conn_database->inTransaction()) {
-						$this->conn_database->rollback();
-					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
 				}
 			} catch (\PDOException $e) {
-				if ($this->conn_database->inTransaction()) {
-					$this->conn_database->rollback();
-				}
-				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine());
+				if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
 				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
-				error_log('PDO Error has occured: '.$e->getMessage());
 			}
 
 			$discord_push_item['embeds'][0]['description'] .= "Internal userid: `{$_SESSION['uid']}`".PHP_EOL;
 			$discord_push_item['embeds'][0]['description'] .= "Internal sessionid: `{$_SESSION['sid']}`".PHP_EOL;
+			if (isset($ipinfo_inquiry['bogon'])&&$ipinfo_inquiry['bogon']) {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}` (bogon)".PHP_EOL;
+			} else {
+				$discord_push_item['embeds'][0]['description'] .= "Client IPaddress: `{$client['REMOTE_ADDR']}`".PHP_EOL;
+				$ipinfo_inquiry['continent'] = $ipinfo_inquiry['continent'] ?? '';
+				$ipinfo_inquiry['country'] = $ipinfo_inquiry['country'] ?? '';
+				$ipinfo_inquiry['asn'] = $ipinfo_inquiry['asn'] ?? '';
+				$ipinfo_inquiry['as_name'] = $ipinfo_inquiry['as_name'] ?? '';
+				$ipinfo_inquiry['as_domain'] = $ipinfo_inquiry['as_domain'] ?? '';
+				$discord_push_item['embeds'][0]['description'] .= "Client Country: {$ipinfo_inquiry['continent']}/{$ipinfo_inquiry['country']}".PHP_EOL;
+				$discord_push_item['embeds'][0]['description'] .= "Client AS: {$ipinfo_inquiry['asn']}/{$ipinfo_inquiry['as_name']} ({$ipinfo_inquiry['as_domain']})".PHP_EOL;
+			}
+			error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode($ipinfo_inquiry, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE));
 			{
 				$curl_opt = [ 'Content-Type: application/json', 'Content-Length: '.strlen(json_encode($discord_push_item)), ];
 				$curl_req = curl_init();
@@ -357,6 +401,130 @@ class auth extends local {
 					$curl_res[$k]['PATCH']['response'][] = json_decode($c, TRUE);
 				}
 				unset($curl_req);
+			}
+			try {
+				$s3Client = $proc_local->s3_connect('connect');
+				$sourcePath = 'https://cdn.discordapp.com/avatars/'.$discord_user['id'].'/'.$discord_user['avatar'].'.png';
+
+				$imageBinary = @file_get_contents($sourcePath);
+				if ($imageBinary === false) {
+					throw new \RuntimeException("Unable to fetch image: " . $sourcePath);
+				}
+
+				$s3Bucket = 'app-user';
+				$s3Key = 'discord.usericon.' . $discord_user['id'];
+				$mimeType = 'image/png';
+				if (!$s3Client->doesBucketExistV2($s3Bucket)) {
+					$s3Client->createBucket(['Bucket' => $s3Bucket]);
+					$s3Client->putBucketVersioning([
+						'Bucket'     => $s3Bucket,
+						'VersioningConfiguration' => [
+							'Status' => 'Enabled',
+						],
+					]);
+					$policy = json_encode([
+						'Version' => '2012-10-17',
+						'Statement' => [
+							[
+								'Effect'    => 'Allow',
+								'Principal' => ['AWS' => ['*']],
+								'Action'    => ['s3:GetObject'],
+								'Resource'  => ["arn:aws:s3:::{$s3Bucket}/*"],
+							],
+						],
+					], JSON_UNESCAPED_SLASHES);
+					$s3Client->putBucketPolicy([
+						'Bucket' => $s3Bucket,
+						'Policy' => $policy,
+					]);
+				}
+				$s3result = $s3Client->putObject([
+					'Bucket'      => $s3Bucket,
+					'Key'         => $s3Key,
+					'Body'        => $imageBinary,
+					'ContentType' => $mimeType,
+				]);
+
+				{
+					$image = imagecreatefromstring($imageBinary);
+					if ($image === false) {
+						throw new \RuntimeException("Unable to create image from binary string.");
+					}
+					imagepalettetotruecolor($image);
+					imagealphablending($image, true);
+					imagesavealpha($image, true);
+					ob_start();
+					imagewebp($image, null, 80);
+					$webpBinary = ob_get_clean();
+
+					$mimeType = 'image/webp';
+					$s3result = $s3Client->putObject([
+						'Bucket'      => $s3Bucket,
+						'Key'         => $s3Key,
+						'Body'        => $webpBinary,
+						'ContentType' => $mimeType,
+					]);
+				}
+
+				error_log('Upload Completed. URL: ' . $s3result->get('ObjectURL'));
+				error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode(
+					$s3Client->listObjectsV2([
+						'Bucket' => $s3Bucket,
+					])->get('Contents')
+				, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+				try {
+					if (!$this->conn_database->inTransaction()) { $this->conn_database->beginTransaction(); }
+					$sql = 'SELECT key FROM app_s3storage_key WHERE key = ?';
+					$stm = $this->conn_database->prepare($sql);
+					$res = $stm->execute([$s3Key]);
+					error_log(__FILE__.'#'.__LINE__.PHP_EOL.json_encode([
+						$sql, $s3Key,
+					], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES));
+					if ($stm->rowCount()==0) {
+						$sql = 'INSERT INTO app_s3storage_key (bucket, key, objecturl, proxiedobjecturl, etag, mimetype) VALUES (?,?,?,?,?,?)';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute([
+							$s3Bucket,
+							$s3Key,
+							$s3result->get('ObjectURL'),
+							str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL')),
+							trim($s3result->get('ETag'), '"'),
+							$mimeType,
+						]);
+					} else {
+						$sql = 'UPDATE app_s3storage_key SET bucket = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$s3Bucket,]);
+
+						$sql = 'UPDATE app_s3storage_key SET objecturl = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$s3result->get('ObjectURL'),]);
+
+						$sql = 'UPDATE app_s3storage_key SET proxiedobjecturl = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>str_replace($config['internal']['s3-object-storage']['endpoint'], "{$client['REQUEST_SCHEME']}://{$client['HTTP_HOST']}/@lib/object/?q=", $s3result->get('ObjectURL')),]);
+
+						$sql = 'UPDATE app_s3storage_key SET etag = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>trim($s3result->get('ETag'), '"'),]);
+
+						$sql = 'UPDATE app_s3storage_key SET mimetype = :item WHERE key = :key';
+						$stm = $this->conn_database->prepare($sql);
+						$res = $stm->execute(['key'=>$s3Key, 'item'=>$mimeType,]);
+					}
+					if ($this->conn_database->inTransaction()) { $this->conn_database->commit(); }
+				} catch (\PDOException $e) {
+					if ($this->conn_database->inTransaction()) { $this->conn_database->rollback(); }
+					error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+					error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+				}
+			} catch (\Aws\Exception\AwsException $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
+				error_log('S3 Error has occured: '.$e->getAwsErrorMessage());
+			} catch (\Throwable $e) {
+				error_log('Error has occured on '.$e->getFile().'#'.$e->getLine().': '.$e->getMessage());
+				error_log('[Stack trace]'.PHP_EOL.$e->getTraceAsString());
 			}
 
 			http_response_code(200);
