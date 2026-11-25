@@ -1366,10 +1366,13 @@
 											d[d.length-1].style.borderColor = '#333';
 											d[d.length-1].style.borderStyle = 'solid'
 											d[d.length-1].style.borderWidth = '1px';
-											d.push(document.createElement('a')); {
-												d[d.length-1].href = `./?byid=${mondais_recent[i]['id']}`;
-												d[d.length-1].target = '_self';
-												d.push(document.createTextNode(mondais_recent[i]['id'])); {}
+											d.push(document.createElement('small')); {
+												d.push(document.createElement('a')); {
+													d[d.length-1].href = `./?byid=${mondais_recent[i]['id']}`;
+													d[d.length-1].target = '_self';
+													d.push(document.createTextNode(mondais_recent[i]['id'])); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
 											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -1379,10 +1382,13 @@
 											d[d.length-1].style.borderColor = '#333';
 											d[d.length-1].style.borderStyle = 'solid'
 											d[d.length-1].style.borderWidth = '1px';
-											d.push(document.createElement('a')); {
-												d[d.length-1].href = `./?byid=${mondais_recent[i]['openid']}`;
-												d[d.length-1].target = '_self';
-												d.push(document.createTextNode(mondais_recent[i]['openid'])); {}
+											d.push(document.createElement('small')); {
+												d.push(document.createElement('a')); {
+													d[d.length-1].href = `./?byid=${mondais_recent[i]['openid']}`;
+													d[d.length-1].target = '_self';
+													d.push(document.createTextNode(mondais_recent[i]['openid'])); {}
+													d[d.length-2].appendChild(d[d.length-1]); d.pop();
+												}
 												d[d.length-2].appendChild(d[d.length-1]); d.pop();
 											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -1392,7 +1398,10 @@
 											d[d.length-1].style.borderColor = '#333';
 											d[d.length-1].style.borderStyle = 'solid'
 											d[d.length-1].style.borderWidth = '1px';
-											d.push(document.createTextNode(new Date(mondais_recent[i]['created_at']).toLocaleString())); {}
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(new Date(mondais_recent[i]['created_at']).toLocaleString())); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -1400,7 +1409,10 @@
 											d[d.length-1].style.borderColor = '#333';
 											d[d.length-1].style.borderStyle = 'solid'
 											d[d.length-1].style.borderWidth = '1px';
-											d.push(document.createTextNode(new Date(mondais_recent[i]['updated_at']).toLocaleString())); {}
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(new Date(mondais_recent[i]['updated_at']).toLocaleString())); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
@@ -1410,7 +1422,7 @@
 											d[d.length-1].style.borderWidth = '1px';
 											let elapsed_in = '-';
 											if (new Date(mondais_recent[i]['created_at']).getTime() !== new Date(mondais_recent[i]['updated_at']).getTime()) {
-												elapsed_in = Math.floor(new Date().getTime()/10**3-new Date(mondais_recent[i]['updated_at']).getTime()/10**3);
+												elapsed_in = Math.floor(new Date().getTime()/10**3-new Date(mondais_recent[i]['created_at']).getTime()/10**3);
 												elapsed_in = Math.round(elapsed_in/10)*10;
 												if (false) {
 												} else if (elapsed_in>=24*3600) {
@@ -1430,7 +1442,10 @@
 													elapsed_in += 's';
 												}
 											}
-											d.push(document.createTextNode(elapsed_in)); {}
+											d.push(document.createElement('small')); {
+												d.push(document.createTextNode(elapsed_in)); {}
+												d[d.length-2].appendChild(d[d.length-1]); d.pop();
+											}
 											d[d.length-2].appendChild(d[d.length-1]); d.pop();
 										}
 										d[d.length-2].appendChild(d[d.length-1]); d.pop();
